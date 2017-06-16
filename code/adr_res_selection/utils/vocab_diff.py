@@ -54,3 +54,15 @@ f = open('common_' + filename1 + '_' + filename2, 'w')
 for w in cwords:
     f.write(w.encode('utf-8') + '\n')
 f.close()
+
+
+f = open('only_f1_' + filename1 + '_' + filename2, 'w')
+for w in list(vocab1_only):
+    f.write(w.encode('utf-8') + '\n')
+f.close()
+
+
+f = open('only_f2_' + filename1 + '_' + filename2, 'w')
+for w in list(vocab1_only):
+    f.write(w.encode('utf-8') + '\n')
+f.close()
