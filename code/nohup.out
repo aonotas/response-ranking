@@ -1,0 +1,9 @@
+
+Namespace(activation='tanh', attention=0, batch=32, data_size=10000000, dev_data='/cl/work/motoki-s/multi_ling_conversation/data/2015_concat/2015_cand2_lang_en_dev.txt', dim_emb=50, dim_hidden=50, epoch=30, init_emb=None, load_model=None, load_words=None, loss='nll', lr=0.001, max_n_words=20, mode='train', model='static', n_cands=2, n_prev_sents=5, opt='adam', output=0, output_fn=None, reg=0.0001, sample_size=1, save=1, test_data='/cl/work/motoki-s/multi_ling_conversation/data/2015_concat/2015_cand2_lang_en_test.txt', train_data='/cl/work/motoki-s/multi_ling_conversation/data/2015_concat/2015_cand2_lang_en_train.txt', unit='gru')
+
+
+ADDRESSEE AND RESPONSE SELECTION SYSTEM START
+
+SET UP DATASET
+
+Load dataset...

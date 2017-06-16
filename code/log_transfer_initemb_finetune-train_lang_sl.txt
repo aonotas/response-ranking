@@ -1,0 +1,576 @@
+WARNING (theano.sandbox.cuda): The cuda backend is deprecated and will be removed in the next release (v0.10).  Please switch to the gpuarray backend. You can get more information about how to switch at this URL:
+ https://github.com/Theano/Theano/wiki/Converting-to-the-new-gpu-back-end%28gpuarray%29
+
+Using gpu device 3: GeForce GTX 680 (CNMeM is disabled, cuDNN 5105)
+
+Namespace(activation='tanh', attention=0, batch=32, data_size=10000000, dev_data='/cl/work/motoki-s/multi_ling_conversation/data/2015_concat/2015_cand2_lang_sl_dev.txt', dim_emb=512, dim_hidden=256, emb_type='multi', epoch=30, init_emb='/cl/work/motoki-s/multi_ling_conversation/ouchi/dialog-emnlp2016/DATA-multi/embeddings/sl_512.txt', lang='sl', load_param='../data/model/dynamic_lang_en_cand2_context15_multiCCA_emb512_hidden256_retry_clip_epoch2.pkl.gz', loss='nll', lr=0.001, max_n_words=20, mode='train', model='dynamic', n_cands=2, n_prev_sents=15, opt='adam', output=0, output_fn='dynamic_lang_sl_cand2_context15_multiCCA_emb512_hidden256_finetune', reg=0.0001, sample_size=1, save=1, test_data='/cl/work/motoki-s/multi_ling_conversation/data/2015_concat/2015_cand2_lang_sl_test.txt', train_data='/cl/work/motoki-s/multi_ling_conversation/data/2015_concat/2015_cand2_lang_sl_train.txt', unit='gru')
+
+
+ADDRESSEE AND RESPONSE SELECTION SYSTEM START
+
+SET UP DATASET
+
+Load dataset...
+Load initial word embedding...
+	Word Embedding Size: 195612
+
+TASK  SETTING
+	Response Candidates:2  Contexts:15  Max Word Num:20
+
+
+Converting words into ids...
+	Questions:     3434
+	Questions:      147
+	Questions:      653
+
+Creating samples...
+	THREADS:   144
+	  SAMPLES:     2985
+	  ADDRESSEE DETECTION CHANCE LEVEL:   7.95%
+	  ADDRESSEE DETECTION UPPER BOUND:
+		# Cands  1:   0.00% | Total:        0 | Including true-adr:        0 | Not including:        0
+		# Cands  2: 100.00% | Total:       71 | Including true-adr:       71 | Not including:        0
+		# Cands  3: 100.00% | Total:      570 | Including true-adr:      570 | Not including:        0
+		# Cands  4: 100.00% | Total:      811 | Including true-adr:      811 | Not including:        0
+		# Cands  5: 100.00% | Total:      696 | Including true-adr:      696 | Not including:        0
+		# Cands  6: 100.00% | Total:      455 | Including true-adr:      455 | Not including:        0
+		# Cands  7: 100.00% | Total:      251 | Including true-adr:      251 | Not including:        0
+		# Cands  8: 100.00% | Total:       88 | Including true-adr:       88 | Not including:        0
+		# Cands  9: 100.00% | Total:       39 | Including true-adr:       39 | Not including:        0
+		# Cands 10: 100.00% | Total:        4 | Including true-adr:        4 | Not including:        0
+		# Cands 11:   0.00% | Total:        0 | Including true-adr:        0 | Not including:        0
+		# Cands 12:   0.00% | Total:        0 | Including true-adr:        0 | Not including:        0
+		# Cands 13:   0.00% | Total:        0 | Including true-adr:        0 | Not including:        0
+		# Cands 14:   0.00% | Total:        0 | Including true-adr:        0 | Not including:        0
+		# Cands 15:   0.00% | Total:        0 | Including true-adr:        0 | Not including:        0
+		# Cands 16:   0.00% | Total:        0 | Including true-adr:        0 | Not including:        0
+
+	  THE BINNED NUMBER OF AGENTS IN CONTEXT:
+		Bin  0:       84
+		Bin  1:      644
+		Bin  2:     1701
+		Bin  3:      553
+		Bin  4:        3
+
+	THREADS:     8
+	  SAMPLES:      145
+	  ADDRESSEE DETECTION CHANCE LEVEL:   8.97%
+	  ADDRESSEE DETECTION UPPER BOUND:
+		# Cands  1:   0.00% | Total:        0 | Including true-adr:        0 | Not including:        0
+		# Cands  2: 100.00% | Total:        1 | Including true-adr:        1 | Not including:        0
+		# Cands  3: 100.00% | Total:       21 | Including true-adr:       21 | Not including:        0
+		# Cands  4:  96.55% | Total:       29 | Including true-adr:       28 | Not including:        1
+		# Cands  5:  94.44% | Total:       36 | Including true-adr:       34 | Not including:        2
+		# Cands  6:  91.89% | Total:       37 | Including true-adr:       34 | Not including:        3
+		# Cands  7:  91.67% | Total:       12 | Including true-adr:       11 | Not including:        1
+		# Cands  8:  80.00% | Total:        5 | Including true-adr:        4 | Not including:        1
+		# Cands  9: 100.00% | Total:        3 | Including true-adr:        3 | Not including:        0
+		# Cands 10: 100.00% | Total:        1 | Including true-adr:        1 | Not including:        0
+		# Cands 11:   0.00% | Total:        0 | Including true-adr:        0 | Not including:        0
+		# Cands 12:   0.00% | Total:        0 | Including true-adr:        0 | Not including:        0
+		# Cands 13:   0.00% | Total:        0 | Including true-adr:        0 | Not including:        0
+		# Cands 14:   0.00% | Total:        0 | Including true-adr:        0 | Not including:        0
+		# Cands 15:   0.00% | Total:        0 | Including true-adr:        0 | Not including:        0
+		# Cands 16:   0.00% | Total:        0 | Including true-adr:        0 | Not including:        0
+
+	  THE BINNED NUMBER OF AGENTS IN CONTEXT:
+		Bin  0:       10
+		Bin  1:       66
+		Bin  2:       50
+		Bin  3:       19
+
+	THREADS:    27
+	  SAMPLES:      627
+	  ADDRESSEE DETECTION CHANCE LEVEL:   8.65%
+	  ADDRESSEE DETECTION UPPER BOUND:
+		# Cands  1:   0.00% | Total:        0 | Including true-adr:        0 | Not including:        0
+		# Cands  2:  78.57% | Total:       28 | Including true-adr:       22 | Not including:        6
+		# Cands  3:  90.60% | Total:      149 | Including true-adr:      135 | Not including:       14
+		# Cands  4:  95.45% | Total:      176 | Including true-adr:      168 | Not including:        8
+		# Cands  5:  96.97% | Total:      132 | Including true-adr:      128 | Not including:        4
+		# Cands  6:  92.41% | Total:       79 | Including true-adr:       73 | Not including:        6
+		# Cands  7:  89.13% | Total:       46 | Including true-adr:       41 | Not including:        5
+		# Cands  8: 100.00% | Total:        8 | Including true-adr:        8 | Not including:        0
+		# Cands  9:  75.00% | Total:        8 | Including true-adr:        6 | Not including:        2
+		# Cands 10: 100.00% | Total:        1 | Including true-adr:        1 | Not including:        0
+		# Cands 11:   0.00% | Total:        0 | Including true-adr:        0 | Not including:        0
+		# Cands 12:   0.00% | Total:        0 | Including true-adr:        0 | Not including:        0
+		# Cands 13:   0.00% | Total:        0 | Including true-adr:        0 | Not including:        0
+		# Cands 14:   0.00% | Total:        0 | Including true-adr:        0 | Not including:        0
+		# Cands 15:   0.00% | Total:        0 | Including true-adr:        0 | Not including:        0
+		# Cands 16:   0.00% | Total:        0 | Including true-adr:        0 | Not including:        0
+
+	  THE BINNED NUMBER OF AGENTS IN CONTEXT:
+		Bin  0:       16
+		Bin  1:      199
+		Bin  2:      340
+		Bin  3:       72
+
+
+TRAIN SETTING	Batch Size:32  Epoch:30  Vocab:195613  Max Words:20
+
+Train samples	Mini-Batch:89
+Dev samples	Mini-Batch:14
+Test samples	Mini-Batch:37
+
+BUILD A MODEL
+MODEL: dynamic  Unit: gru  Opt: adam  Activation: tanh  Parameters: 1245184
+
+
+TRAINING START
+
+
+
+Epoch: 1
+  TRAIN  
+	Time: 11.006506
+	Total Loss: -2078.168668	Total Grad Norm: 15983.381077
+	Avg.  Loss: -23.350210	Avg.  Grad Norm: 179.588551
+
+	Accuracy
+	TOTAL  Both:  23.95% (    682/   2848)  Adr:  45.26% (   1289/   2848)  Res:  53.41% (   1521/   2848)
+
+	    0  Both:  26.51% (     22/     83)  Adr:  60.24% (     50/     83)  Res:  44.58% (     37/     83)
+	    1  Both:  23.59% (    146/    619)  Adr:  44.75% (    277/    619)  Res:  54.28% (    336/    619)
+	    2  Both:  24.41% (    394/   1614)  Adr:  45.79% (    739/   1614)  Res:  53.97% (    871/   1614)
+	    3  Both:  22.50% (    119/    529)  Adr:  41.97% (    222/    529)  Res:  51.98% (    275/    529)
+	    4  Both:  33.33% (      1/      3)  Adr:  33.33% (      1/      3)  Res:  66.67% (      2/      3)
+	    5  Both:   0.00% (      0/      0)  Adr:   0.00% (      0/      0)  Res:   0.00% (      0/      0)
+	    6  Both:   0.00% (      0/      0)  Adr:   0.00% (      0/      0)  Res:   0.00% (      0/      0)
+
+
+  DEV  
+	Time: 0.364969
+	Total Loss: 0.000000	Total Grad Norm: 0.000000
+	Avg.  Loss: 0.000000	Avg.  Grad Norm: 0.000000
+
+	Accuracy
+	TOTAL  Both:  22.76% (     33/    145)  Adr:  37.24% (     54/    145)  Res:  60.69% (     88/    145)
+
+	    0  Both:  10.00% (      1/     10)  Adr:  40.00% (      4/     10)  Res:  60.00% (      6/     10)
+	    1  Both:  30.30% (     20/     66)  Adr:  43.94% (     29/     66)  Res:  62.12% (     41/     66)
+	    2  Both:  20.00% (     10/     50)  Adr:  30.00% (     15/     50)  Res:  54.00% (     27/     50)
+	    3  Both:  10.53% (      2/     19)  Adr:  31.58% (      6/     19)  Res:  73.68% (     14/     19)
+	    4  Both:   0.00% (      0/      0)  Adr:   0.00% (      0/      0)  Res:   0.00% (      0/      0)
+	    5  Both:   0.00% (      0/      0)  Adr:   0.00% (      0/      0)  Res:   0.00% (      0/      0)
+	    6  Both:   0.00% (      0/      0)  Adr:   0.00% (      0/      0)  Res:   0.00% (      0/      0)
+
+
+  TEST  
+	Time: 0.980438
+	Total Loss: 0.000000	Total Grad Norm: 0.000000
+	Avg.  Loss: 0.000000	Avg.  Grad Norm: 0.000000
+
+	Accuracy
+	TOTAL  Both:  24.40% (    153/    627)  Adr:  42.11% (    264/    627)  Res:  55.98% (    351/    627)
+
+	    0  Both:  25.00% (      4/     16)  Adr:  56.25% (      9/     16)  Res:  62.50% (     10/     16)
+	    1  Both:  20.10% (     40/    199)  Adr:  38.69% (     77/    199)  Res:  55.28% (    110/    199)
+	    2  Both:  25.59% (     87/    340)  Adr:  41.47% (    141/    340)  Res:  57.35% (    195/    340)
+	    3  Both:  30.56% (     22/     72)  Adr:  51.39% (     37/     72)  Res:  50.00% (     36/     72)
+	    4  Both:   0.00% (      0/      0)  Adr:   0.00% (      0/      0)  Res:   0.00% (      0/      0)
+	    5  Both:   0.00% (      0/      0)  Adr:   0.00% (      0/      0)  Res:   0.00% (      0/      0)
+	    6  Both:   0.00% (      0/      0)  Adr:   0.00% (      0/      0)  Res:   0.00% (      0/      0)
+
+	BEST ACCURACY HISTORY
+	EPOCH-  1 | DEV  Both: 22.76%  Adr: 37.24%  Res: 60.69% | TEST  Both: 24.40%  Adr: 42.11%  Res: 55.98%
+
+
+Epoch: 2
+  TRAIN  
+	Time: 10.778490
+	Total Loss: -2263.088633	Total Grad Norm: 2305.562695
+	Avg.  Loss: -25.427962	Avg.  Grad Norm: 25.905199
+
+	Accuracy
+	TOTAL  Both:  28.86% (    822/   2848)  Adr:  48.38% (   1378/   2848)  Res:  58.92% (   1678/   2848)
+
+	    0  Both:  36.14% (     30/     83)  Adr:  66.27% (     55/     83)  Res:  53.01% (     44/     83)
+	    1  Both:  28.59% (    177/    619)  Adr:  48.30% (    299/    619)  Res:  57.51% (    356/    619)
+	    2  Both:  29.31% (    473/   1614)  Adr:  48.33% (    780/   1614)  Res:  60.16% (    971/   1614)
+	    3  Both:  26.65% (    141/    529)  Adr:  45.94% (    243/    529)  Res:  57.47% (    304/    529)
+	    4  Both:  33.33% (      1/      3)  Adr:  33.33% (      1/      3)  Res: 100.00% (      3/      3)
+	    5  Both:   0.00% (      0/      0)  Adr:   0.00% (      0/      0)  Res:   0.00% (      0/      0)
+	    6  Both:   0.00% (      0/      0)  Adr:   0.00% (      0/      0)  Res:   0.00% (      0/      0)
+
+
+  DEV  
+	Time: 0.341610
+	Total Loss: 0.000000	Total Grad Norm: 0.000000
+	Avg.  Loss: 0.000000	Avg.  Grad Norm: 0.000000
+
+	Accuracy
+	TOTAL  Both:  23.45% (     34/    145)  Adr:  37.93% (     55/    145)  Res:  59.31% (     86/    145)
+
+	    0  Both:  40.00% (      4/     10)  Adr:  70.00% (      7/     10)  Res:  60.00% (      6/     10)
+	    1  Both:  21.21% (     14/     66)  Adr:  37.88% (     25/     66)  Res:  59.09% (     39/     66)
+	    2  Both:  24.00% (     12/     50)  Adr:  36.00% (     18/     50)  Res:  58.00% (     29/     50)
+	    3  Both:  21.05% (      4/     19)  Adr:  26.32% (      5/     19)  Res:  63.16% (     12/     19)
+	    4  Both:   0.00% (      0/      0)  Adr:   0.00% (      0/      0)  Res:   0.00% (      0/      0)
+	    5  Both:   0.00% (      0/      0)  Adr:   0.00% (      0/      0)  Res:   0.00% (      0/      0)
+	    6  Both:   0.00% (      0/      0)  Adr:   0.00% (      0/      0)  Res:   0.00% (      0/      0)
+
+
+  TEST  
+	Time: 0.980618
+	Total Loss: 0.000000	Total Grad Norm: 0.000000
+	Avg.  Loss: 0.000000	Avg.  Grad Norm: 0.000000
+
+	Accuracy
+	TOTAL  Both:  25.52% (    160/    627)  Adr:  42.42% (    266/    627)  Res:  59.01% (    370/    627)
+
+	    0  Both:  37.50% (      6/     16)  Adr:  50.00% (      8/     16)  Res:  75.00% (     12/     16)
+	    1  Both:  22.11% (     44/    199)  Adr:  37.69% (     75/    199)  Res:  59.30% (    118/    199)
+	    2  Both:  25.00% (     85/    340)  Adr:  42.65% (    145/    340)  Res:  59.12% (    201/    340)
+	    3  Both:  34.72% (     25/     72)  Adr:  52.78% (     38/     72)  Res:  54.17% (     39/     72)
+	    4  Both:   0.00% (      0/      0)  Adr:   0.00% (      0/      0)  Res:   0.00% (      0/      0)
+	    5  Both:   0.00% (      0/      0)  Adr:   0.00% (      0/      0)  Res:   0.00% (      0/      0)
+	    6  Both:   0.00% (      0/      0)  Adr:   0.00% (      0/      0)  Res:   0.00% (      0/      0)
+
+	BEST ACCURACY HISTORY
+	EPOCH-  1 | DEV  Both: 22.76%  Adr: 37.24%  Res: 60.69% | TEST  Both: 24.40%  Adr: 42.11%  Res: 55.98%
+	EPOCH-  2 | DEV  Both: 23.45%  Adr: 37.93%  Res: 59.31% | TEST  Both: 25.52%  Adr: 42.42%  Res: 59.01%
+
+
+Epoch: 3
+  TRAIN  
+	Time: 10.859083
+	Total Loss: -2372.192825	Total Grad Norm: 2436.849027
+	Avg.  Loss: -26.653852	Avg.  Grad Norm: 27.380326
+
+	Accuracy
+	TOTAL  Both:  32.97% (    939/   2848)  Adr:  50.91% (   1450/   2848)  Res:  63.90% (   1820/   2848)
+
+	    0  Both:  46.99% (     39/     83)  Adr:  71.08% (     59/     83)  Res:  65.06% (     54/     83)
+	    1  Both:  31.34% (    194/    619)  Adr:  50.73% (    314/    619)  Res:  61.39% (    380/    619)
+	    2  Both:  33.83% (    546/   1614)  Adr:  51.43% (    830/   1614)  Res:  64.81% (   1046/   1614)
+	    3  Both:  30.06% (    159/    529)  Adr:  46.31% (    245/    529)  Res:  63.89% (    338/    529)
+	    4  Both:  33.33% (      1/      3)  Adr:  66.67% (      2/      3)  Res:  66.67% (      2/      3)
+	    5  Both:   0.00% (      0/      0)  Adr:   0.00% (      0/      0)  Res:   0.00% (      0/      0)
+	    6  Both:   0.00% (      0/      0)  Adr:   0.00% (      0/      0)  Res:   0.00% (      0/      0)
+
+
+  DEV  
+	Time: 0.343866
+	Total Loss: 0.000000	Total Grad Norm: 0.000000
+	Avg.  Loss: 0.000000	Avg.  Grad Norm: 0.000000
+
+	Accuracy
+	TOTAL  Both:  30.34% (     44/    145)  Adr:  44.83% (     65/    145)  Res:  59.31% (     86/    145)
+
+	    0  Both:  50.00% (      5/     10)  Adr:  60.00% (      6/     10)  Res:  70.00% (      7/     10)
+	    1  Both:  34.85% (     23/     66)  Adr:  54.55% (     36/     66)  Res:  57.58% (     38/     66)
+	    2  Both:  26.00% (     13/     50)  Adr:  34.00% (     17/     50)  Res:  58.00% (     29/     50)
+	    3  Both:  15.79% (      3/     19)  Adr:  31.58% (      6/     19)  Res:  63.16% (     12/     19)
+	    4  Both:   0.00% (      0/      0)  Adr:   0.00% (      0/      0)  Res:   0.00% (      0/      0)
+	    5  Both:   0.00% (      0/      0)  Adr:   0.00% (      0/      0)  Res:   0.00% (      0/      0)
+	    6  Both:   0.00% (      0/      0)  Adr:   0.00% (      0/      0)  Res:   0.00% (      0/      0)
+
+
+  TEST  
+	Time: 0.988199
+	Total Loss: 0.000000	Total Grad Norm: 0.000000
+	Avg.  Loss: 0.000000	Avg.  Grad Norm: 0.000000
+
+	Accuracy
+	TOTAL  Both:  25.52% (    160/    627)  Adr:  42.26% (    265/    627)  Res:  59.65% (    374/    627)
+
+	    0  Both:  18.75% (      3/     16)  Adr:  43.75% (      7/     16)  Res:  56.25% (      9/     16)
+	    1  Both:  21.11% (     42/    199)  Adr:  36.18% (     72/    199)  Res:  58.29% (    116/    199)
+	    2  Both:  25.88% (     88/    340)  Adr:  43.82% (    149/    340)  Res:  59.71% (    203/    340)
+	    3  Both:  37.50% (     27/     72)  Adr:  51.39% (     37/     72)  Res:  63.89% (     46/     72)
+	    4  Both:   0.00% (      0/      0)  Adr:   0.00% (      0/      0)  Res:   0.00% (      0/      0)
+	    5  Both:   0.00% (      0/      0)  Adr:   0.00% (      0/      0)  Res:   0.00% (      0/      0)
+	    6  Both:   0.00% (      0/      0)  Adr:   0.00% (      0/      0)  Res:   0.00% (      0/      0)
+
+	BEST ACCURACY HISTORY
+	EPOCH-  1 | DEV  Both: 22.76%  Adr: 37.24%  Res: 60.69% | TEST  Both: 24.40%  Adr: 42.11%  Res: 55.98%
+	EPOCH-  2 | DEV  Both: 23.45%  Adr: 37.93%  Res: 59.31% | TEST  Both: 25.52%  Adr: 42.42%  Res: 59.01%
+	EPOCH-  3 | DEV  Both: 30.34%  Adr: 44.83%  Res: 59.31% | TEST  Both: 25.52%  Adr: 42.26%  Res: 59.65%
+
+
+Epoch: 4
+  TRAIN  
+	Time: 10.889198
+	Total Loss: -2466.192709	Total Grad Norm: 1337.623296
+	Avg.  Loss: -27.710030	Avg.  Grad Norm: 15.029475
+
+	Accuracy
+	TOTAL  Both:  36.80% (   1048/   2848)  Adr:  53.72% (   1530/   2848)  Res:  67.49% (   1922/   2848)
+
+	    0  Both:  48.19% (     40/     83)  Adr:  69.88% (     58/     83)  Res:  67.47% (     56/     83)
+	    1  Both:  34.41% (    213/    619)  Adr:  52.99% (    328/    619)  Res:  63.97% (    396/    619)
+	    2  Both:  37.48% (    605/   1614)  Adr:  54.40% (    878/   1614)  Res:  68.34% (   1103/   1614)
+	    3  Both:  35.73% (    189/    529)  Adr:  49.91% (    264/    529)  Res:  69.00% (    365/    529)
+	    4  Both:  33.33% (      1/      3)  Adr:  66.67% (      2/      3)  Res:  66.67% (      2/      3)
+	    5  Both:   0.00% (      0/      0)  Adr:   0.00% (      0/      0)  Res:   0.00% (      0/      0)
+	    6  Both:   0.00% (      0/      0)  Adr:   0.00% (      0/      0)  Res:   0.00% (      0/      0)
+
+
+  DEV  
+	Time: 0.346504
+	Total Loss: 0.000000	Total Grad Norm: 0.000000
+	Avg.  Loss: 0.000000	Avg.  Grad Norm: 0.000000
+
+	Accuracy
+	TOTAL  Both:  27.59% (     40/    145)  Adr:  40.00% (     58/    145)  Res:  65.52% (     95/    145)
+
+	    0  Both:  40.00% (      4/     10)  Adr:  50.00% (      5/     10)  Res:  60.00% (      6/     10)
+	    1  Both:  30.30% (     20/     66)  Adr:  45.45% (     30/     66)  Res:  63.64% (     42/     66)
+	    2  Both:  24.00% (     12/     50)  Adr:  34.00% (     17/     50)  Res:  68.00% (     34/     50)
+	    3  Both:  21.05% (      4/     19)  Adr:  31.58% (      6/     19)  Res:  68.42% (     13/     19)
+	    4  Both:   0.00% (      0/      0)  Adr:   0.00% (      0/      0)  Res:   0.00% (      0/      0)
+	    5  Both:   0.00% (      0/      0)  Adr:   0.00% (      0/      0)  Res:   0.00% (      0/      0)
+	    6  Both:   0.00% (      0/      0)  Adr:   0.00% (      0/      0)  Res:   0.00% (      0/      0)
+
+
+  TEST  
+	Time: 0.989459
+	Total Loss: 0.000000	Total Grad Norm: 0.000000
+	Avg.  Loss: 0.000000	Avg.  Grad Norm: 0.000000
+
+	Accuracy
+	TOTAL  Both:  26.32% (    165/    627)  Adr:  42.42% (    266/    627)  Res:  62.20% (    390/    627)
+
+	    0  Both:  18.75% (      3/     16)  Adr:  43.75% (      7/     16)  Res:  43.75% (      7/     16)
+	    1  Both:  25.13% (     50/    199)  Adr:  38.19% (     76/    199)  Res:  64.82% (    129/    199)
+	    2  Both:  26.18% (     89/    340)  Adr:  43.82% (    149/    340)  Res:  61.76% (    210/    340)
+	    3  Both:  31.94% (     23/     72)  Adr:  47.22% (     34/     72)  Res:  61.11% (     44/     72)
+	    4  Both:   0.00% (      0/      0)  Adr:   0.00% (      0/      0)  Res:   0.00% (      0/      0)
+	    5  Both:   0.00% (      0/      0)  Adr:   0.00% (      0/      0)  Res:   0.00% (      0/      0)
+	    6  Both:   0.00% (      0/      0)  Adr:   0.00% (      0/      0)  Res:   0.00% (      0/      0)
+
+	BEST ACCURACY HISTORY
+	EPOCH-  1 | DEV  Both: 22.76%  Adr: 37.24%  Res: 60.69% | TEST  Both: 24.40%  Adr: 42.11%  Res: 55.98%
+	EPOCH-  2 | DEV  Both: 23.45%  Adr: 37.93%  Res: 59.31% | TEST  Both: 25.52%  Adr: 42.42%  Res: 59.01%
+	EPOCH-  3 | DEV  Both: 30.34%  Adr: 44.83%  Res: 59.31% | TEST  Both: 25.52%  Adr: 42.26%  Res: 59.65%
+
+
+Epoch: 5
+  TRAIN  
+	Time: 10.825803
+	Total Loss: -2565.125561	Total Grad Norm: 1420.878175
+	Avg.  Loss: -28.821636	Avg.  Grad Norm: 15.964923
+
+	Accuracy
+	TOTAL  Both:  40.73% (   1160/   2848)  Adr:  56.36% (   1605/   2848)  Res:  70.08% (   1996/   2848)
+
+	    0  Both:  49.40% (     41/     83)  Adr:  74.70% (     62/     83)  Res:  65.06% (     54/     83)
+	    1  Both:  37.80% (    234/    619)  Adr:  53.96% (    334/    619)  Res:  68.66% (    425/    619)
+	    2  Both:  42.75% (    690/   1614)  Adr:  58.05% (    937/   1614)  Res:  70.82% (   1143/   1614)
+	    3  Both:  36.67% (    194/    529)  Adr:  51.04% (    270/    529)  Res:  70.32% (    372/    529)
+	    4  Both:  33.33% (      1/      3)  Adr:  66.67% (      2/      3)  Res:  66.67% (      2/      3)
+	    5  Both:   0.00% (      0/      0)  Adr:   0.00% (      0/      0)  Res:   0.00% (      0/      0)
+	    6  Both:   0.00% (      0/      0)  Adr:   0.00% (      0/      0)  Res:   0.00% (      0/      0)
+
+
+  DEV  
+	Time: 0.345980
+	Total Loss: 0.000000	Total Grad Norm: 0.000000
+	Avg.  Loss: 0.000000	Avg.  Grad Norm: 0.000000
+
+	Accuracy
+	TOTAL  Both:  28.97% (     42/    145)  Adr:  43.45% (     63/    145)  Res:  60.69% (     88/    145)
+
+	    0  Both:  40.00% (      4/     10)  Adr:  60.00% (      6/     10)  Res:  50.00% (      5/     10)
+	    1  Both:  33.33% (     22/     66)  Adr:  50.00% (     33/     66)  Res:  60.61% (     40/     66)
+	    2  Both:  24.00% (     12/     50)  Adr:  36.00% (     18/     50)  Res:  60.00% (     30/     50)
+	    3  Both:  21.05% (      4/     19)  Adr:  31.58% (      6/     19)  Res:  68.42% (     13/     19)
+	    4  Both:   0.00% (      0/      0)  Adr:   0.00% (      0/      0)  Res:   0.00% (      0/      0)
+	    5  Both:   0.00% (      0/      0)  Adr:   0.00% (      0/      0)  Res:   0.00% (      0/      0)
+	    6  Both:   0.00% (      0/      0)  Adr:   0.00% (      0/      0)  Res:   0.00% (      0/      0)
+
+
+  TEST  
+	Time: 0.990580
+	Total Loss: 0.000000	Total Grad Norm: 0.000000
+	Avg.  Loss: 0.000000	Avg.  Grad Norm: 0.000000
+
+	Accuracy
+	TOTAL  Both:  27.75% (    174/    627)  Adr:  44.02% (    276/    627)  Res:  62.04% (    389/    627)
+
+	    0  Both:  31.25% (      5/     16)  Adr:  43.75% (      7/     16)  Res:  62.50% (     10/     16)
+	    1  Both:  24.62% (     49/    199)  Adr:  39.70% (     79/    199)  Res:  61.81% (    123/    199)
+	    2  Both:  26.76% (     91/    340)  Adr:  44.71% (    152/    340)  Res:  61.47% (    209/    340)
+	    3  Both:  40.28% (     29/     72)  Adr:  52.78% (     38/     72)  Res:  65.28% (     47/     72)
+	    4  Both:   0.00% (      0/      0)  Adr:   0.00% (      0/      0)  Res:   0.00% (      0/      0)
+	    5  Both:   0.00% (      0/      0)  Adr:   0.00% (      0/      0)  Res:   0.00% (      0/      0)
+	    6  Both:   0.00% (      0/      0)  Adr:   0.00% (      0/      0)  Res:   0.00% (      0/      0)
+
+	BEST ACCURACY HISTORY
+	EPOCH-  1 | DEV  Both: 22.76%  Adr: 37.24%  Res: 60.69% | TEST  Both: 24.40%  Adr: 42.11%  Res: 55.98%
+	EPOCH-  2 | DEV  Both: 23.45%  Adr: 37.93%  Res: 59.31% | TEST  Both: 25.52%  Adr: 42.42%  Res: 59.01%
+	EPOCH-  3 | DEV  Both: 30.34%  Adr: 44.83%  Res: 59.31% | TEST  Both: 25.52%  Adr: 42.26%  Res: 59.65%
+
+
+Epoch: 6
+  TRAIN  
+	Time: 10.907477
+	Total Loss: -2640.532242	Total Grad Norm: 2670.499241
+	Avg.  Loss: -29.668902	Avg.  Grad Norm: 30.005609
+
+	Accuracy
+	TOTAL  Both:  43.15% (   1229/   2848)  Adr:  58.22% (   1658/   2848)  Res:  72.30% (   2059/   2848)
+
+	    0  Both:  55.42% (     46/     83)  Adr:  78.31% (     65/     83)  Res:  72.29% (     60/     83)
+	    1  Both:  40.39% (    250/    619)  Adr:  55.41% (    343/    619)  Res:  70.60% (    437/    619)
+	    2  Both:  44.98% (    726/   1614)  Adr:  59.79% (    965/   1614)  Res:  73.67% (   1189/   1614)
+	    3  Both:  39.13% (    207/    529)  Adr:  53.50% (    283/    529)  Res:  70.32% (    372/    529)
+	    4  Both:   0.00% (      0/      3)  Adr:  66.67% (      2/      3)  Res:  33.33% (      1/      3)
+	    5  Both:   0.00% (      0/      0)  Adr:   0.00% (      0/      0)  Res:   0.00% (      0/      0)
+	    6  Both:   0.00% (      0/      0)  Adr:   0.00% (      0/      0)  Res:   0.00% (      0/      0)
+
+
+  DEV  
+	Time: 0.344837
+	Total Loss: 0.000000	Total Grad Norm: 0.000000
+	Avg.  Loss: 0.000000	Avg.  Grad Norm: 0.000000
+
+	Accuracy
+	TOTAL  Both:  25.52% (     37/    145)  Adr:  40.69% (     59/    145)  Res:  61.38% (     89/    145)
+
+	    0  Both:  40.00% (      4/     10)  Adr:  50.00% (      5/     10)  Res:  50.00% (      5/     10)
+	    1  Both:  28.79% (     19/     66)  Adr:  45.45% (     30/     66)  Res:  65.15% (     43/     66)
+	    2  Both:  18.00% (      9/     50)  Adr:  34.00% (     17/     50)  Res:  58.00% (     29/     50)
+	    3  Both:  26.32% (      5/     19)  Adr:  36.84% (      7/     19)  Res:  63.16% (     12/     19)
+	    4  Both:   0.00% (      0/      0)  Adr:   0.00% (      0/      0)  Res:   0.00% (      0/      0)
+	    5  Both:   0.00% (      0/      0)  Adr:   0.00% (      0/      0)  Res:   0.00% (      0/      0)
+	    6  Both:   0.00% (      0/      0)  Adr:   0.00% (      0/      0)  Res:   0.00% (      0/      0)
+
+
+  TEST  
+	Time: 0.987533
+	Total Loss: 0.000000	Total Grad Norm: 0.000000
+	Avg.  Loss: 0.000000	Avg.  Grad Norm: 0.000000
+
+	Accuracy
+	TOTAL  Both:  26.32% (    165/    627)  Adr:  42.42% (    266/    627)  Res:  57.74% (    362/    627)
+
+	    0  Both:  31.25% (      5/     16)  Adr:  43.75% (      7/     16)  Res:  56.25% (      9/     16)
+	    1  Both:  24.62% (     49/    199)  Adr:  41.21% (     82/    199)  Res:  60.30% (    120/    199)
+	    2  Both:  26.47% (     90/    340)  Adr:  42.06% (    143/    340)  Res:  56.18% (    191/    340)
+	    3  Both:  29.17% (     21/     72)  Adr:  47.22% (     34/     72)  Res:  58.33% (     42/     72)
+	    4  Both:   0.00% (      0/      0)  Adr:   0.00% (      0/      0)  Res:   0.00% (      0/      0)
+	    5  Both:   0.00% (      0/      0)  Adr:   0.00% (      0/      0)  Res:   0.00% (      0/      0)
+	    6  Both:   0.00% (      0/      0)  Adr:   0.00% (      0/      0)  Res:   0.00% (      0/      0)
+
+	BEST ACCURACY HISTORY
+	EPOCH-  1 | DEV  Both: 22.76%  Adr: 37.24%  Res: 60.69% | TEST  Both: 24.40%  Adr: 42.11%  Res: 55.98%
+	EPOCH-  2 | DEV  Both: 23.45%  Adr: 37.93%  Res: 59.31% | TEST  Both: 25.52%  Adr: 42.42%  Res: 59.01%
+	EPOCH-  3 | DEV  Both: 30.34%  Adr: 44.83%  Res: 59.31% | TEST  Both: 25.52%  Adr: 42.26%  Res: 59.65%
+
+
+Epoch: 7
+  TRAIN  
+	Time: 10.995563
+	Total Loss: -2657.698324	Total Grad Norm: 2332.155087
+	Avg.  Loss: -29.861779	Avg.  Grad Norm: 26.203990
+
+	Accuracy
+	TOTAL  Both:  43.93% (   1251/   2848)  Adr:  58.99% (   1680/   2848)  Res:  72.44% (   2063/   2848)
+
+	    0  Both:  54.22% (     45/     83)  Adr:  73.49% (     61/     83)  Res:  75.90% (     63/     83)
+	    1  Both:  39.74% (    246/    619)  Adr:  56.54% (    350/    619)  Res:  68.98% (    427/    619)
+	    2  Both:  46.03% (    743/   1614)  Adr:  60.47% (    976/   1614)  Res:  73.79% (   1191/   1614)
+	    3  Both:  40.64% (    215/    529)  Adr:  55.01% (    291/    529)  Res:  71.64% (    379/    529)
+	    4  Both:  66.67% (      2/      3)  Adr:  66.67% (      2/      3)  Res: 100.00% (      3/      3)
+	    5  Both:   0.00% (      0/      0)  Adr:   0.00% (      0/      0)  Res:   0.00% (      0/      0)
+	    6  Both:   0.00% (      0/      0)  Adr:   0.00% (      0/      0)  Res:   0.00% (      0/      0)
+
+
+  DEV  
+	Time: 0.347562
+	Total Loss: 0.000000	Total Grad Norm: 0.000000
+	Avg.  Loss: 0.000000	Avg.  Grad Norm: 0.000000
+
+	Accuracy
+	TOTAL  Both:  28.28% (     41/    145)  Adr:  44.14% (     64/    145)  Res:  58.62% (     85/    145)
+
+	    0  Both:  40.00% (      4/     10)  Adr:  60.00% (      6/     10)  Res:  50.00% (      5/     10)
+	    1  Both:  33.33% (     22/     66)  Adr:  51.52% (     34/     66)  Res:  60.61% (     40/     66)
+	    2  Both:  22.00% (     11/     50)  Adr:  36.00% (     18/     50)  Res:  56.00% (     28/     50)
+	    3  Both:  21.05% (      4/     19)  Adr:  31.58% (      6/     19)  Res:  63.16% (     12/     19)
+	    4  Both:   0.00% (      0/      0)  Adr:   0.00% (      0/      0)  Res:   0.00% (      0/      0)
+	    5  Both:   0.00% (      0/      0)  Adr:   0.00% (      0/      0)  Res:   0.00% (      0/      0)
+	    6  Both:   0.00% (      0/      0)  Adr:   0.00% (      0/      0)  Res:   0.00% (      0/      0)
+
+
+  TEST  
+	Time: 0.991783
+	Total Loss: 0.000000	Total Grad Norm: 0.000000
+	Avg.  Loss: 0.000000	Avg.  Grad Norm: 0.000000
+
+	Accuracy
+	TOTAL  Both:  27.11% (    170/    627)  Adr:  43.22% (    271/    627)  Res:  59.49% (    373/    627)
+
+	    0  Both:  31.25% (      5/     16)  Adr:  43.75% (      7/     16)  Res:  56.25% (      9/     16)
+	    1  Both:  26.63% (     53/    199)  Adr:  38.69% (     77/    199)  Res:  63.82% (    127/    199)
+	    2  Both:  25.59% (     87/    340)  Adr:  45.00% (    153/    340)  Res:  56.47% (    192/    340)
+	    3  Both:  34.72% (     25/     72)  Adr:  47.22% (     34/     72)  Res:  62.50% (     45/     72)
+	    4  Both:   0.00% (      0/      0)  Adr:   0.00% (      0/      0)  Res:   0.00% (      0/      0)
+	    5  Both:   0.00% (      0/      0)  Adr:   0.00% (      0/      0)  Res:   0.00% (      0/      0)
+	    6  Both:   0.00% (      0/      0)  Adr:   0.00% (      0/      0)  Res:   0.00% (      0/      0)
+
+	BEST ACCURACY HISTORY
+	EPOCH-  1 | DEV  Both: 22.76%  Adr: 37.24%  Res: 60.69% | TEST  Both: 24.40%  Adr: 42.11%  Res: 55.98%
+	EPOCH-  2 | DEV  Both: 23.45%  Adr: 37.93%  Res: 59.31% | TEST  Both: 25.52%  Adr: 42.42%  Res: 59.01%
+	EPOCH-  3 | DEV  Both: 30.34%  Adr: 44.83%  Res: 59.31% | TEST  Both: 25.52%  Adr: 42.26%  Res: 59.65%
+
+
+Epoch: 8
+  TRAIN  
+	Time: 10.844976
+	Total Loss: -2734.736116	Total Grad Norm: 3343.704412
+	Avg.  Loss: -30.727372	Avg.  Grad Norm: 37.569712
+
+	Accuracy
+	TOTAL  Both:  46.17% (   1315/   2848)  Adr:  60.99% (   1737/   2848)  Res:  73.95% (   2106/   2848)
+
+	    0  Both:  54.22% (     45/     83)  Adr:  78.31% (     65/     83)  Res:  72.29% (     60/     83)
+	    1  Both:  42.81% (    265/    619)  Adr:  57.35% (    355/    619)  Res:  71.89% (    445/    619)
+	    2  Both:  47.71% (    770/   1614)  Adr:  62.83% (   1014/   1614)  Res:  74.54% (   1203/   1614)
+	    3  Both:  44.05% (    233/    529)  Adr:  56.90% (    301/    529)  Res:  74.67% (    395/    529)
+	    4  Both:  66.67% (      2/      3)  Adr:  66.67% (      2/      3)  Res: 100.00% (      3/      3)
+	    5  Both:   0.00% (      0/      0)  Adr:   0.00% (      0/      0)  Res:   0.00% (      0/      0)
+	    6  Both:   0.00% (      0/      0)  Adr:   0.00% (      0/      0)  Res:   0.00% (      0/      0)
+
+
+  DEV  
+	Time: 0.345966
+	Total Loss: 0.000000	Total Grad Norm: 0.000000
+	Avg.  Loss: 0.000000	Avg.  Grad Norm: 0.000000
+
+	Accuracy
+	TOTAL  Both:  27.59% (     40/    145)  Adr:  44.83% (     65/    145)  Res:  59.31% (     86/    145)
+
+	    0  Both:  30.00% (      3/     10)  Adr:  50.00% (      5/     10)  Res:  50.00% (      5/     10)
+	    1  Both:  28.79% (     19/     66)  Adr:  51.52% (     34/     66)  Res:  57.58% (     38/     66)
+	    2  Both:  28.00% (     14/     50)  Adr:  38.00% (     19/     50)  Res:  64.00% (     32/     50)
+	    3  Both:  21.05% (      4/     19)  Adr:  36.84% (      7/     19)  Res:  57.89% (     11/     19)
+	    4  Both:   0.00% (      0/      0)  Adr:   0.00% (      0/      0)  Res:   0.00% (      0/      0)
+	    5  Both:   0.00% (      0/      0)  Adr:   0.00% (      0/      0)  Res:   0.00% (      0/      0)
+	    6  Both:   0.00% (      0/      0)  Adr:   0.00% (      0/      0)  Res:   0.00% (      0/      0)
+
+
+  TEST  
+	Time: 0.991541
+	Total Loss: 0.000000	Total Grad Norm: 0.000000
+	Avg.  Loss: 0.000000	Avg.  Grad Norm: 0.000000
+
+	Accuracy
+	TOTAL  Both:  27.43% (    172/    627)  Adr:  43.86% (    275/    627)  Res:  59.33% (    372/    627)
+
+	    0  Both:  25.00% (      4/     16)  Adr:  50.00% (      8/     16)  Res:  50.00% (      8/     16)
+	    1  Both:  27.64% (     55/    199)  Adr:  39.70% (     79/    199)  Res:  62.81% (    125/    199)
+	    2  Both:  26.18% (     89/    340)  Adr:  44.41% (    151/    340)  Res:  58.24% (    198/    340)
+	    3  Both:  33.33% (     24/     72)  Adr:  51.39% (     37/     72)  Res:  56.94% (     41/     72)
+	    4  Both:   0.00% (      0/      0)  Adr:   0.00% (      0/      0)  Res:   0.00% (      0/      0)
+	    5  Both:   0.00% (      0/      0)  Adr:   0.00% (      0/      0)  Res:   0.00% (      0/      0)
+	    6  Both:   0.00% (      0/      0)  Adr:   0.00% (      0/      0)  Res:   0.00% (      0/      0)
+
+	BEST ACCURACY HISTORY
+	EPOCH-  1 | DEV  Both: 22.76%  Adr: 37.24%  Res: 60.69% | TEST  Both: 24.40%  Adr: 42.11%  Res: 55.98%
+	EPOCH-  2 | DEV  Both: 23.45%  Adr: 37.93%  Res: 59.31% | TEST  Both: 25.52%  Adr: 42.42%  Res: 59.01%
+	EPOCH-  3 | DEV  Both: 30.34%  Adr: 44.83%  Res: 59.31% | TEST  Both: 25.52%  Adr: 42.26%  Res: 59.65%
+
+EARLY STOP

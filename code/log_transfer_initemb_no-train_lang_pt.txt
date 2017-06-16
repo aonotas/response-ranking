@@ -1,0 +1,74 @@
+WARNING (theano.sandbox.cuda): The cuda backend is deprecated and will be removed in the next release (v0.10).  Please switch to the gpuarray backend. You can get more information about how to switch at this URL:
+ https://github.com/Theano/Theano/wiki/Converting-to-the-new-gpu-back-end%28gpuarray%29
+
+Using gpu device 2: GeForce GTX 1070 (CNMeM is disabled, cuDNN 5105)
+
+Namespace(activation='tanh', attention=0, batch=32, data_size=10000000, dev_data=None, dim_emb=512, dim_hidden=256, emb_type='multi', epoch=30, init_emb='/cl/work/motoki-s/multi_ling_conversation/ouchi/dialog-emnlp2016/DATA-multi/embeddings/pt_512.txt', lang='pt', load_param='../data/model/dynamic_lang_en_cand2_context15_multiCCA_emb512_hidden256.pkl.gz', loss='nll', lr=0.001, max_n_words=20, mode='test', model='dynamic', n_cands=2, n_prev_sents=15, opt='adam', output=0, output_fn=None, reg=0.0001, sample_size=1, save=1, test_data='/cl/work/motoki-s/multi_ling_conversation/data/2015_concat/2015_cand2_lang_pt_test.txt', train_data=None, unit='gru')
+
+
+ADDRESSEE AND RESPONSE SELECTION SYSTEM START
+
+SET UP DATASET
+
+Load dataset...
+Load initial word embedding...
+	Word Embedding Size: 116930
+
+TASK  SETTING
+	Response Candidates:2  Contexts:15  Max Word Num:20
+
+Converting words into ids...
+	Questions:     1005
+
+Creating samples...
+	THREADS:    21
+	  SAMPLES:      975
+	  ADDRESSEE DETECTION CHANCE LEVEL:   6.84%
+	  ADDRESSEE DETECTION UPPER BOUND:
+		# Cands  1:   0.00% | Total:        0 | Including true-adr:        0 | Not including:        0
+		# Cands  2:  97.40% | Total:       77 | Including true-adr:       75 | Not including:        2
+		# Cands  3:  96.93% | Total:      293 | Including true-adr:      284 | Not including:        9
+		# Cands  4:  93.43% | Total:      289 | Including true-adr:      270 | Not including:       19
+		# Cands  5:  98.81% | Total:      168 | Including true-adr:      166 | Not including:        2
+		# Cands  6:  96.59% | Total:       88 | Including true-adr:       85 | Not including:        3
+		# Cands  7:  90.62% | Total:       32 | Including true-adr:       29 | Not including:        3
+		# Cands  8:  82.35% | Total:       17 | Including true-adr:       14 | Not including:        3
+		# Cands  9: 100.00% | Total:        8 | Including true-adr:        8 | Not including:        0
+		# Cands 10: 100.00% | Total:        3 | Including true-adr:        3 | Not including:        0
+		# Cands 11:   0.00% | Total:        0 | Including true-adr:        0 | Not including:        0
+		# Cands 12:   0.00% | Total:        0 | Including true-adr:        0 | Not including:        0
+		# Cands 13:   0.00% | Total:        0 | Including true-adr:        0 | Not including:        0
+		# Cands 14:   0.00% | Total:        0 | Including true-adr:        0 | Not including:        0
+		# Cands 15:   0.00% | Total:        0 | Including true-adr:        0 | Not including:        0
+		# Cands 16:   0.00% | Total:        0 | Including true-adr:        0 | Not including:        0
+
+	  THE BINNED NUMBER OF AGENTS IN CONTEXT:
+		Bin  0:      100
+		Bin  1:      224
+		Bin  2:      226
+		Bin  3:      250
+		Bin  4:      171
+		Bin  5:        4
+
+Test samples	Mini-Batch:53
+
+BUILD A MODEL
+MODEL: dynamic  Unit: gru  Opt: adam  Activation: tanh  Parameters: 1245184
+
+Test set
+	Time: 1.382424
+	Total Loss: 0.000000	Total Grad Norm: 0.000000
+	Avg.  Loss: 0.000000	Avg.  Grad Norm: 0.000000
+
+	Accuracy
+	TOTAL  Both:  24.10% (    235/    975)  Adr:  49.64% (    484/    975)  Res:  50.26% (    490/    975)
+
+	    0  Both:  32.00% (     32/    100)  Adr:  66.00% (     66/    100)  Res:  47.00% (     47/    100)
+	    1  Both:  27.23% (     61/    224)  Adr:  50.45% (    113/    224)  Res:  50.89% (    114/    224)
+	    2  Both:  19.91% (     45/    226)  Adr:  49.56% (    112/    226)  Res:  44.69% (    101/    226)
+	    3  Both:  25.20% (     63/    250)  Adr:  50.00% (    125/    250)  Res:  53.20% (    133/    250)
+	    4  Both:  19.88% (     34/    171)  Adr:  38.60% (     66/    171)  Res:  54.39% (     93/    171)
+	    5  Both:   0.00% (      0/      4)  Adr:  50.00% (      2/      4)  Res:  50.00% (      2/      4)
+	    6  Both:   0.00% (      0/      0)  Adr:   0.00% (      0/      0)  Res:   0.00% (      0/      0)
+
+

@@ -1,0 +1,124 @@
+
+Namespace(activation='tanh', attention=0, batch=32, data_size=10000000, dev_data='/cl/work/motoki-s/multi_ling_conversation/data/2015_concat/2015_cand2_lang_en_dev.txt', dim_emb=512, dim_hidden=256, emb_type='multi', epoch=0, init_emb='/cl/work/motoki-s/multi_ling_conversation/ouchi/dialog-emnlp2016/DATA-multi/embeddings/en_512.txt', lang='en', load_param=None, loss='nll', lr=0.001, max_n_words=20, mode='train', model='dynamic', n_cands=2, n_prev_sents=15, opt='adam', output=0, output_fn='vocab_en', reg=0.0001, sample_size=1, save=1, test_data='/cl/work/motoki-s/multi_ling_conversation/data/2015_concat/2015_cand2_lang_en_test.txt', train_data='/cl/work/motoki-s/multi_ling_conversation/data/2015_concat/2015_cand2_lang_en_train.txt', unit='gru')
+
+
+ADDRESSEE AND RESPONSE SELECTION SYSTEM START
+
+SET UP DATASET
+
+Load dataset...
+Load initial word embedding...
+	Word Embedding Size: 176692
+
+TASK  SETTING
+	Response Candidates:2  Contexts:15  Max Word Num:20
+
+
+Converting words into ids...
+	Questions:   751108
+	Questions:    39809
+	Questions:    45776
+
+Creating samples...
+	THREADS:  6606
+	  SAMPLES:   678787
+	  ADDRESSEE DETECTION CHANCE LEVEL:   1.41%
+	  ADDRESSEE DETECTION UPPER BOUND:
+		# Cands  1:   0.00% | Total:        0 | Including true-adr:        0 | Not including:        0
+		# Cands  2: 100.00% | Total:    43496 | Including true-adr:    43496 | Not including:        0
+		# Cands  3: 100.00% | Total:    95499 | Including true-adr:    95499 | Not including:        0
+		# Cands  4: 100.00% | Total:   127996 | Including true-adr:   127996 | Not including:        0
+		# Cands  5: 100.00% | Total:   132059 | Including true-adr:   132059 | Not including:        0
+		# Cands  6: 100.00% | Total:   114414 | Including true-adr:   114414 | Not including:        0
+		# Cands  7: 100.00% | Total:    82212 | Including true-adr:    82212 | Not including:        0
+		# Cands  8: 100.00% | Total:    48464 | Including true-adr:    48464 | Not including:        0
+		# Cands  9: 100.00% | Total:    22810 | Including true-adr:    22810 | Not including:        0
+		# Cands 10: 100.00% | Total:     8355 | Including true-adr:     8355 | Not including:        0
+		# Cands 11: 100.00% | Total:     2663 | Including true-adr:     2663 | Not including:        0
+		# Cands 12: 100.00% | Total:      654 | Including true-adr:      654 | Not including:        0
+		# Cands 13: 100.00% | Total:      145 | Including true-adr:      145 | Not including:        0
+		# Cands 14: 100.00% | Total:       16 | Including true-adr:       16 | Not including:        0
+		# Cands 15: 100.00% | Total:        2 | Including true-adr:        2 | Not including:        0
+		# Cands 16: 100.00% | Total:        2 | Including true-adr:        2 | Not including:        0
+
+	  THE BINNED NUMBER OF AGENTS IN CONTEXT:
+		Bin  0:    38243
+		Bin  1:    93502
+		Bin  2:    91568
+		Bin  3:    74724
+		Bin  4:    78966
+		Bin  5:    99521
+		Bin  6:   202263
+
+	THREADS:   367
+	  SAMPLES:    38661
+	  ADDRESSEE DETECTION CHANCE LEVEL:   1.59%
+	  ADDRESSEE DETECTION UPPER BOUND:
+		# Cands  1:   0.00% | Total:        0 | Including true-adr:        0 | Not including:        0
+		# Cands  2:  97.85% | Total:     2934 | Including true-adr:     2871 | Not including:       63
+		# Cands  3:  95.86% | Total:     5815 | Including true-adr:     5574 | Not including:      241
+		# Cands  4:  96.04% | Total:     7449 | Including true-adr:     7154 | Not including:      295
+		# Cands  5:  95.61% | Total:     7045 | Including true-adr:     6736 | Not including:      309
+		# Cands  6:  96.27% | Total:     6277 | Including true-adr:     6043 | Not including:      234
+		# Cands  7:  96.26% | Total:     4466 | Including true-adr:     4299 | Not including:      167
+		# Cands  8:  97.12% | Total:     2743 | Including true-adr:     2664 | Not including:       79
+		# Cands  9:  96.67% | Total:     1323 | Including true-adr:     1279 | Not including:       44
+		# Cands 10:  95.33% | Total:      450 | Including true-adr:      429 | Not including:       21
+		# Cands 11:  98.36% | Total:      122 | Including true-adr:      120 | Not including:        2
+		# Cands 12:  96.00% | Total:       25 | Including true-adr:       24 | Not including:        1
+		# Cands 13: 100.00% | Total:       12 | Including true-adr:       12 | Not including:        0
+		# Cands 14:   0.00% | Total:        0 | Including true-adr:        0 | Not including:        0
+		# Cands 15:   0.00% | Total:        0 | Including true-adr:        0 | Not including:        0
+		# Cands 16:   0.00% | Total:        0 | Including true-adr:        0 | Not including:        0
+
+	  THE BINNED NUMBER OF AGENTS IN CONTEXT:
+		Bin  0:     3092
+		Bin  1:     5358
+		Bin  2:     5842
+		Bin  3:     4048
+		Bin  4:     4686
+		Bin  5:     5969
+		Bin  6:     9666
+
+	THREADS:   382
+	  SAMPLES:    44714
+	  ADDRESSEE DETECTION CHANCE LEVEL:   1.23%
+	  ADDRESSEE DETECTION UPPER BOUND:
+		# Cands  1:   0.00% | Total:        3 | Including true-adr:        0 | Not including:        3
+		# Cands  2:  97.42% | Total:     2757 | Including true-adr:     2686 | Not including:       71
+		# Cands  3:  96.19% | Total:     5591 | Including true-adr:     5378 | Not including:      213
+		# Cands  4:  96.14% | Total:     8002 | Including true-adr:     7693 | Not including:      309
+		# Cands  5:  96.09% | Total:     8819 | Including true-adr:     8474 | Not including:      345
+		# Cands  6:  96.77% | Total:     7856 | Including true-adr:     7602 | Not including:      254
+		# Cands  7:  96.72% | Total:     5693 | Including true-adr:     5506 | Not including:      187
+		# Cands  8:  96.78% | Total:     3381 | Including true-adr:     3272 | Not including:      109
+		# Cands  9:  96.45% | Total:     1690 | Including true-adr:     1630 | Not including:       60
+		# Cands 10:  97.59% | Total:      665 | Including true-adr:      649 | Not including:       16
+		# Cands 11:  97.42% | Total:      194 | Including true-adr:      189 | Not including:        5
+		# Cands 12: 100.00% | Total:       52 | Including true-adr:       52 | Not including:        0
+		# Cands 13: 100.00% | Total:        9 | Including true-adr:        9 | Not including:        0
+		# Cands 14: 100.00% | Total:        2 | Including true-adr:        2 | Not including:        0
+		# Cands 15:   0.00% | Total:        0 | Including true-adr:        0 | Not including:        0
+		# Cands 16:   0.00% | Total:        0 | Including true-adr:        0 | Not including:        0
+
+	  THE BINNED NUMBER OF AGENTS IN CONTEXT:
+		Bin  0:     3115
+		Bin  1:     5387
+		Bin  2:     5137
+		Bin  3:     4361
+		Bin  4:     4455
+		Bin  5:     5919
+		Bin  6:    16340
+
+
+TRAIN SETTING	Batch Size:32  Epoch:0  Vocab:176693  Max Words:20
+
+Train samples	Mini-Batch:21206
+Dev samples	Mini-Batch:1264
+Test samples	Mini-Batch:1453
+
+BUILD A MODEL
+MODEL: dynamic  Unit: gru  Opt: adam  Activation: tanh  Parameters: 1245184
+
+
+TRAINING START

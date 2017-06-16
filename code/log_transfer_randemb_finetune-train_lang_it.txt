@@ -1,0 +1,134 @@
+WARNING (theano.sandbox.cuda): The cuda backend is deprecated and will be removed in the next release (v0.10).  Please switch to the gpuarray backend. You can get more information about how to switch at this URL:
+ https://github.com/Theano/Theano/wiki/Converting-to-the-new-gpu-back-end%28gpuarray%29
+
+Using gpu device 2: GeForce GTX 1070 (CNMeM is disabled, cuDNN 5105)
+
+Namespace(activation='tanh', attention=0, batch=32, data_size=10000000, dev_data='/cl/work/motoki-s/multi_ling_conversation/data/2015_concat/2015_cand2_lang_it_dev.txt', dim_emb=512, dim_hidden=256, emb_type='mono', epoch=30, init_emb=None, lang='en', load_param='../data/model/dynamic_lang_en_cand2_context15_multiCCA_emb512_hidden256_retry_epoch3.pkl.gz', loss='nll', lr=0.001, max_n_words=20, mode='train', model='dynamic', n_cands=2, n_prev_sents=15, opt='adam', output=0, output_fn=None, reg=0.0001, sample_size=1, save=1, test_data='/cl/work/motoki-s/multi_ling_conversation/data/2015_concat/2015_cand2_lang_it_test.txt', train_data='/cl/work/motoki-s/multi_ling_conversation/data/2015_concat/2015_cand2_lang_it_train.txt', unit='gru')
+
+
+ADDRESSEE AND RESPONSE SELECTION SYSTEM START
+
+SET UP DATASET
+
+Load dataset...
+Load initial word embedding...
+	Random Initialized Word Embeddings
+
+TASK  SETTING
+	Response Candidates:2  Contexts:15  Max Word Num:20
+
+
+Converting words into ids...
+	Questions:    40981
+	Questions:     2597
+	Questions:     3950
+
+Creating samples...
+	THREADS:   306
+	  SAMPLES:    38511
+	  ADDRESSEE DETECTION CHANCE LEVEL:   5.48%
+	  ADDRESSEE DETECTION UPPER BOUND:
+		# Cands  1:   0.00% | Total:        0 | Including true-adr:        0 | Not including:        0
+		# Cands  2: 100.00% | Total:     5575 | Including true-adr:     5575 | Not including:        0
+		# Cands  3: 100.00% | Total:    10338 | Including true-adr:    10338 | Not including:        0
+		# Cands  4: 100.00% | Total:    10462 | Including true-adr:    10462 | Not including:        0
+		# Cands  5: 100.00% | Total:     7086 | Including true-adr:     7086 | Not including:        0
+		# Cands  6: 100.00% | Total:     3347 | Including true-adr:     3347 | Not including:        0
+		# Cands  7: 100.00% | Total:     1148 | Including true-adr:     1148 | Not including:        0
+		# Cands  8: 100.00% | Total:      390 | Including true-adr:      390 | Not including:        0
+		# Cands  9: 100.00% | Total:      122 | Including true-adr:      122 | Not including:        0
+		# Cands 10: 100.00% | Total:       30 | Including true-adr:       30 | Not including:        0
+		# Cands 11: 100.00% | Total:        9 | Including true-adr:        9 | Not including:        0
+		# Cands 12: 100.00% | Total:        2 | Including true-adr:        2 | Not including:        0
+		# Cands 13: 100.00% | Total:        2 | Including true-adr:        2 | Not including:        0
+		# Cands 14:   0.00% | Total:        0 | Including true-adr:        0 | Not including:        0
+		# Cands 15:   0.00% | Total:        0 | Including true-adr:        0 | Not including:        0
+		# Cands 16:   0.00% | Total:        0 | Including true-adr:        0 | Not including:        0
+
+	  THE BINNED NUMBER OF AGENTS IN CONTEXT:
+		Bin  0:     1280
+		Bin  1:     6449
+		Bin  2:     8811
+		Bin  3:     8023
+		Bin  4:    10511
+		Bin  5:     3437
+
+	THREADS:    17
+	  SAMPLES:     2561
+	  ADDRESSEE DETECTION CHANCE LEVEL:   5.48%
+	  ADDRESSEE DETECTION UPPER BOUND:
+		# Cands  1:   0.00% | Total:        0 | Including true-adr:        0 | Not including:        0
+		# Cands  2:  97.59% | Total:      290 | Including true-adr:      283 | Not including:        7
+		# Cands  3:  98.60% | Total:      642 | Including true-adr:      633 | Not including:        9
+		# Cands  4:  96.20% | Total:      711 | Including true-adr:      684 | Not including:       27
+		# Cands  5:  96.32% | Total:      489 | Including true-adr:      471 | Not including:       18
+		# Cands  6:  97.13% | Total:      279 | Including true-adr:      271 | Not including:        8
+		# Cands  7:  98.94% | Total:       94 | Including true-adr:       93 | Not including:        1
+		# Cands  8:  97.67% | Total:       43 | Including true-adr:       42 | Not including:        1
+		# Cands  9: 100.00% | Total:       10 | Including true-adr:       10 | Not including:        0
+		# Cands 10: 100.00% | Total:        1 | Including true-adr:        1 | Not including:        0
+		# Cands 11: 100.00% | Total:        1 | Including true-adr:        1 | Not including:        0
+		# Cands 12:   0.00% | Total:        0 | Including true-adr:        0 | Not including:        0
+		# Cands 13: 100.00% | Total:        1 | Including true-adr:        1 | Not including:        0
+		# Cands 14:   0.00% | Total:        0 | Including true-adr:        0 | Not including:        0
+		# Cands 15:   0.00% | Total:        0 | Including true-adr:        0 | Not including:        0
+		# Cands 16:   0.00% | Total:        0 | Including true-adr:        0 | Not including:        0
+
+	  THE BINNED NUMBER OF AGENTS IN CONTEXT:
+		Bin  0:      107
+		Bin  1:      289
+		Bin  2:      638
+		Bin  3:      450
+		Bin  4:      899
+		Bin  5:      178
+
+	THREADS:    34
+	  SAMPLES:     3873
+	  ADDRESSEE DETECTION CHANCE LEVEL:   5.97%
+	  ADDRESSEE DETECTION UPPER BOUND:
+		# Cands  1:   0.00% | Total:        0 | Including true-adr:        0 | Not including:        0
+		# Cands  2:  98.55% | Total:      483 | Including true-adr:      476 | Not including:        7
+		# Cands  3:  98.41% | Total:     1008 | Including true-adr:      992 | Not including:       16
+		# Cands  4:  98.31% | Total:     1123 | Including true-adr:     1104 | Not including:       19
+		# Cands  5:  98.60% | Total:      716 | Including true-adr:      706 | Not including:       10
+		# Cands  6:  98.92% | Total:      372 | Including true-adr:      368 | Not including:        4
+		# Cands  7: 100.00% | Total:      132 | Including true-adr:      132 | Not including:        0
+		# Cands  8: 100.00% | Total:       24 | Including true-adr:       24 | Not including:        0
+		# Cands  9: 100.00% | Total:       11 | Including true-adr:       11 | Not including:        0
+		# Cands 10: 100.00% | Total:        4 | Including true-adr:        4 | Not including:        0
+		# Cands 11:   0.00% | Total:        0 | Including true-adr:        0 | Not including:        0
+		# Cands 12:   0.00% | Total:        0 | Including true-adr:        0 | Not including:        0
+		# Cands 13:   0.00% | Total:        0 | Including true-adr:        0 | Not including:        0
+		# Cands 14:   0.00% | Total:        0 | Including true-adr:        0 | Not including:        0
+		# Cands 15:   0.00% | Total:        0 | Including true-adr:        0 | Not including:        0
+		# Cands 16:   0.00% | Total:        0 | Including true-adr:        0 | Not including:        0
+
+	  THE BINNED NUMBER OF AGENTS IN CONTEXT:
+		Bin  0:      188
+		Bin  1:      706
+		Bin  2:      698
+		Bin  3:      995
+		Bin  4:     1151
+		Bin  5:      135
+
+
+TRAIN SETTING	Batch Size:32  Epoch:30  Vocab:53513  Max Words:20
+
+Train samples	Mini-Batch:1198
+Dev samples	Mini-Batch:123
+Test samples	Mini-Batch:173
+
+BUILD A MODEL
+MODEL: dynamic  Unit: gru  Opt: adam  Activation: tanh  Parameters: 28643328
+Traceback (most recent call last):
+  File "/home/cl/motoki-s/.pyenv_elm12/versions/anaconda2-4.1.1/lib/python2.7/runpy.py", line 174, in _run_module_as_main
+    "__main__", fname, loader, pkg_name)
+  File "/home/cl/motoki-s/.pyenv_elm12/versions/anaconda2-4.1.1/lib/python2.7/runpy.py", line 72, in _run_code
+    exec code in run_globals
+  File "/var/autofs/cl/work/motoki-s/multi_ling_conversation/ouchi/dialog-emnlp2016/DATA-multi/response-ranking/code/adr_res_selection/main/main.py", line 78, in <module>
+    train.main(argv)
+  File "adr_res_selection/main/train.py", line 170, in main
+    model_api.load_params()
+  File "adr_res_selection/model/model_api.py", line 67, in load_params
+    assert len(self.model.params) == len(params)
+AssertionError

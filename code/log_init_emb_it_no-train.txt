@@ -1,0 +1,10 @@
+
+Namespace(activation='tanh', attention=0, batch=32, data_size=10000000, dev_data=None, dim_emb=512, dim_hidden=256, emb_type='multi', epoch=30, init_emb='/cl/work/motoki-s/multi_ling_conversation/ouchi/dialog-emnlp2016/DATA-multi/embeddings/fifty_nine.table5.multiCCA.size_512+w_5+it_10.normalized', lang='it', load_param='../data/model/dynamic_lang_en_cand2_context15_multiCCA_emb512_hidden256.pkl.gz', loss='nll', lr=0.001, max_n_words=20, mode='test', model='dynamic', n_cands=2, n_prev_sents=15, opt='adam', output=0, output_fn=None, reg=0.0001, sample_size=1, save=1, test_data='/cl/work/motoki-s/multi_ling_conversation/data/2015_concat/2015_cand2_lang_it_test.txt', train_data=None, unit='gru')
+
+
+ADDRESSEE AND RESPONSE SELECTION SYSTEM START
+
+SET UP DATASET
+
+Load dataset...
+Load initial word embedding...
