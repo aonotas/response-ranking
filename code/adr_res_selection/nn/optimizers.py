@@ -66,7 +66,6 @@ def adam(grads, params, lr=0.001, b1=0.9, b2=0.999, e=1e-8):
     i_t = i + 1.
 
     for p, g in zip(params, grads):
-        g = grad_clipping(g, 0.1)
         v = build_shared_zeros(p.get_value(True).shape)
         r = build_shared_zeros(p.get_value(True).shape)
 
