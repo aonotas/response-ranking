@@ -3,6 +3,11 @@ import sys
 filename1 = sys.argv[1]
 filename2 = sys.argv[2]
 
+print '---------------------'
+print 'file1:', filename1
+print 'file2:', filename2
+print '---------------------'
+
 
 def build_vocab(filename):
     vocab = []
