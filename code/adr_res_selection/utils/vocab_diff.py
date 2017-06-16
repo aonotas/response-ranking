@@ -50,7 +50,7 @@ for w in cwords[:10]:
     print ' ' + w
 
 
-f = 'common_' + filename1 + '_' + filename2
+f = open('common_' + filename1 + '_' + filename2, 'w')
 for w in cwords:
     f.write(w.encode('utf-8') + '\n')
 f.close()
