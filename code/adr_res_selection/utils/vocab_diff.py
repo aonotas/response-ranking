@@ -45,5 +45,12 @@ print '---------------------'
 print ' Examples'
 print '---------------------'
 print 'common_words:', len(common_words)
-for w in list(common_words)[:10]:
+cwords = list(common_words)
+for w in cwords[:10]:
     print ' ' + w
+
+
+f = 'common_' + filename1 + '_' + filename2
+for w in cwords:
+    f.write(w.encode('utf-8') + '\n')
+f.close()
