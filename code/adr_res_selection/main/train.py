@@ -159,13 +159,13 @@ def main(argv):
 
     if argv.emb_type == 'mono':
         vocab_words, init_emb = load_init_emb(argv.init_emb, words)
-        init_emb = initialize_weights(len(vocab_words), argv.dim_emb)
+        init_emb = initialize_weights(vocab_words.size(), argv.dim_emb)
     elif argv.emb_type == 'multi':
         vocab_words, init_emb = load_multi_ling_init_emb(argv.init_emb, argv.lang)
     elif argv.emb_type == 'mono_multi':
         vocab_words, init_emb = load_init_emb(argv.init_emb, words)
         pre_vocab_words, pre_init_emb = load_multi_ling_init_emb(argv.init_emb, argv.lang)
-        init_emb = initialize_weights(len(vocab_words), argv.dim_emb)
+        init_emb = initialize_weights(vocab_words.size(), argv.dim_emb)
         # replace embeddings
         for w in vocab_words.w2i.items():
             if w in pre_vocab_words.w2i:
