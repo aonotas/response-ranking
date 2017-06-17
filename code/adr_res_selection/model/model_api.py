@@ -11,6 +11,7 @@ from ..utils.evaluator import Evaluator
 
 
 class ModelAPI(object):
+
     def __init__(self, argv, init_emb, vocab, n_prev_sents):
         self.argv = argv
         self.init_emb = init_emb
@@ -43,7 +44,8 @@ class ModelAPI(object):
         #################
         # Build a model #
         #################
-        say('MODEL: %s  Unit: %s  Opt: %s  Activation: %s  ' % (argv.model, argv.unit, argv.opt, argv.activation))
+        say('MODEL: %s  Unit: %s  Opt: %s  Activation: %s  ' %
+            (argv.model, argv.unit, argv.opt, argv.activation))
 
         if argv.model == 'static':
             model = StaticModel
@@ -58,15 +60,26 @@ class ModelAPI(object):
         if fn is None:
             fn = 'param.model-%s.unit-%s.hidden-%d' % (argv.model, argv.unit, argv.dim_hidden)
         fn = check_identifier(fn)
-        dump_data(data=map(lambda p: p.get_value(borrow=True), self.model.params), fn=fn)
+        params = self.model.params
+        if self.model.saved_emb is False:
+            params = [self.model.emb] + params
+
+        dump_data(data=map(lambda p: p.get_value(borrow=True), params), fn=fn)
         create_path(dir)
         move_data(fn, dir)
 
-    def load_params(self):
+    def load_params(self, load_skip_emb=False):
         params = load_data(self.argv.load_param)
-        assert len(self.model.params) == len(params)
-        for p1, p2 in zip(self.model.params, params):
-            p1.set_value(p2)
+        start_idx = 0
+        if load_skip_emb:
+            start_idx = 1
+        assert len(self.model.params[start_idx:]) == len(params[start_idx:])
+        max_idx = len(self.model.params)
+
+        for idx in range(start_idx, max_idx):
+            self.model.params[idx].set_value(params[idx])
+        # for p1, p2 in zip(self.model.params[start_idx:], params[start_idx:]):
+        #     p1.set_value(p2)
 
     def set_train_f(self, train_samples):
         model = self.model
@@ -81,8 +94,8 @@ class ModelAPI(object):
                                            model.inputs[3]: train_samples[3][index],
                                            model.inputs[4]: train_samples[4][index],
                                            model.inputs[5]: train_samples[5][index]
-                                       }
-                                       )
+        }
+        )
 
     def set_train_online_f(self):
         model = self.model
@@ -209,4 +222,3 @@ class ModelAPI(object):
                                  (s.addressee_id, agent_ids.get_word(answer_a[j]+1), s.label, answer_r[j]))
         f.close()
         """
-

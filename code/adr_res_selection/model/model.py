@@ -72,7 +72,8 @@ class Model(object):
         ########
         # Loss #
         ########
-        nll_a = binary_cross_entropy(true_p_a, false_p_a) * T.cast(T.gt(n_agents, 2), dtype=theano.config.floatX)
+        nll_a = binary_cross_entropy(true_p_a, false_p_a) * \
+            T.cast(T.gt(n_agents, 2), dtype=theano.config.floatX)
         nll_r = binary_cross_entropy(true_p_r, false_p_r)
         nll = 0.5 * nll_a + 0.5 * nll_r
 
@@ -121,9 +122,15 @@ class DynamicModel(Model):
         pad = build_shared_zeros((1, self.dim_emb))
         if self.init_emb is None:
             emb = theano.shared(initialize_weights(self.n_vocab - 1, self.dim_emb))
-            self.params += [emb]
         else:
             emb = theano.shared(self.init_emb)
+
+        self.emb = emb
+        if self.argv.learn_emb == 'learn':
+            self.params += [emb]
+            self.saved_emb = True
+        else:
+            self.saved_emb = False
 
         E = T.concatenate([pad, emb], 0)
 
@@ -208,7 +215,8 @@ class DynamicModel(Model):
         o_a = layer_a.forward(o)  # 1D: batch, 2D: dim_hidden
         o_r = layer_r.forward(o)  # 1D: batch, 2D: dim_hidden
 
-        score_a = T.batched_dot(o_a, A_adr.dimshuffle(0, 2, 1))  # 1D: batch, 2D: n_agents-1; elem=scalar
+        # 1D: batch, 2D: n_agents-1; elem=scalar
+        score_a = T.batched_dot(o_a, A_adr.dimshuffle(0, 2, 1))
         score_r = T.batched_dot(o_r, h_r.dimshuffle(0, 2, 1))  # 1D: batch, 2D: n_cands; elem=scalar
 
         p_a = sigmoid(score_a)  # 1D: batch, 2D: n_agents-1; elem=scalar
@@ -232,7 +240,8 @@ class StaticModel(Model):
         # Architecture #
         ################
         x_c, x_r = self.lookup_table(c, r)
-        a_res, h_c, h_r, A_p = self.intra_sentential_layer(a, n_agents, x_c, x_r, batch, n_prev_sents, n_cands)
+        a_res, h_c, h_r, A_p = self.intra_sentential_layer(
+            a, n_agents, x_c, x_r, batch, n_prev_sents, n_cands)
         p_a, p_r = self.output_layer(a_res, h_c, h_r, A_p)
 
         ######################
@@ -279,7 +288,8 @@ class StaticModel(Model):
 
         x_a = A.forward(a).reshape((batch, n_prev_sents, 1, self.dim_emb))
         x_c = T.concatenate([x_a, x_c], 2)
-        x_c = x_c.reshape((batch,  n_prev_sents * (self.n_words + 1), self.dim_emb)).dimshuffle(1, 0, 2)
+        x_c = x_c.reshape((batch,  n_prev_sents * (self.n_words + 1),
+                           self.dim_emb)).dimshuffle(1, 0, 2)
         x_r = x_r.reshape((batch * n_cands, self.n_words, self.dim_emb)).dimshuffle(1, 0, 2)
 
         # H_c: 1D: c_words, 2D: batch, 3D: dim_hidden
@@ -313,4 +323,3 @@ class StaticModel(Model):
         p_r = sigmoid(score_r)  # 1D: batch, 2D: n_cands; elem=scalar
 
         return p_a, p_r
-

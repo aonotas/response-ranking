@@ -35,6 +35,8 @@ if __name__ == '__main__':
     ######################
     # Initial Embeddings #
     ######################
+    parser.add_argument('--learn_emb', default='learn', help='learn/freeze')
+    parser.add_argument('--load_skip_emb', type=int, default=0, help='learn/freeze')
     parser.add_argument('--emb_type', default='mono', help='mono/multi')
     parser.add_argument('--lang', default='en', help='en/it...')
     parser.add_argument('--init_emb', default=None, help='Initial embedding to be loaded')
@@ -50,12 +52,16 @@ if __name__ == '__main__':
     #######################
     # Training parameters #
     #######################
-    parser.add_argument('--data_size', type=int, default=10000000, help='number of threads used for the task')
-    parser.add_argument('--sample_size', type=int, default=1, help='number of division of samples used for the task')
+    parser.add_argument('--data_size', type=int, default=10000000,
+                        help='number of threads used for the task')
+    parser.add_argument('--sample_size', type=int, default=1,
+                        help='number of division of samples used for the task')
 
     parser.add_argument('--n_cands', type=int, default=2, help='number of candidate responses')
-    parser.add_argument('--n_prev_sents', type=int, default=5, help='number of the sentences used for the prediction')
-    parser.add_argument('--max_n_words', type=int, default=20, help='maximum number of words for context/response')
+    parser.add_argument('--n_prev_sents', type=int, default=5,
+                        help='number of the sentences used for the prediction')
+    parser.add_argument('--max_n_words', type=int, default=20,
+                        help='maximum number of words for context/response')
 
     parser.add_argument('--batch', type=int, default=32, help='batch size')
     parser.add_argument('--opt', default='adam', help='optimization method')
@@ -79,4 +85,3 @@ if __name__ == '__main__':
     else:
         import test
         test.main(argv)
-

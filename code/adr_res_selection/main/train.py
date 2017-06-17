@@ -7,11 +7,14 @@ from ..utils import say, load_dataset, load_init_emb, load_multi_ling_init_emb
 
 def get_datasets(argv):
     say('\nSET UP DATASET\n')
-    # dataset: 1D: n_docs, 2D: n_utterances, 3D: elem=(time, speaker_id, addressee_id, response1, ... , label)
+    # dataset: 1D: n_docs, 2D: n_utterances, 3D: elem=(time, speaker_id,
+    # addressee_id, response1, ... , label)
     say('\nLoad dataset...')
     train_dataset, words = load_dataset(fn=argv.train_data, data_size=argv.data_size, test=False)
-    dev_dataset, words = load_dataset(fn=argv.dev_data, vocab=words, data_size=argv.data_size, test=True)
-    test_dataset, words = load_dataset(fn=argv.test_data, vocab=words, data_size=argv.data_size, test=True)
+    dev_dataset, words = load_dataset(fn=argv.dev_data, vocab=words,
+                                      data_size=argv.data_size, test=True)
+    test_dataset, words = load_dataset(
+        fn=argv.test_data, vocab=words, data_size=argv.data_size, test=True)
     return train_dataset, dev_dataset, test_dataset, words
 
 
@@ -28,13 +31,15 @@ def create_samples(argv, train_dataset, dev_dataset, test_dataset, vocab_word):
     n_cands = len(cands)
 
     say('\n\nTASK  SETTING')
-    say('\n\tResponse Candidates:%d  Contexts:%d  Max Word Num:%d\n' % (n_cands, n_prev_sents, max_n_words))
+    say('\n\tResponse Candidates:%d  Contexts:%d  Max Word Num:%d\n' %
+        (n_cands, n_prev_sents, max_n_words))
 
     ##########################
     # Convert words into ids #
     ##########################
     say('\n\nConverting words into ids...')
-    # samples: 1D: n_threads, 2D: n_sents, 3D: (time, speaker_id, addressee_id, response, ..., label)
+    # samples: 1D: n_threads, 2D: n_sents, 3D: (time, speaker_id,
+    # addressee_id, response, ..., label)
     train_samples = convert_word_into_id(train_dataset, vocab_word)
     dev_samples = convert_word_into_id(dev_dataset, vocab_word)
     test_samples = convert_word_into_id(test_dataset, vocab_word)
@@ -44,9 +49,12 @@ def create_samples(argv, train_dataset, dev_dataset, test_dataset, vocab_word):
     ##################
     say('\n\nCreating samples...')
     # samples: 1D: n_samples; 2D: Sample
-    train_samples = get_samples(threads=train_samples, n_prev_sents=n_prev_sents, max_n_words=max_n_words)
-    dev_samples = get_samples(threads=dev_samples, n_prev_sents=n_prev_sents, max_n_words=max_n_words, test=True)
-    test_samples = get_samples(threads=test_samples, n_prev_sents=n_prev_sents, max_n_words=max_n_words, test=True)
+    train_samples = get_samples(threads=train_samples,
+                                n_prev_sents=n_prev_sents, max_n_words=max_n_words)
+    dev_samples = get_samples(threads=dev_samples, n_prev_sents=n_prev_sents,
+                              max_n_words=max_n_words, test=True)
+    test_samples = get_samples(threads=test_samples, n_prev_sents=n_prev_sents,
+                               max_n_words=max_n_words, test=True)
 
     ###################################
     # Limit the used training samples #
@@ -107,10 +115,10 @@ def train(argv, model_api, n_train_batches, evalset, dev_samples, test_samples):
             if dev_acc_both > best_dev_acc_both:
                 unchanged = 0
                 best_dev_acc_both = dev_acc_both
-                acc_history[epoch+1] = [(best_dev_acc_both, dev_acc_adr, dev_acc_res)]
+                acc_history[epoch + 1] = [(best_dev_acc_both, dev_acc_adr, dev_acc_res)]
 
                 if argv.save:
-#                    model_api.save_model(argv.output_fn)
+                    #                    model_api.save_model(argv.output_fn)
                     model_api.save_params(argv.output_fn + '_epoch' + str(epoch))
 
         if test_samples:
@@ -118,10 +126,10 @@ def train(argv, model_api, n_train_batches, evalset, dev_samples, test_samples):
             test_acc_both, test_acc_adr, test_acc_res = model_api.predict_all(test_samples)
 
             if unchanged == 0:
-                if epoch+1 in acc_history:
-                    acc_history[epoch+1].append((test_acc_both, test_acc_adr, test_acc_res))
+                if epoch + 1 in acc_history:
+                    acc_history[epoch + 1].append((test_acc_both, test_acc_adr, test_acc_res))
                 else:
-                    acc_history[epoch+1] = [(test_acc_both, test_acc_adr, test_acc_res)]
+                    acc_history[epoch + 1] = [(test_acc_both, test_acc_adr, test_acc_res)]
 
         #####################
         # Show best results #
@@ -147,15 +155,27 @@ def main(argv):
     ##########################
     # Set initial embeddings #
     ##########################
+    from ..nn import initialize_weights
+
     if argv.emb_type == 'mono':
         vocab_words, init_emb = load_init_emb(argv.init_emb, words)
-    else:
+    elif argv.emb_type == 'multi':
         vocab_words, init_emb = load_multi_ling_init_emb(argv.init_emb, argv.lang)
-    
+    elif argv.emb_type == 'mono_multi':
+        vocab_words, init_emb = load_init_emb(argv.init_emb, words)
+        pre_vocab_words, pre_init_emb = load_multi_ling_init_emb(argv.init_emb, argv.lang)
+        init_emb = initialize_weights(len(vocab_words), argv.dim_emb)
+        # replace embeddings
+        for w in vocab_words.w2i.items():
+            if w in pre_vocab_words.w2i:
+                w_idx = vocab_words.w2i.get[w]
+                pre_w_idx = pre_vocab_words.w2i.get[w]
+                init_emb[w_idx] = pre_w_idx[pre_w_idx]
+
     # write vocab files
     vocab_file = argv.output_fn + '_' + argv.emb_type + '.vocab'
     _vcb_f = open(vocab_file, 'w')
-    for word, word_id in sorted(vocab_words.w2i.items(), key=lambda x:x[1]):
+    for word, word_id in sorted(vocab_words.w2i.items(), key=lambda x: x[1]):
         try:
             _vcb_f.write(word.encode('utf-8') + '\n')
         except:
@@ -177,7 +197,8 @@ def main(argv):
     model_api = ModelAPI(argv, init_emb, vocab_words, argv.n_prev_sents)
     model_api.set_model()
     if argv.load_param is not None:
-        model_api.load_params()
+        model_api.load_params(load_skip_emb=argv.load_skip_emb)
+
     model_api.set_train_f(train_samples)
     model_api.set_test_f()
 
