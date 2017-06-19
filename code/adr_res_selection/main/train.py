@@ -174,14 +174,19 @@ def main(argv):
                 w_idx = vocab_words.w2i[w]
                 pre_w_idx = pre_vocab_words.w2i[w]
                 init_emb[w_idx, :] = pre_init_emb[pre_w_idx, :]
+        init_emb = np.asarray(init_emb, dtype=theano.config.floatX)
     elif argv.emb_type == 'common_multi':
-        vocab_words, init_emb = load_init_emb(None, words)
+        # vocab_words, init_emb = load_init_emb(None, words)
         pre_vocab_words, pre_init_emb = load_multi_ling_init_emb(argv.init_emb, argv.lang)
-
+        from ..ling.vocab import Vocab, PAD, UNK
         common_words = []
-        for w in vocab_words.w2i.keys():
+        vocab_words = Vocab()
+        vocab_words.add_word(PAD)
+        vocab_words.add_word(UNK)
+        for w in common_words:
             if w in pre_vocab_words.w2i:
                 common_words.append(w)
+                vocab_words.add_word(w)
 
         init_emb = initialize_weights(len(common_words), argv.dim_emb)
         say('\nVocab Size: %d' % len(common_words))
