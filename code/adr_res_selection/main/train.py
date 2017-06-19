@@ -183,7 +183,7 @@ def main(argv):
         vocab_words = Vocab()
         vocab_words.add_word(PAD)
         vocab_words.add_word(UNK)
-        for w in common_words:
+        for w in words:
             if w in pre_vocab_words.w2i:
                 common_words.append(w)
                 vocab_words.add_word(w)
