@@ -183,12 +183,14 @@ def main(argv):
                 common_words.append(w)
 
         init_emb = initialize_weights(len(common_words), argv.dim_emb)
-        say('\n\Vocab Size: %d' % len(words))
+        say('\nVocab Size: %d' % len(common_words))
         # replace embeddings
         for w in common_words:
             w_idx = vocab_words.w2i.get[w]
             pre_w_idx = pre_vocab_words.w2i.get[w]
             init_emb[w_idx] = pre_init_emb[pre_w_idx]
+        print 'init_emb:', init_emb.shape
+        print 'len(init_emb[0]):', len(init_emb[0])
 
     # write vocab files
     vocab_file = argv.output_fn + '_' + argv.emb_type + '.vocab'
