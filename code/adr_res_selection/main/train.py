@@ -170,8 +170,8 @@ def main(argv):
         # replace embeddings
         for w in vocab_words.w2i.items():
             if w in pre_vocab_words.w2i:
-                w_idx = vocab_words.w2i.get[w]
-                pre_w_idx = pre_vocab_words.w2i.get[w]
+                w_idx = vocab_words.w2i[w]
+                pre_w_idx = pre_vocab_words.w2i[w]
                 init_emb[w_idx] = pre_init_emb[pre_w_idx]
     elif argv.emb_type == 'common_multi':
         vocab_words, init_emb = load_init_emb(None, words)
@@ -186,8 +186,8 @@ def main(argv):
         say('\nVocab Size: %d' % len(common_words))
         # replace embeddings
         for w in common_words:
-            w_idx = vocab_words.w2i.get[w]
-            pre_w_idx = pre_vocab_words.w2i.get[w]
+            w_idx = vocab_words.w2i[w]
+            pre_w_idx = pre_vocab_words.w2i[w]
             init_emb[w_idx] = pre_init_emb[pre_w_idx]
         print 'init_emb:', init_emb.shape
         print 'len(init_emb[0]):', len(init_emb[0])
