@@ -166,19 +166,19 @@ def main(argv):
         vocab_words, init_emb = load_init_emb(None, words)
         pre_vocab_words, pre_init_emb = load_multi_ling_init_emb(argv.init_emb, argv.lang)
         init_emb = initialize_weights(len(words), argv.dim_emb)
-        say('\n\Vocab Size: %d' % len(words))
+        say('\nVocab Size: %d' % len(words))
         # replace embeddings
         for w in vocab_words.w2i.keys():
             if w in pre_vocab_words.w2i:
                 w_idx = vocab_words.w2i[w]
                 pre_w_idx = pre_vocab_words.w2i[w]
-                init_emb[w_idx] = pre_init_emb[pre_w_idx]
+                init_emb[w_idx, :] = pre_init_emb[pre_w_idx, :]
     elif argv.emb_type == 'common_multi':
         vocab_words, init_emb = load_init_emb(None, words)
         pre_vocab_words, pre_init_emb = load_multi_ling_init_emb(argv.init_emb, argv.lang)
 
         common_words = []
-        for w, _ in vocab_words.w2i.items():
+        for w in vocab_words.w2i.keys():
             if w in pre_vocab_words.w2i:
                 common_words.append(w)
 
@@ -190,6 +190,9 @@ def main(argv):
             init_emb[w_idx, :] = pre_init_emb[pre_w_idx, :]
         print 'init_emb:', init_emb.shape
         print 'len(init_emb[0]):', len(init_emb[0])
+        init_emb = np.asarray(init_emb, dtype=theano.config.floatX)
+
+        print 'init_emb:', init_emb
 
     # write vocab files
     vocab_file = argv.output_fn + '_' + argv.emb_type + '.vocab'
