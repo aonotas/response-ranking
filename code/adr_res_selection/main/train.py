@@ -1,4 +1,5 @@
 import numpy as np
+import theano
 
 from ..preprocess import convert_word_into_id, get_samples, numpy_format, theano_shared_format
 from ..model import ModelAPI
