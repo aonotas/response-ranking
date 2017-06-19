@@ -163,7 +163,7 @@ def main(argv):
     elif argv.emb_type == 'multi':
         vocab_words, init_emb = load_multi_ling_init_emb(argv.init_emb, argv.lang)
     elif argv.emb_type == 'mono_multi':
-        # vocab_words, init_emb = load_init_emb(argv.init_emb, words)
+        vocab_words, init_emb = load_init_emb(None, words)
         pre_vocab_words, pre_init_emb = load_multi_ling_init_emb(argv.init_emb, argv.lang)
         init_emb = initialize_weights(len(words), argv.dim_emb)
         say('\n\Vocab Size: %d' % len(words))
