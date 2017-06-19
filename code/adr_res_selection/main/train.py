@@ -168,7 +168,7 @@ def main(argv):
         init_emb = initialize_weights(len(words), argv.dim_emb)
         say('\n\Vocab Size: %d' % len(words))
         # replace embeddings
-        for w in vocab_words.w2i.items():
+        for w in vocab_words.w2i.keys():
             if w in pre_vocab_words.w2i:
                 w_idx = vocab_words.w2i[w]
                 pre_w_idx = pre_vocab_words.w2i[w]
@@ -187,7 +187,7 @@ def main(argv):
         # replace embeddings
         for w_idx, w in enumerate(common_words):
             pre_w_idx = pre_vocab_words.w2i[w]
-            init_emb[w_idx] = pre_init_emb[pre_w_idx]
+            init_emb[w_idx, :] = pre_init_emb[pre_w_idx, :]
         print 'init_emb:', init_emb.shape
         print 'len(init_emb[0]):', len(init_emb[0])
 
