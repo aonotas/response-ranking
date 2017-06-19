@@ -178,7 +178,7 @@ def main(argv):
         pre_vocab_words, pre_init_emb = load_multi_ling_init_emb(argv.init_emb, argv.lang)
 
         common_words = []
-        for w in vocab_words.w2i.items():
+        for w, _ in vocab_words.w2i.items():
             if w in pre_vocab_words.w2i:
                 common_words.append(w)
 
