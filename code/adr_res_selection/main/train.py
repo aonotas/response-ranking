@@ -173,6 +173,22 @@ def main(argv):
                 w_idx = vocab_words.w2i.get[w]
                 pre_w_idx = pre_vocab_words.w2i.get[w]
                 init_emb[w_idx] = pre_init_emb[pre_w_idx]
+    elif argv.emb_type == 'common_multi':
+        vocab_words, init_emb = load_init_emb(None, words)
+        pre_vocab_words, pre_init_emb = load_multi_ling_init_emb(argv.init_emb, argv.lang)
+
+        common_words = []
+        for w in vocab_words.w2i.items():
+            if w in pre_vocab_words.w2i:
+                common_words.append(w)
+
+        init_emb = initialize_weights(len(common_words), argv.dim_emb)
+        say('\n\Vocab Size: %d' % len(words))
+        # replace embeddings
+        for w in common_words:
+            w_idx = vocab_words.w2i.get[w]
+            pre_w_idx = pre_vocab_words.w2i.get[w]
+            init_emb[w_idx] = pre_init_emb[pre_w_idx]
 
     # write vocab files
     vocab_file = argv.output_fn + '_' + argv.emb_type + '.vocab'
