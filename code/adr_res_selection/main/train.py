@@ -170,9 +170,10 @@ def main(argv):
         say('\nVocab Size: %d' % len(words))
         # replace embeddings
         for w_idx, w in enumerate(vocab_words.w2i.keys()):
-            pre_w_idx = pre_vocab_words.w2i[w]
-            # print 'init_emb[w_idx]:', init_emb[w_idx]
-            init_emb[w_idx] = pre_init_emb[pre_w_idx]
+            if w in pre_vocab_words.w2i:
+                pre_w_idx = pre_vocab_words.w2i[w]
+                # print 'init_emb[w_idx]:', init_emb[w_idx]
+                init_emb[w_idx] = pre_init_emb[pre_w_idx]
         # init_emb = np.asarray(init_emb, dtype=theano.config.floatX)
         say('\nVocab Size: %d' % len(vocab_words.w2i))
         print 'init_emb:', init_emb.shape
