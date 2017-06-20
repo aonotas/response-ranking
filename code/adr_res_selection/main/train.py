@@ -193,7 +193,10 @@ def main(argv):
         # replace embeddings
         for w_idx, w in enumerate(common_words):
             pre_w_idx = pre_vocab_words.w2i[w]
+            print 'init_emb[w_idx]:', init_emb[w_idx]
             init_emb[w_idx] = pre_init_emb[pre_w_idx]
+            print 'init_emb[w_idx]:', init_emb[w_idx]
+            print '-------'
         print 'init_emb:', init_emb.shape
         print 'len(init_emb[0]):', len(init_emb[0])
         init_emb = np.asarray(init_emb, dtype=theano.config.floatX)
