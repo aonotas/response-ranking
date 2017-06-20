@@ -169,11 +169,10 @@ def main(argv):
         init_emb = initialize_weights(len(words), argv.dim_emb)
         say('\nVocab Size: %d' % len(words))
         # replace embeddings
-        for w in vocab_words.w2i.keys():
-            if w in pre_vocab_words.w2i:
-                w_idx = vocab_words.w2i[w]
-                pre_w_idx = pre_vocab_words.w2i[w]
-                init_emb[w_idx] = pre_init_emb[pre_w_idx]
+        for w_idx, w in enumerate(vocab_words.w2i.keys()):
+            pre_w_idx = pre_vocab_words.w2i[w]
+            # print 'init_emb[w_idx]:', init_emb[w_idx]
+            init_emb[w_idx] = pre_init_emb[pre_w_idx]
         # init_emb = np.asarray(init_emb, dtype=theano.config.floatX)
         say('\nVocab Size: %d' % len(vocab_words.w2i))
         print 'init_emb:', init_emb.shape
