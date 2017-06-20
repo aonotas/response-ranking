@@ -164,8 +164,16 @@ def main(argv):
     elif argv.emb_type == 'multi':
         vocab_words, init_emb = load_multi_ling_init_emb(argv.init_emb, argv.lang)
     elif argv.emb_type == 'mono_multi':
-        vocab_words, init_emb = load_init_emb(None, words)
+        # vocab_words, init_emb = load_init_emb(None, words)
         pre_vocab_words, pre_init_emb = load_multi_ling_init_emb(argv.init_emb, argv.lang)
+
+        from ..ling.vocab import Vocab, PAD, UNK
+        vocab_words = Vocab()
+        vocab_words.add_word(PAD)
+        vocab_words.add_word(UNK)
+        for w in words:
+            vocab_words.add_word(w)
+
         init_emb = initialize_weights(len(words), argv.dim_emb)
         say('\nVocab Size: %d' % len(words))
         # replace embeddings
