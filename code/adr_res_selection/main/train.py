@@ -179,22 +179,21 @@ def main(argv):
         # vocab_words, init_emb = load_init_emb(None, words)
         pre_vocab_words, pre_init_emb = load_multi_ling_init_emb(argv.init_emb, argv.lang)
         from ..ling.vocab import Vocab, PAD, UNK
-        common_words = []
         vocab_words = Vocab()
         vocab_words.add_word(PAD)
         vocab_words.add_word(UNK)
         for w in words:
+            # common words
             if w in pre_vocab_words.w2i:
-                common_words.append(w)
                 vocab_words.add_word(w)
 
-        init_emb = initialize_weights(len(common_words), argv.dim_emb)
-        say('\nVocab Size: %d' % len(common_words))
+        init_emb = initialize_weights(len(vocab_words.w2i), argv.dim_emb)
+        say('\nVocab Size: %d' % len(vocab_words.w2i))
         # replace embeddings
-        for w_idx, w in enumerate(common_words):
+        for w_idx, w in enumerate(vocab_words.w2i.keys()):
             pre_w_idx = pre_vocab_words.w2i[w]
             # print 'init_emb[w_idx]:', init_emb[w_idx]
-            init_emb[w_idx, :] = pre_init_emb[pre_w_idx, :]
+            init_emb[w_idx] = pre_init_emb[pre_w_idx]
             # print 'init_emb[w_idx]:', init_emb[w_idx]
             # print '-------'
         print 'init_emb:', init_emb.shape
