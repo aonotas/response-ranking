@@ -343,6 +343,20 @@ def main():
      train_responses_length, train_agents_ids, train_n_agents,
      train_binned_n_agents, train_y_adr, train_y_res) = ch_util.pre_process(train_samples, xp)
 
+    (dev_contexts, dev_contexts_length, dev_responses,
+     dev_responses_length, dev_agents_ids, dev_n_agents,
+     dev_binned_n_agents, dev_y_adr, dev_y_res) = ch_util.pre_process(dev_samples, xp)
+
+    dev_samples = [dev_contexts, dev_contexts_length, dev_responses, dev_responses_length,
+                   dev_agents_ids, dev_n_agents, dev_binned_n_agents, dev_y_adr, dev_y_res]
+
+    (test_contexts, test_contexts_length, test_responses,
+     test_responses_length, test_agents_ids, test_n_agents,
+     test_binned_n_agents, test_y_adr, test_y_res) = ch_util.pre_process(test_samples, xp)
+
+    test_samples = [test_contexts, test_contexts_length, test_responses, test_responses_length,
+                    test_agents_ids, test_n_agents, test_binned_n_agents, test_y_adr, test_y_res]
+
     from chainer_net import MultiLingualConv
     n_vocab = vocab_words.size()
     model = MultiLingualConv(args, n_vocab)
@@ -395,6 +409,13 @@ def main():
             model.zerograds()
             loss.backward()
             opt.update()
+
+        # predict
+        # dev
+        model.predict_all(dev_samples, batchsize=args.batch)
+
+        # test
+        model.predict_all(test_samples, batchsize=args.batch)
 
 if __name__ == '__main__':
     main()

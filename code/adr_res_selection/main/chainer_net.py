@@ -124,21 +124,37 @@ class MultiLingualConv(chainer.Chain):
         self.candidate_size = args.n_cands
 
     def predict_all(self, samples, batchsize=32):
+        (dev_contexts, dev_contexts_length, dev_responses, dev_responses_length,
+         dev_agents_ids, dev_n_agents, dev_binned_n_agents, dev_y_adr, dev_y_res) = samples
         evaluator = Evaluator()
         iteration_list = range(0, len(samples), batchsize)
+        predict_lists = []
+        for i_index, index in enumerate(iteration_list):
+
+            contexts = dev_contexts[index:index + batchsize]
+            responses = dev_responses[index:index + batchsize]
+            agents_ids = dev_agents_ids[index:index + batchsize]
+            contexts_length = dev_contexts_length[index:index + batchsize]
+            responses_length = dev_responses_length[index:index + batchsize]
+            n_agents = dev_n_agents[index:index + batchsize]
+            binned_n_agents = dev_binned_n_agents[index:index + batchsize]
+            y_adr = dev_y_adr[index:index + batchsize]
+            y_res = dev_y_res[index:index + batchsize]
+
+            sample = [contexts, contexts_length, responses, responses_length,
+                      agents_ids, n_agents, binned_n_agents, y_adr, y_res]
+
+            dot_r, dot_a, predict_r, predict_a = self.__call__(sample)
+            for _idx in enumerate(len(binned_n_agents)):
+                _binned_n_agents = binned_n_agents[_idx]
+                _y_res = y_res[_idx]
+                _y_adr = y_adr[_idx]
+                _pred_a = predict_a[_idx]
+                _pred_r = predict_r[_idx]
+                evaluator.update(_binned_n_agents, 0., 0., _pred_a, _pred_r, _y_adr, _y_res)
         #
-        # for i, sample in enumerate(samples):
-        #     if i != 0 and i % 100 == 0:
-        #         say("  {}/{}".format(i, len(samples)))
+        evaluator.show_results()
         #
-        #     contexts, responses, agents_vecs, n_agents, binned_n_agents, y_adr, y_res = sample
-        #     # pred_a, pred_r = self.predict(c=x[0], r=x[1], a=x[2], y_r=x[3], y_a=x[4], n_agents=x[5])
-        #
-        #     evaluator.update(binned_n_agents, 0., 0., pred_a, pred_r, y_adr, y_res)
-        #
-        # evaluator.show_results()
-        #
-        # return evaluator.acc_both, evaluator.acc_adr, evaluator.acc_res
 
     def padding_offset(self, agents_ids, n_agents_list):
         xp = self.xp
@@ -158,7 +174,6 @@ class MultiLingualConv(chainer.Chain):
         agents_ids = xp.where(flag, xp.full(
             agents_ids.shape, padding_idx, dtype=xp.int32), agents_ids)
 
-        # print 'offset:', offset
         return agents_ids
 
     def __call__(self, samples):
@@ -178,7 +193,6 @@ class MultiLingualConv(chainer.Chain):
         agents_ids = self.padding_offset(agents_ids, n_agents_list)
         split_size = xp.arange(self.n_prev_sents, agents_ids.shape[0] * self.n_prev_sents,
                                self.n_prev_sents).astype(xp.int32)
-        print 'agents_ids:', agents_ids
         agent_input_vecs = F.embed_id(agents_ids, pad_context_vecs)
         agent_input_vecs = F.reshape(agent_input_vecs, (-1, agent_input_vecs.shape[-1]))
         agent_input_vecs = F.split_axis(agent_input_vecs, to_cpu(split_size), axis=0)
@@ -192,28 +206,14 @@ class MultiLingualConv(chainer.Chain):
         response_o = self.layer_response(a_h)
         agent_o = self.layer_agent(a_h)
 
-        # broadcast
-        # response_idx = xp.repeat(xp.arange(batchsize), self.candidate_size, axis=0).astype(xp.int32)
-        # response_o = F.embed_id(response_idx, o_a)
-        # print 'response_o:', response_o.shape
-        print 'response_o:', response_o.shape
-        print 'response_vecs:', response_vecs.shape
-
         r_shape = (batchsize, self.candidate_size, -1)
         response_vecs = F.reshape(response_vecs, r_shape)  # (batch, candidate_size, 256)
-        print 'response_vecs:', response_vecs.shape
-
         response_o = F.reshape(response_o, (batchsize, 1, -1))  # (batch, 1, 256)
 
         dot_r = F.batch_matmul(response_vecs, response_o, transb=True)
         dot_r = F.reshape(dot_r, (batchsize, -1))
         dot_r_softmax = F.softmax(dot_r)
         predict_r = F.argmax(dot_r_softmax, axis=1)
-
-        print 'dot_r:', dot_r.shape
-
-        print 'agent_o:', agent_o.shape
-        print 'agent_vecs:', agent_vecs.shape
 
         cumsum_idx = xp.cumsum(n_agents).astype(xp.int32)
         agent_vec_list = F.split_axis(agent_vecs, to_cpu(cumsum_idx[:-1]), axis=0)
@@ -226,7 +226,5 @@ class MultiLingualConv(chainer.Chain):
         dot_a = F.where(flag, dot_a, xp.full(dot_a.shape, -1024., dtype=xp.float32))
         dot_a_softmax = F.softmax(dot_a, axis=1)
         predict_a = F.argmax(dot_a_softmax, axis=1)
-
-        print 'dot_a:', dot_a.shape
 
         return dot_r, dot_a, predict_r, predict_a
