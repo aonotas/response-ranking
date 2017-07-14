@@ -65,16 +65,19 @@ class ConversationEncoderGRU(chainer.Chain):
         self.use_dropout = use_dropout
         self.use_pad_unk = use_pad_unk
 
-    def __call__(self, x_data, lengths):
+    def __call__(self, x_data, n_agents):
 
         batchsize = len(x_data)
         hx = None
         xs = x_data
+        x_size = len(xs)
+        candidate_size = xs[0].shape[0]
         xp = self.xp
 
         _hy_f, ys = self.gru(hx=hx, xs=xs)
 
         # Extract Last Vector
+        lengths = xp.full((x_size, ), candidate_size, dtype=xp.int32)
         cumsum_idx = xp.cumsum(lengths).astype(xp.int32)
         last_idx = cumsum_idx - 1
         agent_vecs = F.embed_id(last_idx, F.concat(ys, axis=0))
