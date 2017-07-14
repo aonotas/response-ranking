@@ -138,9 +138,9 @@ class MultiLingualConv(chainer.Chain):
         if self.use_pad_unk:
             padding_idx = 0
         flag = agents_ids == -1
-        max_length = agents_ids.shape[1]
+        candidate_size = self.candidate_size
         batchsize = n_agents.shape[0]
-        offset = xp.arange(0, batchsize * max_length, max_length)
+        offset = xp.arange(0, batchsize * candidate_size, candidate_size)
         offset = xp.repeat(offset, repeats=n_agents)[..., None]
         offset = xp.broadcast_to(offset, agents_ids.shape)
 

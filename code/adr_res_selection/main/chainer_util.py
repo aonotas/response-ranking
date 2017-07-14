@@ -5,7 +5,7 @@ def process_one(sample, xp):
     n_context = len(spk_agents)
     binned_n_agents = sample.binned_n_agents_in_ctx
     # agents_id
-    agents_id = xp.full((n_agent, n_context), -1)
+    agents_id = xp.full((n_agent, n_context), -1).astype(xp.int32)
     for i, agent_idx in enumerate(spk_agents):
         agents_id[agent_idx, i] = i
 
@@ -54,11 +54,11 @@ def pre_process(samples, xp):
         y_res.append(_y_res)
 
     # xp format
-    # contexts = xp.array(contexts, dtype=xp.int32)
-    # responses = xp.array(responses, dtype=xp.int32)
+    contexts = xp.array(contexts)
+    responses = xp.array(responses)
     contexts_length = xp.array(contexts_length, dtype=xp.int32)
     responses_length = xp.array(responses_length, dtype=xp.int32)
-    agents_ids = xp.array(agents_ids, dtype=xp.int32)
+    agents_ids = xp.array(agents_ids)
     n_agents = xp.array(n_agents, dtype=xp.int32)
     binned_n_agents = xp.array(binned_n_agents, dtype=xp.int32)
     y_adr = xp.array(y_adr, dtype=xp.int32)
