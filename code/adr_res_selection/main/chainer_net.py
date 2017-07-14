@@ -144,7 +144,7 @@ class MultiLingualConv(chainer.Chain):
 
             sample = [contexts, contexts_length, responses, responses_length,
                       agents_ids, n_agents, binned_n_agents, y_adr, y_res]
-
+            self.n_prev_sents = len(contexts_length[0])
             dot_r, dot_a, predict_r, predict_a = self.__call__(sample)
             for _idx in enumerate(len(binned_n_agents)):
                 _binned_n_agents = binned_n_agents[_idx]

@@ -371,6 +371,7 @@ def main():
     for epoch in xrange(args.n_epoch):
         # train
         model.cleargrads()
+        model.n_prev_sents = args.n_prev_sents
         chainer.config.train = True
         iteration_list = range(0, len(train_n_agents), batchsize)
         perm = np.random.permutation(len(train_n_agents))
