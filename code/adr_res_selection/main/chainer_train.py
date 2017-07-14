@@ -349,6 +349,9 @@ def main():
     n_vocab = vocab_words.size()
     model = MultiLingualConv(args, n_vocab)
 
+    if args.gpu >= 0:
+        model.to_gpu()
+
     for epoch in xrange(args.n_epoch):
         # train
         model.cleargrads()
