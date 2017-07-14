@@ -146,13 +146,14 @@ class MultiLingualConv(chainer.Chain):
                       agents_ids, n_agents, binned_n_agents, y_adr, y_res]
             self.n_prev_sents = len(contexts_length[0])
             dot_r, dot_a, predict_r, predict_a = self.__call__(sample)
-            for _idx in enumerate(range(len(n_agents))):
+            for _idx in range(len(n_agents)):
                 _binned_n_agents = binned_n_agents[_idx]
                 _y_res = y_res[_idx]
                 _y_adr = y_adr[_idx]
                 _pred_a = predict_a[_idx]
                 _pred_r = predict_r[_idx]
-                evaluator.update(_binned_n_agents, 0., 0., _pred_a, _pred_r, _y_adr, _y_res)
+                evaluator.update(to_cpu(_binned_n_agents), 0., 0., to_cpu(
+                    _pred_a.data), to_cpu(_pred_r.data), to_cpu(_y_adr), to_cpu(_y_res))
         #
         evaluator.show_results()
         #
