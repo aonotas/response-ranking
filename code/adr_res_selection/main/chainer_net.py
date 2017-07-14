@@ -134,20 +134,21 @@ class MultiLingualConv(chainer.Chain):
 
     def padding_offset(self, agents_ids, n_agents):
         xp = self.xp
-        agents_ids = xp.concat(agents_ids, axis=0)
+        agents_ids = xp.concatenate(agents_ids, axis=0)
         padding_idx = -1
         if self.use_pad_unk:
             padding_idx = 0
         flag = agents_ids == -1
         candidate_size = self.candidate_size
         batchsize = n_agents.shape[0]
-        offset = xp.arange(0, batchsize * candidate_size, candidate_size)
+        offset = xp.arange(0, batchsize * candidate_size, candidate_size).astype(xp.int32)
         offset = xp.repeat(offset, repeats=n_agents)[..., None]
         offset = xp.broadcast_to(offset, agents_ids.shape)
 
         agents_ids = agents_ids + offset
         # where
-        agents_ids = xp.where(flag, xp.full(agents_ids.shape, padding_idx), agents_ids)
+        agents_ids = xp.where(flag, xp.full(
+            agents_ids.shape, padding_idx, dtype=xp.int32), agents_ids)
 
         # print 'offset:', offset
         return agents_ids
