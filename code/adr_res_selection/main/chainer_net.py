@@ -174,7 +174,7 @@ class MultiLingualConv(chainer.Chain):
         # TODO: use different GRU for responses?
         response_vecs = self.sentence_encoder(responses, responses_length)
 
-        agents_ids = self.padding_offset(agents_ids, n_agents)
+        agents_ids = self.padding_offset(agents_ids, n_agents_list)
         split_size = xp.arange(self.candidate_size, agents_ids.shape[0] * self.candidate_size,
                                self.candidate_size).astype(xp.int32)
         print 'agents_ids:', agents_ids
