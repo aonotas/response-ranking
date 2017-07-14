@@ -225,7 +225,7 @@ class MultiLingualConv(chainer.Chain):
         flag = agent_vec_pad.data != -1024.
         flag = flag[:, :, 0]
 
-        dot_a = F.where(flag, dot_a, -1024.)
+        dot_a = F.where(flag, dot_a, xp.full(dot_a.shape, -1024., dtype=xp.float32))
 
         print 'dot_a:', dot_a.shape
         print dot_a
