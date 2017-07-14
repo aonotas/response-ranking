@@ -13,11 +13,12 @@ def process_one(sample, xp):
     context = [xp.array(c, dtype=xp.int32) for c in sample.context]
     response = [xp.array(r, dtype=xp.int32) for r in sample.response]
 
+    context_length = [len(c) for c in context]
+    response_length = [len(r) for r in response]
+
     # flatten
     context = xp.concatenate(context, axis=0)
     response = xp.concatenate(response, axis=0)
-    context_length = [len(c) for c in context]
-    response_length = [len(r) for r in response]
 
     y_adr = sample.true_adr
     y_res = sample.true_res
