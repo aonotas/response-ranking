@@ -386,5 +386,10 @@ def main():
             loss = loss_alpha * loss_r + (1 - loss_alpha) * loss_a
             print 'loss:', loss
 
+            # update
+            model.zerograds()
+            loss.backward()
+            opt.update()
+
 if __name__ == '__main__':
     main()
