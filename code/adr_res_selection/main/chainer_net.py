@@ -37,7 +37,7 @@ class SentenceEncoderGRU(chainer.Chain):
 
         # 1-D flatten
         xs = xp.concatenate(x_data, axis=0)
-        # lengths = xp.concatenate(lengths, axis=0)
+        lengths = xp.concatenate(lengths, axis=0)
         split_size = xp.cumsum(lengths)[:-1]
 
         xs = Variable(xs)

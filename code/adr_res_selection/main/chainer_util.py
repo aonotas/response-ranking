@@ -13,8 +13,8 @@ def process_one(sample, xp):
     context = [xp.array(c, dtype=xp.int32) for c in sample.context]
     response = [xp.array(r, dtype=xp.int32) for r in sample.response]
 
-    context_length = [len(c) for c in context]
-    response_length = [len(r) for r in response]
+    context_length = xp.array([len(c) for c in context], dtype=xp.int32)
+    response_length = xp.array([len(r) for r in response], dtype=xp.int32)
 
     # flatten
     context = xp.concatenate(context, axis=0)
