@@ -192,6 +192,6 @@ class MultiLingualConv(chainer.Chain):
         response_o = F.embed_id(response_idx, o_a)
         # TODO: batch_matmul(response_o, response_vecs)
 
-        agent_idx = xp.repeat(xp.arange(batchsize), n_agents)
+        agent_idx = xp.repeat(xp.arange(batchsize), n_agents).astype(xp.int32)
         agent_o = F.embed_id(agent_idx, o_r)
         # TODO: batch_matmul(agent_o, spk_agent_vecs)
