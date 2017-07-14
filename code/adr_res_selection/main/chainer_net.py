@@ -115,8 +115,8 @@ class MultiLingualConv(chainer.Chain):
             sentence_encoder=sentence_encoder_context,
             sentence_encoder_response=sentence_encoder_response,
             conversation_encoder=conversation_encoder,
-            layer_a=L.Linear(hidden_dim * 2, hidden_dim, nobias=True),
-            layer_r=L.Linear(hidden_dim * 2, hidden_dim, nobias=True),
+            layer_agent=L.Linear(hidden_dim * 2, hidden_dim, nobias=True),
+            layer_response=L.Linear(hidden_dim * 2, hidden_dim, nobias=True),
         )
         self.args = args
         self.use_pad_unk = args.use_pad_unk
@@ -189,25 +189,32 @@ class MultiLingualConv(chainer.Chain):
         # predict
         a_h = F.concat([spk_agent_vecs, h_context], axis=1)
 
-        o_a = self.layer_a(a_h)
-        o_r = self.layer_r(a_h)
+        o_response = self.layer_response(a_h)
+        o_agent = self.layer_agent(a_h)
 
         # broadcast
-        response_idx = xp.repeat(xp.arange(batchsize), self.candidate_size, axis=0).astype(xp.int32)
-        response_o = F.embed_id(response_idx, o_a)
-        print 'response_o:', response_o.shape
+        # response_idx = xp.repeat(xp.arange(batchsize), self.candidate_size, axis=0).astype(xp.int32)
+        # response_o = F.embed_id(response_idx, o_a)
+        # print 'response_o:', response_o.shape
+        print 'o_response:', o_response.shape
         print 'response_vecs:', response_vecs.shape
 
-        dot_r = F.matmul(response_o, response_vecs)
+        r_shape = (batchsize, self.candidate_size, -1)
+        response_vecs = F.reshape(response_vecs, r_shape)  # (batch, candidate_size, 256)
+        print 'response_vecs:', response_vecs.shape
+
+        response_o = F.reshape(response_o, (batchsize, 1, -1))  # (batch, 1, 256)
+
+        dot_r = F.batch_matmul(response_vecs, response_o, transb=True)
         print 'dot_r:', dot_r.shape
         # TODO: batch_matmul(response_o, response_vecs)
 
-        agent_idx = xp.repeat(xp.arange(batchsize), n_agents_list, axis=0).astype(xp.int32)
-        agent_o = F.embed_id(agent_idx, o_r)
-        print 'agent_o:', agent_o.shape
+        # agent_idx = xp.repeat(xp.arange(batchsize), n_agents_list, axis=0).astype(xp.int32)
+        # agent_o = F.embed_id(agent_idx, o_r)
+        print 'o_agent:', o_agent.shape
         print 'agent_vecs:', agent_vecs.shape
 
-        dot_a = F.matmul(agent_o, agent_vecs)
+        dot_a = F.matmul(o_agent, agent_vecs, transb=True)
         print 'dot_a:', dot_a.shape
 
         # TODO: batch_matmul(agent_o, agent_vecs)
