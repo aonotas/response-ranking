@@ -123,7 +123,8 @@ class MultiLingualConv(chainer.Chain):
         self.n_prev_sents = args.n_prev_sents
         self.candidate_size = args.n_cands
 
-    def predict_all(self, samples, batchsize=32):
+    def predict_all(self, samples):
+        batchsize = 1
         (dev_contexts, dev_contexts_length, dev_responses, dev_responses_length,
          dev_agents_ids, dev_n_agents, dev_binned_n_agents, dev_y_adr, dev_y_res) = samples
         evaluator = Evaluator()

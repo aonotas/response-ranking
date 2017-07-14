@@ -386,7 +386,8 @@ def main():
             # responses = train_responses[xp_index]
             # agents_ids = train_agents_ids[xp_index]
 
-            contexts_length = train_contexts_length[xp_index]
+            # contexts_length = train_contexts_length[xp_index]
+            contexts_length = [train_contexts_length[_i] for _i in xp_index]
             responses_length = train_responses_length[xp_index]
             n_agents = train_n_agents[xp_index]
             binned_n_agents = train_binned_n_agents[xp_index]
@@ -412,10 +413,10 @@ def main():
 
         # predict
         # dev
-        model.predict_all(dev_samples, batchsize=args.batch)
+        model.predict_all(dev_samples)
 
         # test
-        model.predict_all(test_samples, batchsize=args.batch)
+        model.predict_all(test_samples)
 
 if __name__ == '__main__':
     main()

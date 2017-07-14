@@ -56,7 +56,7 @@ def pre_process(samples, xp):
     # xp format
     # contexts = xp.array(contexts)
     # responses = xp.array(responses)
-    contexts_length = xp.array(contexts_length, dtype=xp.int32)
+    # contexts_length = xp.array(contexts_length, dtype=xp.int32)
     responses_length = xp.array(responses_length, dtype=xp.int32)
     # agents_ids = xp.array(agents_ids)
     n_agents = xp.array(n_agents, dtype=xp.int32)
