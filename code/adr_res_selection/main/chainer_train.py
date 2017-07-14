@@ -229,6 +229,7 @@ def main():
 
     parser.add_argument('--batch', type=int, default=32, help='batch size')
     parser.add_argument('--opt', default='adam', help='optimization method')
+    parser.add_argument('--sentence_encoder_type', default='gru', help='sentence_encoder_type')
     parser.add_argument('--epoch', type=int, default=30, help='number of epochs')
     parser.add_argument('--lr', type=float, default=0.001, help='learning rate')
     parser.add_argument('--activation', default='tanh', help='activation')

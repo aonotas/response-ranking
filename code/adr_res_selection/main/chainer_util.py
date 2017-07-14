@@ -5,7 +5,7 @@ def process_one(sample, xp):
     n_context = len(spk_agents)
     binned_n_agents = sample.binned_n_agents_in_ctx
     # agents_id
-    agents_id = xp.full((n_agent, n_context), -1).astype(xp.int32)
+    agents_id = xp.full((n_agent, n_context), -1, dtype=xp.int32)
     for i, agent_idx in enumerate(spk_agents):
         agents_id[agent_idx, i] = i
 
