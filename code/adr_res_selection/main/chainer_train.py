@@ -246,6 +246,8 @@ def main():
                         type=int, default=1, help='normalize')
     parser.add_argument('--use_pad_unk', dest='use_pad_unk',
                         type=int, default=1, help='use_pad_unk')
+    parser.add_argument('--test', dest='test',
+                        type=str, default='', help='test')
 
     args = parser.parse_args()
     argv = args
