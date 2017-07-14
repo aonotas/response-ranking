@@ -353,8 +353,8 @@ def main():
         # train
         model.cleargrads()
         chainer.config.train = True
-        iteration_list = range(0, len(x_train), batchsize)
-        perm = np.random.permutation(len(x_train))
+        iteration_list = range(0, len(train_n_agents), batchsize)
+        perm = np.random.permutation(len(train_n_agents))
         predict_lists = []
         sum_loss = 0.0
         for i_index, index in enumerate(iteration_list):
