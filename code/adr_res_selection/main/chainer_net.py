@@ -88,7 +88,7 @@ class ConversationEncoderGRU(chainer.Chain):
         first_agent_idx = xp.concatenate([xp.zeros((1, ), dtype=xp.int32), cumsum_idx[:-1]], axis=0)
         spk_agent_vecs = F.embed_id(first_agent_idx, agent_vecs)
 
-        split_agent_vecs = F.split_axis(agent_vecs, cumsum_idx[:-1])
+        split_agent_vecs = F.split_axis(agent_vecs, cumsum_idx[:-1], axis=0)
         pad_agent_vecs = F.pad_sequence(split_agent_vecs, padding=-1024.)
         # Max Pooling
         h_context = F.max(pad_agent_vecs, axis=1)
@@ -188,7 +188,7 @@ class MultiLingualConv(chainer.Chain):
         o_r = self.layer_r(a_h)
 
         # broadcast
-        response_idx = xp.repeat(xp.arange(batchsize), self.candidate_size)
+        response_idx = xp.repeat(xp.arange(batchsize), self.candidate_size).astype(xp.int32)
         response_o = F.embed_id(response_idx, o_a)
         # TODO: batch_matmul(response_o, response_vecs)
 
