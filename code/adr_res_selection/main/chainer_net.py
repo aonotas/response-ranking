@@ -206,15 +206,28 @@ class MultiLingualConv(chainer.Chain):
         response_o = F.reshape(response_o, (batchsize, 1, -1))  # (batch, 1, 256)
 
         dot_r = F.batch_matmul(response_vecs, response_o, transb=True)
-        print 'dot_r:', dot_r.shape
-        # TODO: batch_matmul(response_o, response_vecs)
+        dot_r = F.reshape(dot_r, (batchsize, -1))
 
-        # agent_idx = xp.repeat(xp.arange(batchsize), n_agents_list, axis=0).astype(xp.int32)
-        # agent_o = F.embed_id(agent_idx, o_r)
+        print 'dot_r:', dot_r.shape
+
         print 'agent_o:', agent_o.shape
         print 'agent_vecs:', agent_vecs.shape
 
-        dot_a = F.matmul(agent_o, agent_vecs, transb=True)
+        cumsum_idx = xp.cumsum(n_agents).astype(xp.int32)
+        agent_vec_list = F.split_axis(agent_vecs, to_cpu(cumsum_idx[:-1]), axis=0)
+        agent_vec_pad = F.pad_sequence(agent_vec_list, padding=-1024.)
+
+        agent_o = F.reshape(agent_o, (batchsize, 1, -1))
+
+        dot_a = F.batch_matmul(agent_vec_pad, agent_o, transb=True)
+        dot_a = F.reshape(dot_a, (batchsize, -1))
+
+        flag = agent_vec_pad.data != -1024.
+        flag = flag[:, :, 0]
+
+        dot_a = F.where(flag, dot_a, -1024.)
+
         print 'dot_a:', dot_a.shape
+        print dot_a
 
         # TODO: batch_matmul(agent_o, agent_vecs)
