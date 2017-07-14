@@ -92,6 +92,7 @@ def create_samples(argv, train_dataset, dev_dataset, test_dataset, vocab_word):
     # dev_samples = numpy_format(dev_samples, batch_size, test=True)
     # test_samples = numpy_format(test_samples, batch_size, test=True)
     n_train_batches = None
+    evalset = None
 
     say('\n\nTRAIN SETTING\tBatch Size:%d  Epoch:%d  Vocab:%d  Max Words:%d' %
         (batch_size, argv.epoch, vocab_word.size(), max_n_words))
