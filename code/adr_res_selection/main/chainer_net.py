@@ -17,6 +17,8 @@ from ..utils.evaluator import Evaluator
 def extract_last_vector():
     pass
 
+to_cpu = chainer.cuda.to_cpu
+
 
 class SentenceEncoderGRU(chainer.Chain):
 
@@ -43,7 +45,7 @@ class SentenceEncoderGRU(chainer.Chain):
         xs = F.dropout(xs, ratio=self.use_dropout)
 
         # split
-        xs = F.split_axis(xs, split_size, axis=0)
+        xs = F.split_axis(xs, to_cpu(split_size), axis=0)
 
         # GRU
         _hy, ys = self.gru(hx=hx, xs=xs)
@@ -88,7 +90,7 @@ class ConversationEncoderGRU(chainer.Chain):
         first_agent_idx = xp.concatenate([xp.zeros((1, ), dtype=xp.int32), cumsum_idx[:-1]], axis=0)
         spk_agent_vecs = F.embed_id(first_agent_idx, agent_vecs)
 
-        split_agent_vecs = F.split_axis(agent_vecs, cumsum_idx[:-1], axis=0)
+        split_agent_vecs = F.split_axis(agent_vecs, to_cpu(cumsum_idx[:-1]), axis=0)
         pad_agent_vecs = F.pad_sequence(split_agent_vecs, padding=-1024.)
         # Max Pooling
         h_context = F.max(pad_agent_vecs, axis=1)
@@ -147,7 +149,7 @@ class MultiLingualConv(chainer.Chain):
         candidate_size = self.candidate_size
         batchsize = n_agents.shape[0]
         offset = xp.arange(0, batchsize * candidate_size, candidate_size).astype(xp.int32)
-        offset = xp.repeat(offset, repeats=n_agents)[..., None]
+        offset = xp.repeat(offset, repeats=n_agents, axis=0)[..., None]
         offset = xp.broadcast_to(offset, agents_ids.shape)
 
         agents_ids = agents_ids + offset
@@ -176,7 +178,7 @@ class MultiLingualConv(chainer.Chain):
                                self.candidate_size).astype(xp.int32)
         agent_input_vecs = F.embed_id(agents_ids, pad_context_vecs)
         agent_input_vecs = F.reshape(agent_input_vecs, (-1, agent_input_vecs.shape[-1]))
-        agent_input_vecs = F.split_axis(agent_input_vecs, split_size, axis=0)
+        agent_input_vecs = F.split_axis(agent_input_vecs, to_cpu(split_size), axis=0)
 
         agent_vecs, h_context, spk_agent_vecs = self.conversation_encoder(
             agent_input_vecs, n_agents)
@@ -188,10 +190,10 @@ class MultiLingualConv(chainer.Chain):
         o_r = self.layer_r(a_h)
 
         # broadcast
-        response_idx = xp.repeat(xp.arange(batchsize), self.candidate_size).astype(xp.int32)
+        response_idx = xp.repeat(xp.arange(batchsize), self.candidate_size, axis=0).astype(xp.int32)
         response_o = F.embed_id(response_idx, o_a)
         # TODO: batch_matmul(response_o, response_vecs)
 
-        agent_idx = xp.repeat(xp.arange(batchsize), n_agents).astype(xp.int32)
+        agent_idx = xp.repeat(xp.arange(batchsize), n_agents, axis=0).astype(xp.int32)
         agent_o = F.embed_id(agent_idx, o_r)
         # TODO: batch_matmul(agent_o, spk_agent_vecs)
