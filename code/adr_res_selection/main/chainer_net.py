@@ -70,6 +70,7 @@ class ConversationEncoderGRU(chainer.Chain):
         batchsize = len(x_data)
         hx = None
         xs = x_data
+        xp = self.xp
 
         _hy_f, ys = self.gru(hx=hx, xs=xs)
 
