@@ -361,9 +361,9 @@ def main():
         for i_index, index in enumerate(iteration_list):
             xp_index = perm[index:index + batchsize]
 
-            contexts = [train_contexts[_i] for _i in perm]
-            responses = [train_responses[_i] for _i in perm]
-            agents_ids = [train_agents_ids[_i] for _i in perm]
+            contexts = [train_contexts[_i] for _i in xp_index]
+            responses = [train_responses[_i] for _i in xp_index]
+            agents_ids = [train_agents_ids[_i] for _i in xp_index]
             # contexts = train_contexts[xp_index]
             # responses = train_responses[xp_index]
             # agents_ids = train_agents_ids[xp_index]
