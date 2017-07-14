@@ -139,7 +139,7 @@ class MultiLingualConv(chainer.Chain):
         #
         # return evaluator.acc_both, evaluator.acc_adr, evaluator.acc_res
 
-    def padding_offset(self, agents_ids, n_agents):
+    def padding_offset(self, agents_ids, n_agents_list):
         xp = self.xp
         agents_ids = xp.concatenate(agents_ids, axis=0)
         padding_idx = -1
@@ -147,9 +147,9 @@ class MultiLingualConv(chainer.Chain):
             padding_idx = 0
         flag = agents_ids == -1
         candidate_size = self.candidate_size
-        batchsize = n_agents.shape[0]
+        batchsize = len(n_agents_list)
         offset = xp.arange(0, batchsize * candidate_size, candidate_size).astype(xp.int32)
-        offset = xp.repeat(offset, repeats=n_agents.tolist(), axis=0)[..., None]
+        offset = xp.repeat(offset, repeats=n_agents_list, axis=0)[..., None]
         offset = xp.broadcast_to(offset, agents_ids.shape)
 
         agents_ids = agents_ids + offset
@@ -164,6 +164,7 @@ class MultiLingualConv(chainer.Chain):
         # Sentence Encoder
         xp = self.xp
         contexts, contexts_length, responses, responses_length, agents_ids, n_agents, binned_n_agents, y_adr, y_res = samples
+        n_agents_list = n_agents.tolist()
         context_vecs = self.sentence_encoder(contexts, contexts_length)
         pad_context_vecs = context_vecs
         batchsize = n_agents.shape[0]
@@ -176,6 +177,7 @@ class MultiLingualConv(chainer.Chain):
         agents_ids = self.padding_offset(agents_ids, n_agents)
         split_size = xp.arange(self.candidate_size, agents_ids.shape[0] * self.candidate_size,
                                self.candidate_size).astype(xp.int32)
+        print 'agents_ids:', agents_ids
         agent_input_vecs = F.embed_id(agents_ids, pad_context_vecs)
         agent_input_vecs = F.reshape(agent_input_vecs, (-1, agent_input_vecs.shape[-1]))
         agent_input_vecs = F.split_axis(agent_input_vecs, to_cpu(split_size), axis=0)
@@ -192,8 +194,13 @@ class MultiLingualConv(chainer.Chain):
         # broadcast
         response_idx = xp.repeat(xp.arange(batchsize), self.candidate_size, axis=0).astype(xp.int32)
         response_o = F.embed_id(response_idx, o_a)
+        print 'response_o:', response_o.shape
+        print 'response_vecs:', response_vecs.shape
         # TODO: batch_matmul(response_o, response_vecs)
 
-        agent_idx = xp.repeat(xp.arange(batchsize), n_agents.tolist(), axis=0).astype(xp.int32)
+        agent_idx = xp.repeat(xp.arange(batchsize), n_agents_list, axis=0).astype(xp.int32)
         agent_o = F.embed_id(agent_idx, o_r)
+        print 'agent_o:', agent_o.shape
+        print 'spk_agent_vecs:', spk_agent_vecs
+
         # TODO: batch_matmul(agent_o, spk_agent_vecs)
