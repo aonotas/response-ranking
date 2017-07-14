@@ -196,7 +196,7 @@ class MultiLingualConv(chainer.Chain):
         # response_idx = xp.repeat(xp.arange(batchsize), self.candidate_size, axis=0).astype(xp.int32)
         # response_o = F.embed_id(response_idx, o_a)
         # print 'response_o:', response_o.shape
-        print 'o_response:', o_response.shape
+        print 'response_o:', response_o.shape
         print 'response_vecs:', response_vecs.shape
 
         r_shape = (batchsize, self.candidate_size, -1)
