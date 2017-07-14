@@ -104,7 +104,7 @@ class MultiLingualConv(chainer.Chain):
             args.dim_emb, hidden_dim, args.use_dropout, use_pad_unk=args.use_pad_unk)
 
         super(MultiLingualConv, self).__init__(
-            dammy_emb=L.EmbedID(1, args.dim_emb, ignore_label=-1),
+            dammy_emb=L.EmbedID(1, hidden_dim, ignore_label=-1),
             sentence_encoder=sentence_encoder_context,
             sentence_encoder_response=sentence_encoder_response,
             conversation_encoder=conversation_encoder,
