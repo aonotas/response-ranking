@@ -100,7 +100,8 @@ class MultiLingualConv(chainer.Chain):
                 n_vocab, args.dim_emb, hidden_dim, args.use_dropout)
             sentence_encoder_response = SentenceEncoderGRU(
                 n_vocab, args.dim_emb, hidden_dim, args.use_dropout)
-        conversation_encoder = ConversationEncoderGRU(use_pad_unk=args.use_pad_unk)
+        conversation_encoder = ConversationEncoderGRU(
+            args.dim_emb, hidden_dim, args.use_dropout, use_pad_unk=args.use_pad_unk)
 
         super(MultiLingualConv, self).__init__(
             dammy_emb=L.EmbedID(1, args.dim_emb, ignore_label=-1),
