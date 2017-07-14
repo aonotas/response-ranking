@@ -75,8 +75,8 @@ class ConversationEncoderGRU(chainer.Chain):
         _hy_f, ys = self.gru(hx=hx, xs=xs)
 
         # Extract Last Vector
-        cumsum_idx = xp.cumsum(lengths)
-        last_idx = cumsum_idx - xp.ones(cumsum_idx.shape, dtype=xp.int32)
+        cumsum_idx = xp.cumsum(lengths).astype(xp.int32)
+        last_idx = cumsum_idx - 1
         agent_vecs = F.embed_id(last_idx, F.concat(ys, axis=0))
         agent_vecs = F.dropout(agent_vecs, ratio=self.use_dropout)
 
