@@ -147,7 +147,7 @@ class MultiLingualConv(chainer.Chain):
             self.n_prev_sents = len(contexts_length[0])
             dot_r, dot_a, predict_r, predict_a = self.__call__(sample)
             evaluator.update(to_cpu(binned_n_agents).tolist(), 0., 0., to_cpu(
-                predict_a).tolist(), to_cpu(predict_r).tolist(), to_cpu(y_adr).tolist(), to_cpu(y_res).tolist())
+                predict_a.data).tolist(), to_cpu(predict_r.data).tolist(), to_cpu(y_adr).tolist(), to_cpu(y_res).tolist())
             for _idx in range(len(n_agents)):
                 _binned_n_agents = binned_n_agents[_idx]
                 _y_res = y_res[_idx]
