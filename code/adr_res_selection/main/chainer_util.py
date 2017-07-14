@@ -7,7 +7,7 @@ def process_one(sample, xp):
     # agents_id
     agents_id = xp.full((n_agent, n_context), -1)
     for i, agent_idx in enumerate(spk_agents):
-        agents_id[i, agent_idx] = i
+        agents_id[agent_idx, i] = i
 
     # convert to numpy
     context = [xp.array(c, dtype=xp.int32) for c in sample.context]
