@@ -378,7 +378,10 @@ def main():
             sample = [contexts, contexts_length, responses, responses_length,
                       agents_ids, n_agents, binned_n_agents, y_adr, y_res]
 
-            result = model(sample)
+            dot_r, dot_a, predict_r, predict_a = model(sample)
+
+            loss = F.softmax_cross_entropy(dot_r, y_res)
+            print 'loss:', loss
 
 if __name__ == '__main__':
     main()
