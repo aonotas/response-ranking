@@ -167,10 +167,8 @@ class MultiLingualConv(chainer.Chain):
         response_vecs = self.sentence_encoder(responses, responses_length)
 
         agents_ids = self.padding_offset(agents_ids, n_agents)
-        split_size = xp.cumsum(n_agents)[:-1]
-        split_size = xp.arange(0, agents_ids.shape[0] * self.candidate_size,
+        split_size = xp.arange(self.candidate_size, agents_ids.shape[0] * self.candidate_size,
                                self.candidate_size).astype(xp.int32)
-        split_size = xp.cumsum(split_size)[:-1]
         agent_input_vecs = F.embed_id(agents_ids, pad_context_vecs)
         agent_input_vecs = F.reshape(agent_input_vecs, (-1, agent_input_vecs.shape[-1]))
         agent_input_vecs = F.split_axis(agent_input_vecs, split_size, axis=0)
