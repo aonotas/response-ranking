@@ -150,7 +150,8 @@ class MultiLingualConv(chainer.Chain):
                 predict_a.data), to_cpu(predict_r.data), to_cpu(y_adr), to_cpu(y_res))
         #
         evaluator.show_results()
-        #
+
+        return evaluator.acc_both, evaluator.acc_adr, evaluator.acc_res
 
     def padding_offset(self, agents_ids, n_agents_list):
         xp = self.xp

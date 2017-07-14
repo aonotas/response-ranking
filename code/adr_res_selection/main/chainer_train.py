@@ -368,6 +368,9 @@ def main():
     if args.gpu >= 0:
         model.to_gpu()
 
+    acc_history = {}
+    best_dev_acc_both = 0.
+    unchanged = 0
     for epoch in xrange(args.n_epoch):
         # train
         model.cleargrads()
@@ -405,19 +408,46 @@ def main():
             loss_a = F.softmax_cross_entropy(dot_a, y_adr)
             loss = loss_alpha * loss_r + (1 - loss_alpha) * loss_a
             sum_loss += loss.data
-            print 'loss:', loss
 
             # update
             model.zerograds()
             loss.backward()
             opt.update()
+        say('\n loss: %s' % str(sum_loss))
 
-        # predict
-        # dev
-        model.predict_all(dev_samples)
+        say('\n\n  DEV  ')
+        dev_acc_both, dev_acc_adr, dev_acc_res = model.predict_all(dev_samples)
 
-        # test
-        model.predict_all(test_samples)
+        if dev_acc_both > best_dev_acc_both:
+            unchanged = 0
+            best_dev_acc_both = dev_acc_both
+            acc_history[epoch + 1] = [(best_dev_acc_both, dev_acc_adr, dev_acc_res)]
+
+            model_filename = './models/' + argv.output_fn + '_' + \
+                argv.emb_type + '_epoch' + str(epoch) + '.model'
+            serializers.save_hdf5(model_filename + '.model', model)
+
+        say('\n\n\r  TEST  ')
+        test_acc_both, test_acc_adr, test_acc_res = model.predict_all(test_samples)
+
+        if unchanged == 0:
+            if epoch + 1 in acc_history:
+                acc_history[epoch + 1].append((test_acc_both, test_acc_adr, test_acc_res))
+            else:
+                acc_history[epoch + 1] = [(test_acc_both, test_acc_adr, test_acc_res)]
+
+        #####################
+        # Show best results #
+        #####################
+        say('\n\tBEST ACCURACY HISTORY')
+        for k, v in sorted(acc_history.items()):
+            text = '\n\tEPOCH-{:>3} | DEV  Both:{:>7.2%}  Adr:{:>7.2%}  Res:{:>7.2%}'
+            text = text.format(k, v[0][0], v[0][1], v[0][2])
+            if len(v) == 2:
+                text += ' | TEST  Both:{:>7.2%}  Adr:{:>7.2%}  Res:{:>7.2%}'
+                text = text.format(v[1][0], v[1][1], v[1][2])
+            say(text)
+
 
 if __name__ == '__main__':
     main()
