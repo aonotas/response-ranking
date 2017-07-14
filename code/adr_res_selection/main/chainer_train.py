@@ -380,7 +380,10 @@ def main():
 
             dot_r, dot_a, predict_r, predict_a = model(sample)
 
-            loss = F.softmax_cross_entropy(dot_r, y_res)
+            loss_alpha = 0.5
+            loss_r = F.softmax_cross_entropy(dot_r, y_res)
+            loss_a = F.softmax_cross_entropy(dot_a, y_adr)
+            loss = loss_alpha * loss_r + (1 - loss_alpha) * loss_a
             print 'loss:', loss
 
 if __name__ == '__main__':
