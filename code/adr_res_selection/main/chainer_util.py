@@ -1,5 +1,3 @@
-import numpy as np
-
 
 def process_one(sample, xp):
     spk_agents = sample.spk_agents
@@ -56,11 +54,11 @@ def pre_process(samples, xp):
         y_res.append(_y_res)
 
     # xp format
-    contexts = np.array(contexts)
-    responses = np.array(responses)
+    # contexts = xp.array(contexts)
+    # responses = xp.array(responses)
     contexts_length = xp.array(contexts_length, dtype=xp.int32)
     responses_length = xp.array(responses_length, dtype=xp.int32)
-    agents_ids = np.array(agents_ids)
+    # agents_ids = xp.array(agents_ids)
     n_agents = xp.array(n_agents, dtype=xp.int32)
     binned_n_agents = xp.array(binned_n_agents, dtype=xp.int32)
     y_adr = xp.array(y_adr, dtype=xp.int32)

@@ -360,11 +360,15 @@ def main():
         for i_index, index in enumerate(iteration_list):
             xp_index = perm[index:index + batchsize]
 
-            contexts = train_contexts[xp_index]
-            responses = train_responses[xp_index]
+            contexts = [train_contexts[_i] for _i in perm]
+            responses = [train_responses[_i] for _i in perm]
+            agents_ids = [train_agents_ids[_i] for _i in perm]
+            # contexts = train_contexts[xp_index]
+            # responses = train_responses[xp_index]
+            # agents_ids = train_agents_ids[xp_index]
+
             contexts_length = train_contexts_length[xp_index]
             responses_length = train_responses_length[xp_index]
-            agents_ids = train_agents_ids[xp_index]
             n_agents = train_n_agents[xp_index]
             binned_n_agents = train_binned_n_agents[xp_index]
             y_adr = train_y_adr[xp_index]
