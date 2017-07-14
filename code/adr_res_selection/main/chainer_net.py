@@ -172,7 +172,8 @@ class MultiLingualConv(chainer.Chain):
                                self.candidate_size).astype(xp.int32)
         split_size = xp.cumsum(split_size)[:-1]
         agent_input_vecs = F.embed_id(agents_ids, pad_context_vecs)
-        agent_input_vecs = F.split_axis(agent_input_vecs, agent_input_vecs.shape[0], axis=0)
+        agent_input_vecs = F.reshape(agent_input_vecs, (-1, agent_input_vecs.shape[-1]))
+        agent_input_vecs = F.split_axis(agent_input_vecs, split_size, axis=0)
 
         agent_vecs, h_context, spk_agent_vecs = self.conversation_encoder(
             agent_input_vecs, n_agents)
