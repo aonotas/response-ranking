@@ -347,6 +347,10 @@ def main():
     n_vocab = vocab_words.size()
     model = MultiLingualConv(args, n_vocab)
 
+    opt = optimizers.Adam(alpha=0.001, beta1=0.9, beta2=0.9, eps=1e-12)
+    opt.setup(model)
+    opt.add_hook(chainer.optimizer.GradientClipping(5.0))
+
     if args.gpu >= 0:
         model.to_gpu()
 
@@ -384,6 +388,7 @@ def main():
             loss_r = F.softmax_cross_entropy(dot_r, y_res)
             loss_a = F.softmax_cross_entropy(dot_a, y_adr)
             loss = loss_alpha * loss_r + (1 - loss_alpha) * loss_a
+            sum_loss += loss.data
             print 'loss:', loss
 
             # update
