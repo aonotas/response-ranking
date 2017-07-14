@@ -78,12 +78,13 @@ class ConversationEncoderGRU(chainer.Chain):
 
         # Extract Last Vector
         lengths = xp.full((x_size, ), candidate_size, dtype=xp.int32)
-        cumsum_idx = xp.cumsum(lengths).astype(xp.int32)
-        last_idx = cumsum_idx - 1
+        last_idx = xp.cumsum(lengths).astype(xp.int32)
+        last_idx = last_idx - 1
         agent_vecs = F.embed_id(last_idx, F.concat(ys, axis=0))
         agent_vecs = F.dropout(agent_vecs, ratio=self.use_dropout)
 
         # Extract First Agent (idx=0)
+        cumsum_idx = xp.cumsum(n_agents).astype(xp.int32)
         first_agent_idx = xp.concatenate([xp.zeros((1, ), dtype=xp.int32), cumsum_idx[:-1]], axis=0)
         spk_agent_vecs = F.embed_id(first_agent_idx, agent_vecs)
 
