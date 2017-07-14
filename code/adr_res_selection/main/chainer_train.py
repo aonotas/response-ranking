@@ -166,7 +166,7 @@ def train(argv, model_api, n_train_batches, evalset, dev_samples, test_samples):
             say(text)
 
 
-def main(argv):
+def main():
     logging.basicConfig(
         format='%(asctime)s : %(threadName)s : %(levelname)s : %(message)s',
         level=logging.INFO)
