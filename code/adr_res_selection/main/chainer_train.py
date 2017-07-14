@@ -238,8 +238,6 @@ def main():
 
     parser.add_argument('--gpu', '-g', default=-1, type=int,
                         help='GPU ID (negative value indicates CPU)')
-    parser.add_argument('--batchsize', dest='batchsize', type=int,
-                        default=20, help='learning minibatch size')
     parser.add_argument('--n_epoch', dest='n_epoch', type=int, default=100, help='n_epoch')
     parser.add_argument('--use_dropout', dest='use_dropout',
                         type=float, default=0.33, help='use_dropout')
@@ -254,7 +252,7 @@ def main():
 
     args = parser.parse_args()
     argv = args
-    batchsize = args.batchsize
+    batchsize = args.batch
     print args
 
     if args.test is not '':
