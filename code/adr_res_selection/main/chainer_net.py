@@ -149,7 +149,7 @@ class MultiLingualConv(chainer.Chain):
         candidate_size = self.candidate_size
         batchsize = n_agents.shape[0]
         offset = xp.arange(0, batchsize * candidate_size, candidate_size).astype(xp.int32)
-        offset = xp.repeat(offset, repeats=n_agents, axis=0)[..., None]
+        offset = xp.repeat(offset, repeats=n_agents.tolist(), axis=0)[..., None]
         offset = xp.broadcast_to(offset, agents_ids.shape)
 
         agents_ids = agents_ids + offset
@@ -194,6 +194,6 @@ class MultiLingualConv(chainer.Chain):
         response_o = F.embed_id(response_idx, o_a)
         # TODO: batch_matmul(response_o, response_vecs)
 
-        agent_idx = xp.repeat(xp.arange(batchsize), n_agents, axis=0).astype(xp.int32)
+        agent_idx = xp.repeat(xp.arange(batchsize), n_agents.tolist(), axis=0).astype(xp.int32)
         agent_o = F.embed_id(agent_idx, o_r)
         # TODO: batch_matmul(agent_o, spk_agent_vecs)
