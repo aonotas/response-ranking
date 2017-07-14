@@ -189,8 +189,8 @@ class MultiLingualConv(chainer.Chain):
         # predict
         a_h = F.concat([spk_agent_vecs, h_context], axis=1)
 
-        o_response = self.layer_response(a_h)
-        o_agent = self.layer_agent(a_h)
+        response_o = self.layer_response(a_h)
+        agent_o = self.layer_agent(a_h)
 
         # broadcast
         # response_idx = xp.repeat(xp.arange(batchsize), self.candidate_size, axis=0).astype(xp.int32)
@@ -211,10 +211,10 @@ class MultiLingualConv(chainer.Chain):
 
         # agent_idx = xp.repeat(xp.arange(batchsize), n_agents_list, axis=0).astype(xp.int32)
         # agent_o = F.embed_id(agent_idx, o_r)
-        print 'o_agent:', o_agent.shape
+        print 'agent_o:', agent_o.shape
         print 'agent_vecs:', agent_vecs.shape
 
-        dot_a = F.matmul(o_agent, agent_vecs, transb=True)
+        dot_a = F.matmul(agent_o, agent_vecs, transb=True)
         print 'dot_a:', dot_a.shape
 
         # TODO: batch_matmul(agent_o, agent_vecs)
