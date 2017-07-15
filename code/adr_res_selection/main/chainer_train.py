@@ -339,10 +339,12 @@ def main():
     del dev_dataset
     del test_dataset
 
+    say('\nmake train data')
     (train_contexts, train_contexts_length, train_responses,
      train_responses_length, train_agents_ids, train_n_agents,
      train_binned_n_agents, train_y_adr, train_y_res) = ch_util.pre_process(train_samples, xp)
 
+    say('\nmake dev data')
     (dev_contexts, dev_contexts_length, dev_responses,
      dev_responses_length, dev_agents_ids, dev_n_agents,
      dev_binned_n_agents, dev_y_adr, dev_y_res) = ch_util.pre_process(dev_samples, xp)
@@ -350,6 +352,7 @@ def main():
     dev_samples = [dev_contexts, dev_contexts_length, dev_responses, dev_responses_length,
                    dev_agents_ids, dev_n_agents, dev_binned_n_agents, dev_y_adr, dev_y_res]
 
+    say('\nmake test data')
     (test_contexts, test_contexts_length, test_responses,
      test_responses_length, test_agents_ids, test_n_agents,
      test_binned_n_agents, test_y_adr, test_y_res) = ch_util.pre_process(test_samples, xp)
