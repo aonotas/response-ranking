@@ -18,6 +18,7 @@ def extract_last_vector():
     pass
 
 to_cpu = chainer.cuda.to_cpu
+to_gpu = chainer.cuda.to_gpu
 
 
 class SentenceEncoderGRU(chainer.Chain):
@@ -136,11 +137,16 @@ class MultiLingualConv(chainer.Chain):
             responses = dev_responses[index:index + batchsize]
             agents_ids = dev_agents_ids[index:index + batchsize]
             contexts_length = dev_contexts_length[index:index + batchsize]
-            responses_length = dev_responses_length[index:index + batchsize]
-            n_agents = dev_n_agents[index:index + batchsize]
-            binned_n_agents = dev_binned_n_agents[index:index + batchsize]
-            y_adr = dev_y_adr[index:index + batchsize]
-            y_res = dev_y_res[index:index + batchsize]
+            contexts = [to_gpu(_i) for _i in contexts]
+            responses = [to_gpu(_i) for _i in responses]
+            agents_ids = [to_gpu(_i) for _i in agents_ids]
+            contexts_length = [to_gpu(_i) for _i in contexts_length]
+
+            responses_length = to_gpu(dev_responses_length[index:index + batchsize])
+            n_agents = to_gpu(dev_n_agents[index:index + batchsize])
+            binned_n_agents = to_gpu(dev_binned_n_agents[index:index + batchsize])
+            y_adr = to_gpu(dev_y_adr[index:index + batchsize])
+            y_res = to_gpu(dev_y_res[index:index + batchsize])
 
             sample = [contexts, contexts_length, responses, responses_length,
                       agents_ids, n_agents, binned_n_agents, y_adr, y_res]

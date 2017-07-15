@@ -25,6 +25,8 @@ from ..utils import say, load_dataset, load_init_emb, load_multi_ling_init_emb
 
 import chainer_util as ch_util
 
+to_gpu = chainer.cuda.to_gpu
+
 
 def get_datasets(argv):
     say('\nSET UP DATASET\n')
@@ -386,20 +388,20 @@ def main():
         for i_index, index in enumerate(iteration_list):
             xp_index = perm[index:index + batchsize]
 
-            contexts = [train_contexts[_i] for _i in xp_index]
-            responses = [train_responses[_i] for _i in xp_index]
-            agents_ids = [train_agents_ids[_i] for _i in xp_index]
+            contexts = [to_gpu(train_contexts[_i]) for _i in xp_index]
+            responses = [to_gpu(train_responses[_i]) for _i in xp_index]
+            agents_ids = [to_gpu(train_agents_ids[_i]) for _i in xp_index]
             # contexts = train_contexts[xp_index]
             # responses = train_responses[xp_index]
             # agents_ids = train_agents_ids[xp_index]
 
             # contexts_length = train_contexts_length[xp_index]
-            contexts_length = [train_contexts_length[_i] for _i in xp_index]
-            responses_length = train_responses_length[xp_index]
-            n_agents = train_n_agents[xp_index]
-            binned_n_agents = train_binned_n_agents[xp_index]
-            y_adr = train_y_adr[xp_index]
-            y_res = train_y_res[xp_index]
+            contexts_length = [to_gpu(train_contexts_length[_i]) for _i in xp_index]
+            responses_length = to_gpu(train_responses_length[xp_index])
+            n_agents = to_gpu(train_n_agents[xp_index])
+            binned_n_agents = to_gpu(train_binned_n_agents[xp_index])
+            y_adr = to_gpu(train_y_adr[xp_index])
+            y_res = to_gpu(train_y_res[xp_index])
 
             sample = [contexts, contexts_length, responses, responses_length,
                       agents_ids, n_agents, binned_n_agents, y_adr, y_res]

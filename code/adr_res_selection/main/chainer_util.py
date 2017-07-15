@@ -34,6 +34,7 @@ def process_one(sample, xp):
 
 
 def pre_process(samples, xp):
+    xp = np
     contexts = []
     responses = []
     contexts_length = []
@@ -48,11 +49,11 @@ def pre_process(samples, xp):
         [_context, _context_length, _response, _response_length,
             _agents_id, _n_agent, _binned_n_agents, _y_adr, _y_res] = item
 
-        contexts.append(to_gpu(_context))
-        contexts_length.append(to_gpu(_context_length))
-        responses.append(to_gpu(_response))
+        contexts.append(_context)
+        contexts_length.append(_context_length)
+        responses.append(_response)
         responses_length.append(_response_length)
-        agents_ids.append(to_gpu(_agents_id))
+        agents_ids.append(_agents_id)
         n_agents.append(_n_agent)
         binned_n_agents.append(_binned_n_agents)
         y_adr.append(_y_adr)
