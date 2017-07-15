@@ -128,7 +128,7 @@ class MultiLingualConv(chainer.Chain):
         (dev_contexts, dev_contexts_length, dev_responses, dev_responses_length,
          dev_agents_ids, dev_n_agents, dev_binned_n_agents, dev_y_adr, dev_y_res) = samples
         evaluator = Evaluator()
-        iteration_list = range(0, len(samples), batchsize)
+        iteration_list = range(0, len(dev_contexts), batchsize)
         predict_lists = []
         for i_index, index in enumerate(iteration_list):
 
