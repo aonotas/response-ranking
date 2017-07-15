@@ -409,10 +409,14 @@ def main():
             loss = loss_alpha * loss_r + (1 - loss_alpha) * loss_a
             sum_loss += loss.data
 
-            # update
-            model.zerograds()
-            loss.backward()
-            opt.update()
+            try:
+                # update
+                model.zerograds()
+                loss.backward()
+                opt.update()
+            except Exception as e:
+                continue
+
         say('\n loss: %s' % str(sum_loss))
 
         say('\n\n  DEV  ')
