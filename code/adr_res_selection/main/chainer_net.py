@@ -146,18 +146,23 @@ class MultiLingualConv(chainer.Chain):
 
             responses_length = to_gpu(dev_responses_length[index:index + batchsize])
             n_agents = to_gpu(dev_n_agents[index:index + batchsize])
-            binned_n_agents = to_gpu(dev_binned_n_agents[index:index + batchsize])
-            y_adr = to_gpu(dev_y_adr[index:index + batchsize])
-            y_res = to_gpu(dev_y_res[index:index + batchsize])
+            binned_n_agents_cpu = dev_binned_n_agents[index:index + batchsize]
+            binned_n_agents = to_gpu(binned_n_agents_cpu)
+            y_adr_cpu = dev_y_adr[index:index + batchsize]
+            y_adr = to_gpu(y_adr_cpu)
+            y_res_cpu = dev_y_res[index:index + batchsize]
+            y_res = to_gpu(y_res_cpu)
 
             sample = [contexts, contexts_length, responses, responses_length,
                       agents_ids, n_agents, binned_n_agents, y_adr, y_res]
             self.n_prev_sents = len(contexts_length[0])
             dot_r, dot_a, predict_r, predict_a = self.__call__(sample)
-            evaluator.update(to_cpu(binned_n_agents), 0., 0., to_cpu(
-                predict_a.data), to_cpu(predict_r.data), to_cpu(y_adr), to_cpu(y_res))
+            evaluator.update(binned_n_agents_cpu, 0., 0., to_cpu(
+                predict_a.data), to_cpu(predict_r.data), y_adr_cpu, y_res_cpu)
         #
         evaluator.show_results()
+
+        self.n_prev_sents = self.args.n_prev_sents
 
         return evaluator.acc_both, evaluator.acc_adr, evaluator.acc_res
 
