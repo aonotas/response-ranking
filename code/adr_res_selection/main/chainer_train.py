@@ -308,7 +308,7 @@ def main():
     n_vocab = vocab_words.size()
     model = MultiLingualConv(args, n_vocab)
 
-    opt = optimizers.Adam(alpha=0.001, beta1=0.9, beta2=0.9, eps=1e-12)
+    opt = optimizers.Adam(alpha=0.001, beta1=0.9, beta2=0.999, eps=1e-8)
     opt.setup(model)
     if args.clip:
         opt.add_hook(chainer.optimizer.GradientClipping(args.clip))
@@ -388,10 +388,9 @@ def main():
             loss.backward()
             opt.update()
 
-            evaluator.update(binned_n_agents_cpu, 0., 0., to_cpu(
-                predict_a.data), to_cpu(predict_r.data), y_adr_cpu, y_res_cpu)
-
-        evaluator.show_results()
+            # evaluator.update(binned_n_agents_cpu, 0., 0., to_cpu(
+            #     predict_a.data), to_cpu(predict_r.data), y_adr_cpu, y_res_cpu)
+        # evaluator.show_results()
 
         say('\n loss: %s' % str(sum_loss))
 
