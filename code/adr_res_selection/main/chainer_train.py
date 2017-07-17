@@ -404,6 +404,7 @@ def main():
 
         say('\n\n\nEpoch: %d' % (epoch + 1))
         say('\n  TRAIN  ')
+        evaluator = Evaluator()
         # train
         model.cleargrads()
         model.n_prev_sents = args.n_prev_sents
@@ -426,9 +427,12 @@ def main():
             contexts_length = [to_gpu(train_contexts_length[_i]) for _i in xp_index]
             responses_length = to_gpu(train_responses_length[xp_index])
             n_agents = to_gpu(train_n_agents[xp_index])
-            binned_n_agents = to_gpu(train_binned_n_agents[xp_index])
-            y_adr = to_gpu(train_y_adr[xp_index])
-            y_res = to_gpu(train_y_res[xp_index])
+            binned_n_agents_cpu = train_binned_n_agents[xp_index]
+            binned_n_agents = to_gpu(binned_n_agents_cpu)
+            y_adr_cpu = train_y_adr[xp_index]
+            y_adr = to_gpu(y_adr_cpu)
+            y_res_cpu = train_y_res[xp_index]
+            y_res = to_gpu(y_res_cpu)
 
             sample = [contexts, contexts_length, responses, responses_length,
                       agents_ids, n_agents, binned_n_agents, y_adr, y_res]
@@ -445,6 +449,11 @@ def main():
             model.zerograds()
             loss.backward()
             opt.update()
+
+            evaluator.update(binned_n_agents_cpu, 0., 0., to_cpu(
+                predict_a.data), to_cpu(predict_r.data), y_adr_cpu, y_res_cpu)
+
+        evaluator.show_results()
 
         say('\n loss: %s' % str(sum_loss))
 
