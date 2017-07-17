@@ -174,7 +174,7 @@ class MultiLingualConv(chainer.Chain):
         iteration_list = range(0, max_idx_dev, batchsize)
         f(iteration_list, batchsize, start=0, end=max_idx_dev)
 
-        iteration_list = range(len(dev_contexts[:max_idx_dev]), len(dev_contexts), 1)
+        iteration_list = range(max_idx_dev, len(dev_contexts), 1)
         f(iteration_list, 1, start=max_idx_dev, end=len(dev_contexts))
 
         evaluator.show_results()
