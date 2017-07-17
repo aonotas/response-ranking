@@ -133,43 +133,47 @@ class MultiLingualConv(chainer.Chain):
         self.candidate_size = args.n_cands
 
     def predict_all(self, samples):
-        batchsize = 1
+        batchsize = self.args.batch
         (dev_contexts, dev_contexts_length, dev_responses, dev_responses_length,
-         dev_agents_ids, dev_n_agents, dev_binned_n_agents, dev_y_adr, dev_y_res) = samples
+         dev_agents_ids, dev_n_agents, dev_binned_n_agents, dev_y_adr, dev_y_res, max_idx_dev) = samples
         evaluator = Evaluator()
-        iteration_list = range(0, len(dev_contexts), batchsize)
-        predict_lists = []
-        for i_index, index in enumerate(iteration_list):
 
-            contexts = dev_contexts[index:index + batchsize]
-            responses = dev_responses[index:index + batchsize]
-            agents_ids = dev_agents_ids[index:index + batchsize]
-            contexts_length = dev_contexts_length[index:index + batchsize]
-            contexts = [to_gpu(_i) for _i in contexts]
-            responses = [to_gpu(_i) for _i in responses]
-            agents_ids = [to_gpu(_i) for _i in agents_ids]
-            contexts_length = [to_gpu(_i) for _i in contexts_length]
+        def f(iteration_list, batchsize):
+            for i_index, index in enumerate(iteration_list):
 
-            responses_length = to_gpu(dev_responses_length[index:index + batchsize])
-            n_agents = to_gpu(dev_n_agents[index:index + batchsize])
-            binned_n_agents_cpu = dev_binned_n_agents[index:index + batchsize]
-            binned_n_agents = to_gpu(binned_n_agents_cpu)
-            y_adr_cpu = dev_y_adr[index:index + batchsize]
-            y_adr = to_gpu(y_adr_cpu)
-            y_res_cpu = dev_y_res[index:index + batchsize]
-            y_res = to_gpu(y_res_cpu)
+                contexts = dev_contexts[index:index + batchsize]
+                responses = dev_responses[index:index + batchsize]
+                agents_ids = dev_agents_ids[index:index + batchsize]
+                contexts_length = dev_contexts_length[index:index + batchsize]
+                contexts = [to_gpu(_i) for _i in contexts]
+                responses = [to_gpu(_i) for _i in responses]
+                agents_ids = [to_gpu(_i) for _i in agents_ids]
+                contexts_length = [to_gpu(_i) for _i in contexts_length]
 
-            sample = [contexts, contexts_length, responses, responses_length,
-                      agents_ids, n_agents, binned_n_agents, y_adr, y_res]
-            self.n_prev_sents = len(contexts_length[0])
-            dot_r, dot_a, predict_r, predict_a, _, _ = self.__call__(sample)
+                responses_length = to_gpu(dev_responses_length[index:index + batchsize])
+                n_agents = to_gpu(dev_n_agents[index:index + batchsize])
+                binned_n_agents_cpu = dev_binned_n_agents[index:index + batchsize]
+                binned_n_agents = to_gpu(binned_n_agents_cpu)
+                y_adr_cpu = dev_y_adr[index:index + batchsize]
+                y_adr = to_gpu(y_adr_cpu)
+                y_res_cpu = dev_y_res[index:index + batchsize]
+                y_res = to_gpu(y_res_cpu)
 
-            # y_res_cpu = to_cpu(y_res)
-            # y_adr_cpu = to_cpu(y_adr)
-            evaluator.update(binned_n_agents_cpu, 0., 0., to_cpu(
-                predict_a.data), to_cpu(predict_r.data), y_adr_cpu, y_res_cpu)
-        #
-        evaluator.show_results()
+                sample = [contexts, contexts_length, responses, responses_length,
+                          agents_ids, n_agents, binned_n_agents, y_adr, y_res]
+                self.n_prev_sents = len(contexts_length[0])
+                dot_r, dot_a, predict_r, predict_a, _, _ = self.__call__(sample)
+
+                # y_res_cpu = to_cpu(y_res)
+                # y_adr_cpu = to_cpu(y_adr)
+                evaluator.update(binned_n_agents_cpu, 0., 0., to_cpu(
+                    predict_a.data), to_cpu(predict_r.data), y_adr_cpu, y_res_cpu)
+
+        iteration_list = range(0, len(dev_contexts[:max_idx_dev]), batchsize)
+        evaluator.show_results(iteration_list, batchsize)
+
+        iteration_list = range(len(dev_contexts[:max_idx_dev]), len(dev_contexts), 1)
+        evaluator.show_results(iteration_list, 1)
 
         self.n_prev_sents = self.args.n_prev_sents
 
