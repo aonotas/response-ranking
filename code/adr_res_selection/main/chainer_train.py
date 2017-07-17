@@ -251,6 +251,8 @@ def main():
                         type=int, default=1, help='use_pad_unk')
     parser.add_argument('--free_wordemb', dest='free_wordemb',
                         type=int, default=1, help='free_wordemb')
+    parser.add_argument('--clip', type=float, default=5.0, help='learning rate')
+
     parser.add_argument('--test', dest='test',
                         type=str, default='', help='test')
 
@@ -370,7 +372,11 @@ def main():
 
     opt = optimizers.Adam(alpha=0.001, beta1=0.9, beta2=0.9, eps=1e-12)
     opt.setup(model)
-    opt.add_hook(chainer.optimizer.GradientClipping(5.0))
+    if args.clip:
+        opt.add_hook(chainer.optimizer.GradientClipping(args.clip))
+
+    if args.reg > 0.0:
+        optimizer.add_hook(chainer.optimizer.WeightDecay(args.reg))
 
     class DelGradient(object):
         name = 'DelGradient'
@@ -439,6 +445,7 @@ def main():
 
         say('\n loss: %s' % str(sum_loss))
 
+        chainer.config.train = False
         say('\n\n  DEV  ')
         dev_acc_both, dev_acc_adr, dev_acc_res = model.predict_all(dev_samples)
 
