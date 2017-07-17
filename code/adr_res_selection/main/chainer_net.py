@@ -95,7 +95,7 @@ class ConversationEncoderGRU(chainer.Chain):
         # Extract First Agent (idx=0)
         cumsum_idx = xp.cumsum(n_agents).astype(xp.int32)
         first_agent_idx = xp.concatenate([xp.zeros((1, ), dtype=xp.int32), cumsum_idx[:-1]], axis=0)
-        spk_agent_vecs = F.embed_id(first_agent_idx, agent_vecs)
+        spk_agent_vecs = F.embed_id(first_agent_idx, agent_vecs, ignore_label=-1)
 
         split_agent_vecs = F.split_axis(agent_vecs, to_cpu(cumsum_idx[:-1]), axis=0)
         pad_agent_vecs = F.pad_sequence(split_agent_vecs, padding=-1024.)
@@ -212,7 +212,7 @@ class MultiLingualConv(chainer.Chain):
         agents_ids = self.padding_offset(agents_ids, n_agents_list)
         split_size_cpu = np.arange(self.n_prev_sents, agents_ids.shape[0] * self.n_prev_sents,
                                    self.n_prev_sents).astype(np.int32)
-        agent_input_vecs = F.embed_id(agents_ids, pad_context_vecs)
+        agent_input_vecs = F.embed_id(agents_ids, pad_context_vecs, ignore_label=-1)
         agent_input_vecs = F.reshape(agent_input_vecs, (-1, agent_input_vecs.shape[-1]))
         agent_input_vecs = F.split_axis(agent_input_vecs, split_size_cpu, axis=0)
 
