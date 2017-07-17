@@ -52,7 +52,7 @@ def pre_process(samples, xp, batch=32, is_test=False, n_prev_sents=15):
             _agents_id, _n_agent, _binned_n_agents, _y_adr, _y_res] = item
 
         if is_test and len(_context_length) != n_prev_sents:
-            pass
+            diff_items.append(item)
         else:
             contexts.append(_context)
             contexts_length.append(_context_length)
@@ -63,6 +63,10 @@ def pre_process(samples, xp, batch=32, is_test=False, n_prev_sents=15):
             binned_n_agents.append(_binned_n_agents)
             y_adr.append(_y_adr)
             y_res.append(_y_res)
+    max_idx = None
+    if is_test:
+        print 'diff_items:', len(diff_items)
+        max_idx = len(contexts)
 
     # xp format
     # contexts = xp.array(contexts)
