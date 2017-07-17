@@ -229,10 +229,10 @@ class MultiLingualConv(chainer.Chain):
 
         dot_r = F.batch_matmul(response_vecs, response_o, transb=True)
         dot_r = F.reshape(dot_r, (batchsize, -1))
-        dot_r_softmax = F.softmax(dot_r)
+        dot_r_softmax = F.softmax(dot_r, axis=1)
         predict_r = F.argmax(dot_r_softmax, axis=1)
-        offset = xp.arange(0, batchsize * dot_r.shape[1], dot_r.shape[1]).astype(xp.int32)
-        predict_r = predict_r + offset
+        # offset = xp.arange(0, batchsize * dot_r.shape[1], dot_r.shape[1]).astype(xp.int32)
+        # y_res = y_res + offset
 
         cumsum_idx = xp.cumsum(n_agents).astype(xp.int32)
         agent_vec_list = F.split_axis(agent_vecs, to_cpu(cumsum_idx[:-1]), axis=0)
@@ -247,7 +247,7 @@ class MultiLingualConv(chainer.Chain):
         predict_a = F.argmax(dot_a_softmax, axis=1)
 
         # offset labels
-        offset = xp.arange(0, batchsize * dot_a.shape[1], dot_a.shape[1]).astype(xp.int32)
-        y_adr = y_adr + offset
+        # offset = xp.arange(0, batchsize * dot_a.shape[1], dot_a.shape[1]).astype(xp.int32)
+        # y_adr = y_adr + offset
 
         return dot_r, dot_a, predict_r, predict_a, y_res, y_adr
