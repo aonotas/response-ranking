@@ -65,7 +65,7 @@ def pre_process(samples, xp, batch=32, is_test=False, n_prev_sents=15):
         binned_n_agents.append(_binned_n_agents)
         y_adr.append(_y_adr)
         y_res.append(_y_res)
-
+    max_idx = None
     if is_test:
         print 'diff_items:', len(diff_items)
         max_idx = len(contexts)
