@@ -67,6 +67,18 @@ def pre_process(samples, xp, batch=32, is_test=False, n_prev_sents=15):
     if is_test:
         print 'diff_items:', len(diff_items)
         max_idx = len(contexts)
+        for item in diff_items:
+            [_context, _context_length, _response, _response_length,
+                _agents_id, _n_agent, _binned_n_agents, _y_adr, _y_res] = item
+            contexts.append(_context)
+            contexts_length.append(_context_length)
+            responses.append(_response)
+            responses_length.append(_response_length)
+            agents_ids.append(_agents_id)
+            n_agents.append(_n_agent)
+            binned_n_agents.append(_binned_n_agents)
+            y_adr.append(_y_adr)
+            y_res.append(_y_res)
 
     # xp format
     # contexts = xp.array(contexts)

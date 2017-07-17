@@ -169,7 +169,9 @@ class MultiLingualConv(chainer.Chain):
                 evaluator.update(binned_n_agents_cpu, 0., 0., to_cpu(
                     predict_a.data), to_cpu(predict_r.data), y_adr_cpu, y_res_cpu)
 
-        iteration_list = range(0, len(dev_contexts[:max_idx_dev]), batchsize)
+        print 'len(dev_contexts):', len(dev_contexts)
+        print 'max_idx_dev:', max_idx_dev
+        iteration_list = range(0, max_idx_dev, batchsize)
         f(iteration_list, batchsize)
 
         iteration_list = range(len(dev_contexts[:max_idx_dev]), len(dev_contexts), 1)
