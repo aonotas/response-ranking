@@ -140,8 +140,8 @@ class MultiLingualConv(chainer.Chain):
 
         def f(iteration_list, batchsize, start, end):
             for i_index, index in enumerate(iteration_list):
-
                 contexts = dev_contexts[start:end][index:index + batchsize]
+
                 responses = dev_responses[start:end][index:index + batchsize]
                 agents_ids = dev_agents_ids[start:end][index:index + batchsize]
                 contexts_length = dev_contexts_length[start:end][index:index + batchsize]
@@ -175,7 +175,7 @@ class MultiLingualConv(chainer.Chain):
         f(iteration_list, batchsize, start=0, end=max_idx_dev)
 
         iteration_list = range(max_idx_dev, len(dev_contexts), 1)
-        f(iteration_list, 1, start=max_idx_dev, end=len(dev_contexts) + 1)
+        f(iteration_list, 1, start=0, end=len(dev_contexts) + 1)
 
         evaluator.show_results()
 
