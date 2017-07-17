@@ -376,7 +376,7 @@ def main():
         opt.add_hook(chainer.optimizer.GradientClipping(args.clip))
 
     if args.reg > 0.0:
-        optimizer.add_hook(chainer.optimizer.WeightDecay(args.reg))
+        opt.add_hook(chainer.optimizer.WeightDecay(args.reg))
 
     class DelGradient(object):
         name = 'DelGradient'
