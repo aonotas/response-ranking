@@ -49,10 +49,12 @@ class SentenceEncoderGRU(chainer.Chain):
         xs = F.split_axis(xs, to_cpu(split_size), axis=0)
 
         # GRU
-        _hy, ys = self.gru(hx=hx, xs=xs)
+        hy, ys = self.gru(hx=hx, xs=xs)
         # Extract Last Vector
-        last_idx = xp.cumsum(lengths).astype(xp.int32) - 1
-        last_vecs = F.embed_id(last_idx, F.concat(ys, axis=0))
+        # last_idx = xp.cumsum(lengths).astype(xp.int32) - 1
+        # last_vecs = F.embed_id(last_idx, F.concat(ys, axis=0))
+        last_vecs = F.reshape(hy, (hy.shape[1], hy.shape[2]))
+
         last_vecs = F.dropout(last_vecs, ratio=self.use_dropout)
         return last_vecs
 
@@ -171,6 +173,8 @@ class MultiLingualConv(chainer.Chain):
         offset = xp.arange(0, batchsize * n_prev_sents, n_prev_sents).astype(xp.int32)
         offset = xp.repeat(offset, repeats=n_agents_list, axis=0)[..., None]
         offset = xp.broadcast_to(offset, agents_ids.shape)
+        if self.use_pad_unk:
+            offset += 1
 
         agents_ids = agents_ids + offset
         # where
