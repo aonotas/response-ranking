@@ -249,8 +249,8 @@ def main():
                         type=int, default=1, help='normalize')
     parser.add_argument('--use_pad_unk', dest='use_pad_unk',
                         type=int, default=1, help='use_pad_unk')
-    parser.add_argument('--free_wordemb', dest='free_wordemb',
-                        type=int, default=1, help='free_wordemb')
+    parser.add_argument('--freeze_wordemb', dest='freeze_wordemb',
+                        type=int, default=1, help='freeze_wordemb')
     parser.add_argument('--clip', type=float, default=5.0, help='learning rate')
 
     parser.add_argument('--test', dest='test',
@@ -391,7 +391,7 @@ def main():
                         grad = param.grad
                         with cuda.get_device(grad):
                             grad *= 0
-    if args.free_wordemb:
+    if args.freeze_wordemb:
         opt.add_hook(DelGradient(['/sentence_encoder/word_embed/W']))
 
     if args.gpu >= 0:
