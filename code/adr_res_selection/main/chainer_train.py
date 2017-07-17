@@ -249,6 +249,8 @@ def main():
                         type=int, default=1, help='normalize')
     parser.add_argument('--use_pad_unk', dest='use_pad_unk',
                         type=int, default=1, help='use_pad_unk')
+    parser.add_argument('--free_wordemb', dest='free_wordemb',
+                        type=int, default=1, help='free_wordemb')
     parser.add_argument('--test', dest='test',
                         type=str, default='', help='test')
 
@@ -369,6 +371,22 @@ def main():
     opt = optimizers.Adam(alpha=0.001, beta1=0.9, beta2=0.9, eps=1e-12)
     opt.setup(model)
     opt.add_hook(chainer.optimizer.GradientClipping(5.0))
+
+    class DelGradient(object):
+        name = 'DelGradient'
+
+        def __init__(self, delTgt):
+            self.delTgt = delTgt
+
+        def __call__(self, opt):
+            for name, param in opt.target.namedparams():
+                for d in self.delTgt:
+                    if d in name:
+                        grad = param.grad
+                        with cuda.get_device(grad):
+                            grad *= 0
+    if args.free_wordemb:
+        optimizer.add_hook(DelGradient(['word_embed']))
 
     if args.gpu >= 0:
         model.to_gpu()
