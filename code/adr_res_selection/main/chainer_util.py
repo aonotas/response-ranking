@@ -52,7 +52,7 @@ def pre_process(samples, xp, batch=32, is_test=False, n_prev_sents=15):
             _agents_id, _n_agent, _binned_n_agents, _y_adr, _y_res] = item
 
         if is_test:
-            if len(_context) != n_prev_sents:
+            if len(_context_length) != n_prev_sents:
                 diff_items.append(item)
                 continue
 
