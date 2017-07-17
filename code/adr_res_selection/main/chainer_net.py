@@ -7,6 +7,7 @@ import chainer.links as L
 
 from ..utils.evaluator import Evaluator
 
+import numpy as np
 
 # sentence Encoder
 # GRU or CNN Encoder
@@ -39,14 +40,14 @@ class SentenceEncoderGRU(chainer.Chain):
         # 1-D flatten
         xs = xp.concatenate(x_data, axis=0)
         lengths = xp.concatenate(lengths, axis=0)
-        split_size = xp.cumsum(lengths)[:-1]
+        split_size_cpu = np.cumsum(lengths)[:-1]
 
         xs = Variable(xs)
         xs = self.word_embed(xs)
         xs = F.dropout(xs, ratio=self.use_dropout)
 
         # split
-        xs = F.split_axis(xs, to_cpu(split_size), axis=0)
+        xs = F.split_axis(xs, split_size_cpu, axis=0)
 
         # GRU
         hy, ys = self.gru(hx=hx, xs=xs)
@@ -203,11 +204,11 @@ class MultiLingualConv(chainer.Chain):
         response_vecs = self.sentence_encoder(responses, responses_length)
 
         agents_ids = self.padding_offset(agents_ids, n_agents_list)
-        split_size = xp.arange(self.n_prev_sents, agents_ids.shape[0] * self.n_prev_sents,
-                               self.n_prev_sents).astype(xp.int32)
+        split_size_cpu = np.arange(self.n_prev_sents, agents_ids.shape[0] * self.n_prev_sents,
+                                   self.n_prev_sents).astype(np.int32)
         agent_input_vecs = F.embed_id(agents_ids, pad_context_vecs)
         agent_input_vecs = F.reshape(agent_input_vecs, (-1, agent_input_vecs.shape[-1]))
-        agent_input_vecs = F.split_axis(agent_input_vecs, to_cpu(split_size), axis=0)
+        agent_input_vecs = F.split_axis(agent_input_vecs, split_size_cpu, axis=0)
 
         agent_vecs, h_context, spk_agent_vecs = self.conversation_encoder(
             agent_input_vecs, n_agents)
@@ -227,8 +228,8 @@ class MultiLingualConv(chainer.Chain):
         dot_r_softmax = F.softmax(dot_r)
         predict_r = F.argmax(dot_r_softmax, axis=1)
 
-        cumsum_idx = xp.cumsum(n_agents).astype(xp.int32)
-        agent_vec_list = F.split_axis(agent_vecs, to_cpu(cumsum_idx[:-1]), axis=0)
+        cumsum_idx_cpu = np.cumsum(n_agents).astype(np.int32)
+        agent_vec_list = F.split_axis(agent_vecs, cumsum_idx_cpu[:-1], axis=0)
         agent_vec_pad = F.pad_sequence(agent_vec_list, padding=-1024.)
         agent_o = F.reshape(agent_o, (batchsize, 1, -1))
         dot_a = F.batch_matmul(agent_vec_pad, agent_o, transb=True)
