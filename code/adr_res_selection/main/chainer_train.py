@@ -466,6 +466,7 @@ def main():
                 acc_history[epoch + 1].append((test_acc_both, test_acc_adr, test_acc_res))
             else:
                 acc_history[epoch + 1] = [(test_acc_both, test_acc_adr, test_acc_res)]
+        unchanged += 1
 
         #####################
         # Show best results #
