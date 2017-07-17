@@ -138,25 +138,25 @@ class MultiLingualConv(chainer.Chain):
          dev_agents_ids, dev_n_agents, dev_binned_n_agents, dev_y_adr, dev_y_res, max_idx_dev) = samples
         evaluator = Evaluator()
 
-        def f(iteration_list, batchsize):
+        def f(iteration_list, batchsize, start, end):
             for i_index, index in enumerate(iteration_list):
 
-                contexts = dev_contexts[index:index + batchsize]
-                responses = dev_responses[index:index + batchsize]
-                agents_ids = dev_agents_ids[index:index + batchsize]
-                contexts_length = dev_contexts_length[index:index + batchsize]
+                contexts = dev_contexts[start:end][index:index + batchsize]
+                responses = dev_responses[start:end][index:index + batchsize]
+                agents_ids = dev_agents_ids[start:end][index:index + batchsize]
+                contexts_length = dev_contexts_length[start:end][index:index + batchsize]
                 contexts = [to_gpu(_i) for _i in contexts]
                 responses = [to_gpu(_i) for _i in responses]
                 agents_ids = [to_gpu(_i) for _i in agents_ids]
                 contexts_length = [to_gpu(_i) for _i in contexts_length]
 
-                responses_length = to_gpu(dev_responses_length[index:index + batchsize])
-                n_agents = to_gpu(dev_n_agents[index:index + batchsize])
-                binned_n_agents_cpu = dev_binned_n_agents[index:index + batchsize]
+                responses_length = to_gpu(dev_responses_length[start:end][index:index + batchsize])
+                n_agents = to_gpu(dev_n_agents[start:end][index:index + batchsize])
+                binned_n_agents_cpu = dev_binned_n_agents[start:end][index:index + batchsize]
                 binned_n_agents = to_gpu(binned_n_agents_cpu)
-                y_adr_cpu = dev_y_adr[index:index + batchsize]
+                y_adr_cpu = dev_y_adr[start:end][index:index + batchsize]
                 y_adr = to_gpu(y_adr_cpu)
-                y_res_cpu = dev_y_res[index:index + batchsize]
+                y_res_cpu = dev_y_res[start:end][index:index + batchsize]
                 y_res = to_gpu(y_res_cpu)
 
                 sample = [contexts, contexts_length, responses, responses_length,
@@ -172,10 +172,10 @@ class MultiLingualConv(chainer.Chain):
         print 'len(dev_contexts):', len(dev_contexts)
         print 'max_idx_dev:', max_idx_dev
         iteration_list = range(0, max_idx_dev, batchsize)
-        f(iteration_list, batchsize)
+        f(iteration_list, batchsize, start=0, end=max_idx_dev)
 
         iteration_list = range(len(dev_contexts[:max_idx_dev]), len(dev_contexts), 1)
-        f(iteration_list, 1)
+        f(iteration_list, 1, start=max_idx_dev, end=len(dev_contexts))
 
         evaluator.show_results()
 
