@@ -386,7 +386,7 @@ def main():
                         with cuda.get_device(grad):
                             grad *= 0
     if args.free_wordemb:
-        optimizer.add_hook(DelGradient(['word_embed']))
+        opt.add_hook(DelGradient(['word_embed']))
 
     if args.gpu >= 0:
         model.to_gpu()
