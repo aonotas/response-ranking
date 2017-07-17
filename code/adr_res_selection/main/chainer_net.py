@@ -40,14 +40,14 @@ class SentenceEncoderGRU(chainer.Chain):
         # 1-D flatten
         xs = xp.concatenate(x_data, axis=0)
         lengths = xp.concatenate(lengths, axis=0)
-        split_size_cpu = np.cumsum(lengths)[:-1]
+        split_size = xp.cumsum(lengths)[:-1]
 
         xs = Variable(xs)
         xs = self.word_embed(xs)
         xs = F.dropout(xs, ratio=self.use_dropout)
 
         # split
-        xs = F.split_axis(xs, split_size_cpu, axis=0)
+        xs = F.split_axis(xs, to_cpu(split_size), axis=0)
 
         # GRU
         hy, ys = self.gru(hx=hx, xs=xs)
@@ -91,11 +91,10 @@ class ConversationEncoderGRU(chainer.Chain):
 
         # Extract First Agent (idx=0)
         cumsum_idx = xp.cumsum(n_agents).astype(xp.int32)
-        cumsum_idx_cpu = np.cumsum(n_agents).astype(np.int32)
         first_agent_idx = xp.concatenate([xp.zeros((1, ), dtype=xp.int32), cumsum_idx[:-1]], axis=0)
         spk_agent_vecs = F.embed_id(first_agent_idx, agent_vecs)
 
-        split_agent_vecs = F.split_axis(agent_vecs, cumsum_idx_cpu[:-1], axis=0)
+        split_agent_vecs = F.split_axis(agent_vecs, to_cpu(cumsum_idx[:-1]), axis=0)
         pad_agent_vecs = F.pad_sequence(split_agent_vecs, padding=-1024.)
         # Max Pooling
         h_context = F.max(pad_agent_vecs, axis=1)
@@ -229,8 +228,8 @@ class MultiLingualConv(chainer.Chain):
         dot_r_softmax = F.softmax(dot_r)
         predict_r = F.argmax(dot_r_softmax, axis=1)
 
-        cumsum_idx_cpu = np.cumsum(n_agents).astype(np.int32)
-        agent_vec_list = F.split_axis(agent_vecs, cumsum_idx_cpu[:-1], axis=0)
+        cumsum_idx = xp.cumsum(n_agents).astype(xp.int32)
+        agent_vec_list = F.split_axis(agent_vecs, to_cpu(cumsum_idx[:-1]), axis=0)
         agent_vec_pad = F.pad_sequence(agent_vec_list, padding=-1024.)
         agent_o = F.reshape(agent_o, (batchsize, 1, -1))
         dot_a = F.batch_matmul(agent_vec_pad, agent_o, transb=True)
