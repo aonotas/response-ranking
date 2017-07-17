@@ -170,10 +170,12 @@ class MultiLingualConv(chainer.Chain):
                     predict_a.data), to_cpu(predict_r.data), y_adr_cpu, y_res_cpu)
 
         iteration_list = range(0, len(dev_contexts[:max_idx_dev]), batchsize)
-        evaluator.show_results(iteration_list, batchsize)
+        f(iteration_list, batchsize)
 
         iteration_list = range(len(dev_contexts[:max_idx_dev]), len(dev_contexts), 1)
-        evaluator.show_results(iteration_list, 1)
+        f(iteration_list, 1)
+
+        evaluator.show_results()
 
         self.n_prev_sents = self.args.n_prev_sents
 
