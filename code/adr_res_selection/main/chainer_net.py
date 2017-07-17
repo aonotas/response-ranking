@@ -54,7 +54,8 @@ class SentenceEncoderGRU(chainer.Chain):
         # Extract Last Vector
         # last_idx = xp.cumsum(lengths).astype(xp.int32) - 1
         # last_vecs = F.embed_id(last_idx, F.concat(ys, axis=0))
-        last_vecs = F.reshape(hy, (hy.shape[1], hy.shape[2]))
+        # last_vecs = F.reshape(hy, (hy.shape[1], hy.shape[2]))
+        last_vecs = hy[-1]
 
         last_vecs = F.dropout(last_vecs, ratio=self.use_dropout)
         return last_vecs
@@ -87,7 +88,8 @@ class ConversationEncoderGRU(chainer.Chain):
         # last_idx = xp.cumsum(lengths).astype(xp.int32)
         # last_idx = last_idx - 1
         # agent_vecs = F.embed_id(last_idx, F.concat(ys, axis=0))
-        agent_vecs = F.reshape(hy, (hy.shape[1], hy.shape[2]))
+        # agent_vecs = F.reshape(hy, (hy.shape[1], hy.shape[2]))
+        agent_vecs = hy[-1]
         agent_vecs = F.dropout(agent_vecs, ratio=self.use_dropout)
 
         # Extract First Agent (idx=0)
