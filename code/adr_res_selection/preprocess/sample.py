@@ -17,7 +17,8 @@ class Sample(object):
 
         self.agent_index_dict = indexing(spk_id, context)
         # 1D: n_prev_sents, 2D: max_n_agents; one-hot vector
-        self.spk_agent_one_hot_vec = get_spk_agent_one_hot_vec(context, self.agent_index_dict, max_n_agents)
+        self.spk_agent_one_hot_vec = get_spk_agent_one_hot_vec(
+            context, self.agent_index_dict, max_n_agents)
         self.spk_agents = [s.index(1) for s in self.spk_agent_one_hot_vec]
 
         ###################
@@ -25,7 +26,8 @@ class Sample(object):
         ###################
         false_res_label = get_false_res_label(responses, label)
         self.true_res = get_true_res_label(label, false_res_label, test)
-        self.response = self.response if test else get_responses(label, false_res_label, self.response)
+        self.response = self.response if test else get_responses(
+            label, false_res_label, self.response)
 
         ####################
         # Addressee labels #
@@ -54,7 +56,10 @@ def get_adr_label(addressee_id, agent_index_dict):
 
     # the case of including addressee in the limited context
     if addressee_id in agent_index_dict and n_agents_lctx > 1:
-        true_addressee = agent_index_dict[addressee_id] - 1
+        # true_addressee = agent_index_dict[addressee_id] - 1
+        # NOTE: I change this index!!!!
+        true_addressee = agent_index_dict[addressee_id]
+
     else:
         true_addressee = -1
 
@@ -73,14 +78,14 @@ def get_adr_label_vec(adr_id, agent_index_dict, max_n_agents):
     # the case of including addressee in the limited context
     if adr_id in agent_index_dict and n_agents_lctx > 1:
         # True addressee index
-        y.append(agent_index_dict[adr_id]-1)
+        y.append(agent_index_dict[adr_id] - 1)
 
         # False addressee index
-        for i in xrange(len(agent_index_dict)-1):
+        for i in xrange(len(agent_index_dict) - 1):
             if i not in y:
                 y.append(i)
 
-    pad = [-1 for i in xrange(max_n_agents-1-len(y))]
+    pad = [-1 for i in xrange(max_n_agents - 1 - len(y))]
     y = y + pad
     return y
 
@@ -162,4 +167,3 @@ def bin_n_agents_in_ctx(n):
     elif n < 101:
         return 5
     return 6
-
