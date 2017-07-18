@@ -249,6 +249,7 @@ class MultiLingualConv(chainer.Chain):
         cumsum_idx = xp.cumsum(n_agents).astype(xp.int32)
         agent_vec_list = F.split_axis(agent_vecs, to_cpu(cumsum_idx[:-1]), axis=0)
         agent_vec_pad = F.pad_sequence(agent_vec_list, padding=-1024.)
+        agent_vec_pad = agent_vec_pad[:, 1:, :]
         agent_o = F.reshape(agent_o, (batchsize, 1, -1))
         dot_a = F.batch_matmul(agent_vec_pad, agent_o, transb=True)
         dot_a = F.reshape(dot_a, (batchsize, -1))
@@ -261,5 +262,5 @@ class MultiLingualConv(chainer.Chain):
         # offset labels
         # offset = xp.arange(0, batchsize * dot_a.shape[1], dot_a.shape[1]).astype(xp.int32)
         # y_adr = y_adr + offset
-
+        # y_adr = y_adr + 1
         return dot_r, dot_a, predict_r, predict_a, y_res, y_adr

@@ -56,9 +56,9 @@ def get_adr_label(addressee_id, agent_index_dict):
 
     # the case of including addressee in the limited context
     if addressee_id in agent_index_dict and n_agents_lctx > 1:
-        # true_addressee = agent_index_dict[addressee_id] - 1
+        true_addressee = agent_index_dict[addressee_id] - 1
         # NOTE: I change this index!!!!
-        true_addressee = agent_index_dict[addressee_id]
+        # true_addressee = agent_index_dict[addressee_id]
 
     else:
         true_addressee = -1
