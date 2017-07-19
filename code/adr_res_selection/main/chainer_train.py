@@ -276,7 +276,8 @@ def main():
     n_vocab = vocab_words.size()
     model = MultiLingualConv(args, n_vocab, init_emb=init_emb)
 
-    # set word embeddings
+    if args.gpu >= 0:
+        model.to_gpu()
 
     # opt = optimizers.Adam(alpha=0.001, beta1=0.9, beta2=0.999, eps=1e-8)
     opt = optimizers.Adam(alpha=0.001, beta1=0.9, beta2=0.9, eps=1e-12)
@@ -302,9 +303,6 @@ def main():
                             grad *= 0
     if args.freeze_wordemb:
         opt.add_hook(DelGradient(['/sentence_encoder/word_embed/W']))
-
-    if args.gpu >= 0:
-        model.to_gpu()
 
     acc_history = {}
     best_dev_acc_both = 0.
