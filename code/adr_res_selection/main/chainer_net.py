@@ -109,20 +109,21 @@ class ConversationEncoderGRU(chainer.Chain):
 
 class MultiLingualConv(chainer.Chain):
 
-    def __init__(self, args, n_vocab):
+    def __init__(self, args, n_vocab, init_emb=None):
         hidden_dim = args.dim_hidden
         if args.sentence_encoder_type == 'gru':
             sentence_encoder_context = SentenceEncoderGRU(
                 n_vocab, args.dim_emb, hidden_dim, args.use_dropout)
-            sentence_encoder_response = SentenceEncoderGRU(
-                n_vocab, args.dim_emb, hidden_dim, args.use_dropout)
+            # sentence_encoder_response = SentenceEncoderGRU(
+            #     n_vocab, args.dim_emb, hidden_dim, args.use_dropout)
         conversation_encoder = ConversationEncoderGRU(
             hidden_dim, hidden_dim, args.use_dropout, use_pad_unk=args.use_pad_unk)
 
+        if init_emb is not None:
+            sentence_encoder_context.word_embed.W.data[:] = init_emb[:]
         super(MultiLingualConv, self).__init__(
             dammy_emb=L.EmbedID(1, hidden_dim, ignore_label=-1),
             sentence_encoder=sentence_encoder_context,
-            sentence_encoder_response=sentence_encoder_response,
             conversation_encoder=conversation_encoder,
             layer_agent=L.Linear(hidden_dim * 2, hidden_dim, nobias=True),
             layer_response=L.Linear(hidden_dim * 2, hidden_dim, nobias=True),

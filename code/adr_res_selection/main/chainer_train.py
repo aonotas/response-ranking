@@ -189,6 +189,8 @@ def main():
                         type=int, default=1, help='use_pad_unk')
     parser.add_argument('--freeze_wordemb', dest='freeze_wordemb',
                         type=int, default=1, help='freeze_wordemb')
+    parser.add_argument('--save_vocab', dest='save_vocab',
+                        type=int, default=0, help='save_vocab')
     parser.add_argument('--clip', type=float, default=5.0, help='learning rate')
 
     parser.add_argument('--test', dest='test',
@@ -226,53 +228,17 @@ def main():
         init_emb = initialize_weights(vocab_words.size(), argv.dim_emb)
     elif argv.emb_type == 'multi':
         vocab_words, init_emb = load_multi_ling_init_emb(argv.init_emb, argv.lang)
-    elif argv.emb_type == 'mono_multi':
-        # vocab_words, init_emb = load_init_emb(None, words)
-        pre_vocab_words, pre_init_emb = load_multi_ling_init_emb(argv.init_emb, argv.lang)
-
-        from ..ling.vocab import Vocab, PAD, UNK
-        vocab_words = Vocab()
-        vocab_words.add_word(PAD)
-        vocab_words.add_word(UNK)
-        for w in words:
-            vocab_words.add_word(w)
-
-        init_emb = initialize_weights(len(words), argv.dim_emb)
-        say('\nVocab Size: %d' % len(words))
-        # replace embeddings
-        for w_idx, w in enumerate(vocab_words.w2i.keys()):
-            if w in pre_vocab_words.w2i:
-                pre_w_idx = pre_vocab_words.w2i[w]
-                init_emb[w_idx] = pre_init_emb[pre_w_idx]
-        say('\nVocab Size: %d' % len(vocab_words.w2i))
-        print 'init_emb:', init_emb.shape
-    elif argv.emb_type == 'common_multi':
-        # vocab_words, init_emb = load_init_emb(None, words)
-        pre_vocab_words, pre_init_emb = load_multi_ling_init_emb(argv.init_emb, argv.lang)
-        from ..ling.vocab import Vocab, PAD, UNK
-        vocab_words = Vocab()
-        vocab_words.add_word(PAD)
-        vocab_words.add_word(UNK)
-        for w in words:
-            # common words
-            if w in pre_vocab_words.w2i:
-                vocab_words.add_word(w)
-        init_emb = initialize_weights(len(vocab_words.w2i), argv.dim_emb)
-        say('\nVocab Size: %d' % len(vocab_words.w2i))
-        # replace embeddings
-        for w_idx, w in enumerate(vocab_words.w2i.keys()):
-            pre_w_idx = pre_vocab_words.w2i[w]
-            init_emb[w_idx] = pre_init_emb[pre_w_idx]
 
     # write vocab files
-    vocab_file = argv.output_fn + '_' + argv.emb_type + '.vocab'
-    _vcb_f = open(vocab_file, 'w')
-    for word, word_id in sorted(vocab_words.w2i.items(), key=lambda x: x[1]):
-        try:
-            _vcb_f.write(word.encode('utf-8') + '\n')
-        except:
-            print 'error:', word
-    _vcb_f.close()
+    if args.save_vocab:
+        vocab_file = argv.output_fn + '_' + argv.emb_type + '.vocab'
+        vcb_f = open(vocab_file, 'w')
+        for word, word_id in sorted(vocab_words.w2i.items(), key=lambda x: x[1]):
+            try:
+                vcb_f.write(word.encode('utf-8') + '\n')
+            except:
+                print 'error:', word
+        vcb_f.close()
 
     ###############
     # Set samples #
@@ -306,9 +272,12 @@ def main():
 
     from chainer_net import MultiLingualConv
     n_vocab = vocab_words.size()
-    model = MultiLingualConv(args, n_vocab)
+    model = MultiLingualConv(args, n_vocab, init_emb=init_emb)
 
-    opt = optimizers.Adam(alpha=0.001, beta1=0.9, beta2=0.999, eps=1e-8)
+    # set word embeddings
+
+    # opt = optimizers.Adam(alpha=0.001, beta1=0.9, beta2=0.999, eps=1e-8)
+    opt = optimizers.Adam(alpha=0.001, beta1=0.9, beta2=0.9, eps=1e-12)
     opt.setup(model)
     if args.clip:
         opt.add_hook(chainer.optimizer.GradientClipping(args.clip))
