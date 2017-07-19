@@ -191,6 +191,8 @@ def main():
                         type=int, default=1, help='freeze_wordemb')
     parser.add_argument('--save_vocab', dest='save_vocab',
                         type=int, default=0, help='save_vocab')
+    parser.add_argument('--normalize_loss', dest='normalize_loss',
+                        type=int, default=0, help='normalize_loss')
     parser.add_argument('--clip', type=float, default=5.0, help='learning rate')
 
     parser.add_argument('--test', dest='test',
@@ -347,8 +349,10 @@ def main():
             dot_r, dot_a, predict_r, predict_a, y_res_pad, y_adr_pad = model(sample)
 
             loss_alpha = 0.5
-            loss_r = F.softmax_cross_entropy(dot_r, y_res_pad, ignore_label=-1, normalize=False)
-            loss_a = F.softmax_cross_entropy(dot_a, y_adr_pad, ignore_label=-1, normalize=False)
+            loss_r = F.softmax_cross_entropy(
+                dot_r, y_res_pad, ignore_label=-1, normalize=args.normalize_loss)
+            loss_a = F.softmax_cross_entropy(
+                dot_a, y_adr_pad, ignore_label=-1, normalize=args.normalize_loss)
             loss = loss_alpha * loss_r + (1 - loss_alpha) * loss_a
             sum_loss += loss.data
 
