@@ -121,6 +121,7 @@ class MultiLingualConv(chainer.Chain):
 
         if init_emb is not None:
             print 'before:', sentence_encoder_context.word_embed.W.data
+            sentence_encoder_context.word_embed.W.data[0, :] = 0.0
             sentence_encoder_context.word_embed.W.data[1:] = init_emb[:]
             print 'after:', sentence_encoder_context.word_embed.W.data
         super(MultiLingualConv, self).__init__(
