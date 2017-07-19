@@ -348,9 +348,9 @@ def main():
 
             loss_alpha = 0.5
             loss_r = F.softmax_cross_entropy(
-                dot_r, y_res_pad, ignore_label=-1, normalize=args.normalize_loss)
+                dot_r, y_res, ignore_label=-1, normalize=args.normalize_loss)
             loss_a = F.softmax_cross_entropy(
-                dot_a, y_adr_pad, ignore_label=-1, normalize=args.normalize_loss)
+                dot_a, y_adr, ignore_label=-1, normalize=args.normalize_loss)
             loss = loss_alpha * loss_r + (1 - loss_alpha) * loss_a
             sum_loss += loss.data
 
