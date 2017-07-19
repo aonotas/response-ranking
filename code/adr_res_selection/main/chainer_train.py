@@ -225,11 +225,13 @@ def main():
     ##########################
     from ..nn import initialize_weights
 
-    # if argv.emb_type == 'mono':
-    #     vocab_words, init_emb = load_init_emb(argv.init_emb, words)
-    #     init_emb = initialize_weights(vocab_words.size() - 1, argv.dim_emb)
-    if argv.emb_type == 'multi':
+    if argv.emb_type == 'mono':
+        vocab_words, init_emb = load_init_emb(argv.init_emb, words)
+        init_emb = initialize_weights(vocab_words.size() - 1, argv.dim_emb)
+    elif argv.emb_type == 'multi':
         vocab_words, init_emb = load_multi_ling_init_emb(argv.init_emb, argv.lang)
+    elif argv.emb_type == 'glove':
+        vocab_words, init_emb = load_init_emb(argv.init_emb, words)
 
     # write vocab files
     if args.save_vocab:
