@@ -120,7 +120,9 @@ class MultiLingualConv(chainer.Chain):
             hidden_dim, hidden_dim, args.use_dropout, use_pad_unk=args.use_pad_unk)
 
         if init_emb is not None:
+            print 'before:', sentence_encoder_context.word_embed.W.data
             sentence_encoder_context.word_embed.W.data[:] = init_emb[:]
+            print 'after:', sentence_encoder_context.word_embed.W.data
         super(MultiLingualConv, self).__init__(
             dammy_emb=L.EmbedID(1, hidden_dim, ignore_label=-1),
             sentence_encoder=sentence_encoder_context,
