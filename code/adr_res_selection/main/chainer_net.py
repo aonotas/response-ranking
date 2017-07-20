@@ -55,9 +55,9 @@ class SentenceEncoderAverage(chainer.Chain):
 
         avg_xs = sum_xs / lengths_avg
 
-        if enc_type == 'avg':
+        if self.enc_type == 'avg':
             last_vecs = avg_xs
-        elif enc_type == 'sum':
+        elif self.enc_type == 'sum':
             last_vecs = sum_xs
 
         last_vecs = self.output(last_vecs)
