@@ -22,6 +22,51 @@ to_cpu = chainer.cuda.to_cpu
 to_gpu = chainer.cuda.to_gpu
 
 
+class SentenceEncoderAverage(chainer.Chain):
+
+    def __init__(self, n_vocab, emb_dim, hidden_dim, use_dropout, enc_type='avg'):
+        super(SentenceEncoderAverage, self).__init__(
+            word_embed=L.EmbedID(n_vocab, emb_dim, ignore_label=-1),
+            output=L.Linear(emb_dim, hidden_dim),
+        )
+        self.use_dropout = use_dropout
+        self.enc_type = enc_type
+
+    def __call__(self, x_data, lengths):
+        batchsize = len(x_data)
+        xp = self.xp
+        hx = None
+
+        # 1-D flatten
+        xs = xp.concatenate(x_data, axis=0)
+        lengths = xp.concatenate(lengths, axis=0)
+        split_size = xp.cumsum(lengths)[:-1]
+
+        xs = Variable(xs)
+        xs = self.word_embed(xs)
+        if self.use_dropout > 0.0:
+            xs = F.dropout(xs, ratio=self.use_dropout)
+
+        # split
+        xs = F.split_axis(xs, to_cpu(split_size), axis=0)
+        xs = F.pad_sequence(xs, padding=0.0)
+        sum_xs = F.sum(xs, axis=1)
+        lengths_avg = xp.broadcast_to(lengths[..., None], sum_xs.shape)
+
+        avg_xs = sum_xs / lengths_avg
+
+        if enc_type == 'avg':
+            last_vecs = avg_xs
+        elif enc_type == 'sum':
+            last_vecs = sum_xs
+
+        last_vecs = self.output(last_vecs)
+
+        if self.use_dropout > 0.0:
+            last_vecs = F.dropout(last_vecs, ratio=self.use_dropout)
+        return last_vecs
+
+
 class SentenceEncoderGRU(chainer.Chain):
 
     def __init__(self, n_vocab, emb_dim, hidden_dim, use_dropout):
@@ -114,6 +159,10 @@ class MultiLingualConv(chainer.Chain):
         if args.sentence_encoder_type == 'gru':
             sentence_encoder_context = SentenceEncoderGRU(
                 n_vocab, args.dim_emb, hidden_dim, args.use_dropout)
+        elif args.sentence_encoder_type in ['avg', 'sum']:
+            sentence_encoder_context = SentenceEncoderAverage(
+                n_vocab, args.dim_emb, hidden_dim, args.use_dropout, args.sentence_encoder_type)
+
             # sentence_encoder_response = SentenceEncoderGRU(
             #     n_vocab, args.dim_emb, hidden_dim, args.use_dropout)
         conversation_encoder = ConversationEncoderGRU(
