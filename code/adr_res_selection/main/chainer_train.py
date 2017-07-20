@@ -99,7 +99,7 @@ def create_samples(argv, train_dataset, dev_dataset, test_dataset, vocab_word):
     evalset = None
 
     say('\n\nTRAIN SETTING\tBatch Size:%d  Epoch:%d  Vocab:%d  Max Words:%d' %
-        (batch_size, argv.epoch, vocab_word.size(), max_n_words))
+        (batch_size, argv.n_epoch, vocab_word.size(), max_n_words))
     # say('\n\nTrain samples\tMini-Batch:%d' % n_train_batches)
     if dev_samples:
         say('\nDev samples\tMini-Batch:%d' % len(dev_samples))
@@ -170,7 +170,6 @@ def main():
     parser.add_argument('--batch', type=int, default=32, help='batch size')
     parser.add_argument('--opt', default='adam', help='optimization method')
     parser.add_argument('--sentence_encoder_type', default='gru', help='sentence_encoder_type')
-    parser.add_argument('--epoch', type=int, default=30, help='number of epochs')
     parser.add_argument('--lr', type=float, default=0.001, help='learning rate')
     parser.add_argument('--activation', default='tanh', help='activation')
     parser.add_argument('--reg', type=float, default=0.0001, help='learning rate')
@@ -178,7 +177,7 @@ def main():
 
     parser.add_argument('--gpu', '-g', default=-1, type=int,
                         help='GPU ID (negative value indicates CPU)')
-    parser.add_argument('--n_epoch', dest='n_epoch', type=int, default=100, help='n_epoch')
+    parser.add_argument('--n_epoch', dest='n_epoch', type=int, default=30, help='n_epoch')
     parser.add_argument('--use_dropout', dest='use_dropout',
                         type=float, default=0.33, help='use_dropout')
     parser.add_argument('--init_alpha', dest='init_alpha',
