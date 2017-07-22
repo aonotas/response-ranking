@@ -57,7 +57,7 @@ class SentenceEncoderCNN(chainer.Chain):
         x_data = F.split_axis(x_data, to_cpu(split_size), axis=0)
 
         x_data = F.pad_sequence(x_data, padding=-1).data
-        pad = xp.full((batchsize, self.window_size - 1), -1., dtype=xp.int32)
+        pad = xp.full((x_data.shape[0], self.window_size - 1), -1., dtype=xp.int32)
         x_data = xp.concatenate([pad, x_data, pad], axis=1)
         enable = x_data != -1
 
@@ -77,7 +77,7 @@ class SentenceEncoderCNN(chainer.Chain):
         # Where Filter
         minus_inf_batch = self.xp.zeros(word_embs.data.shape,
                                         dtype=self.xp.float32) - 1024
-        enable = enable[:, 2:]
+        enable = enable[:, self.window_size - 1:]
         enable = xp.reshape(enable, (enable.shape[0], 1, -1))
         enable = xp.broadcast_to(enable, word_embs.shape)
         word_embs = F.where(enable, word_embs, minus_inf_batch)
