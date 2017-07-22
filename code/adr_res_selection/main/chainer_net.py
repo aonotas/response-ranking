@@ -52,6 +52,10 @@ class SentenceEncoderCNN(chainer.Chain):
         lengths = xp.concatenate(lengths, axis=0)
         # max_len = max(lengths)
 
+        x_data = xp.concatenate(x_data, axis=0)
+        split_size = xp.cumsum(lengths)[:-1]
+        x_data = F.split_axis(x_data, to_cpu(split_size), axis=0)
+
         x_data = F.pad_sequence(x_data, padding=-1).data
         pad = xp.full((batchsize, self.window_size - 1), -1., dtype=xp.int32)
         x_data = xp.concatenate([pad, x_data, pad], axis=1)
