@@ -33,7 +33,7 @@ class SentenceEncoderCNN(chainer.Chain):
             word_embed=L.EmbedID(n_vocab, emb_dim, ignore_label=-1),
             conv=L.Convolution2D(in_channels=1, out_channels=hidden_dim,
                                  ksize=(window_size, dim),
-                                 stride=(1, dim), pad=0, deterministic=True)
+                                 stride=(1, dim), pad=0)
         )
         self.vocab = vocab
         self.emb_dim = emb_dim

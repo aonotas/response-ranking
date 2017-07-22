@@ -16,6 +16,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 chainer.config.use_cudnn = 'always'
+chainer.config.cudnn_deterministic = True
 to_cpu = chainer.cuda.to_cpu
 
 from chainer import serializers
