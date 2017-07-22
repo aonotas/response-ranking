@@ -48,6 +48,7 @@ class SentenceEncoderCNN(chainer.Chain):
     def __call__(self, x_data, lengths):
 
         batchsize = len(x_data)
+        lengths = xp.concatenate(lengths, axis=0)
         max_len = max(lengths)
         xp = self.xp
 
