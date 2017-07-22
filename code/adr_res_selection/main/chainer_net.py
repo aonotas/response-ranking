@@ -47,10 +47,10 @@ class SentenceEncoderCNN(chainer.Chain):
 
     def __call__(self, x_data, lengths):
 
+        xp = self.xp
         batchsize = len(x_data)
         lengths = xp.concatenate(lengths, axis=0)
         max_len = max(lengths)
-        xp = self.xp
 
         x_data = F.pad_sequence(x_data, padding=-1).data
         pad = xp.full((batchsize, self.window_size - 1), -1., dtype=xp.int32)
