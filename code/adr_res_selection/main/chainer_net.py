@@ -35,7 +35,6 @@ class SentenceEncoderCNN(chainer.Chain):
                                  ksize=(window_size, dim),
                                  stride=(1, dim), pad=0)
         )
-        self.vocab = vocab
         self.emb_dim = emb_dim
         self.window_size = window_size
         self.dim = dim
