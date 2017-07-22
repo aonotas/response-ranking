@@ -22,6 +22,67 @@ to_cpu = chainer.cuda.to_cpu
 to_gpu = chainer.cuda.to_gpu
 
 
+class SentenceEncoderCNN(chainer.Chain):
+
+    def __init__(self, emb_dim=100, window_size=3, hidden_dim=100,
+                 n_vocab=None, use_dropout=0.50):
+        dim = emb_dim
+        self.hidden_dim = hidden_dim
+        super(SentenceEncoderCNN, self).__init__(
+            pad_emb=L.EmbedID(1, emb_dim, ignore_label=-1),
+            word_embed=L.EmbedID(n_vocab, emb_dim, ignore_label=-1),
+            conv=L.Convolution2D(in_channels=1, out_channels=hidden_dim,
+                                 ksize=(window_size, dim),
+                                 stride=(1, dim), pad=0, deterministic=True)
+        )
+        self.vocab = vocab
+        self.emb_dim = emb_dim
+        self.window_size = window_size
+        self.dim = dim
+
+        self.use_dropout = use_dropout
+        self.train = True
+        # initialize embeddings
+        if init_emb is not None:
+            self.emb.W = init_emb
+
+    def set_train(self, train):
+        self.train = train
+
+    def __call__(self, x_data, lengths):
+
+        batchsize = len(x_data)
+        max_len = max(lengths)
+        xp = self.xp
+
+        x_data = F.pad_sequence(x_data, padding=-1).data
+        pad = xp.full((batchsize, self.window_size - 1), -1., dtype=xp.int32)
+        x_data = xp.concatenate([pad, x_data, pad], axis=1)
+        enable = x_data != -1
+
+        # add offset (padding)
+        x_data = x_data + 1
+
+        word_embW = F.concat([self.pad_emb.W, self.word_embed.W], axis=0)
+        word_embs = F.embed_id(x_data, word_embW, ignore_label=-1)
+        word_embs = F.reshape(word_embs, (batchsize, 1, -1, self.dim))
+
+        if self.use_dropout:
+            word_embs = F.dropout(word_embs, ratio=self.use_dropout)
+
+        word_embs = self.conv(word_embs)
+        shape = word_embs.data.shape
+        word_embs = F.reshape(word_embs, (shape[0], self.hidden_dim, -1))
+        # Where Filter
+        minus_inf_batch = self.xp.zeros(word_embs.data.shape,
+                                        dtype=self.xp.float32) - 1024
+        enable = xp.broadcast_to(enable, word_embs.shape)
+        word_embs = F.where(enable, word_embs, minus_inf_batch)
+        # max
+        word_embs = F.max(word_embs, axis=2)
+        return word_embs
+
+
 class SentenceEncoderAverage(chainer.Chain):
 
     def __init__(self, n_vocab, emb_dim, hidden_dim, use_dropout, enc_type='avg'):
@@ -162,6 +223,10 @@ class MultiLingualConv(chainer.Chain):
         elif args.sentence_encoder_type in ['avg', 'sum']:
             sentence_encoder_context = SentenceEncoderAverage(
                 n_vocab, args.dim_emb, hidden_dim, args.use_dropout, args.sentence_encoder_type)
+
+        elif args.sentence_encoder_type == 'cnn':
+            sentence_encoder_context = SentenceEncoderCNN(args.dim_emb, window_size=args.cnn_windows,
+                                                          hidden_dim=hidden_dim, n_vocab=n_vocab, use_dropout=args.use_dropout)
 
             # sentence_encoder_response = SentenceEncoderGRU(
             #     n_vocab, args.dim_emb, hidden_dim, args.use_dropout)

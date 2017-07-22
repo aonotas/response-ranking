@@ -194,6 +194,9 @@ def main():
                         type=int, default=0, help='normalize_loss')
     parser.add_argument('--clip', type=float, default=5.0, help='learning rate')
 
+    parser.add_argument('--cnn_windows', dest='cnn_windows',
+                        type=int, default=3, help='cnn_windows')
+
     parser.add_argument('--test', dest='test',
                         type=str, default='', help='test')
 
