@@ -41,9 +41,6 @@ class SentenceEncoderCNN(chainer.Chain):
 
         self.use_dropout = use_dropout
         self.train = True
-        # initialize embeddings
-        if init_emb is not None:
-            self.emb.W = init_emb
 
     def set_train(self, train):
         self.train = train
