@@ -66,7 +66,7 @@ class SentenceEncoderCNN(chainer.Chain):
 
         word_embW = F.concat([self.pad_emb.W, self.word_embed.W], axis=0)
         word_embs = F.embed_id(x_data, word_embW, ignore_label=-1)
-        word_embs = F.reshape(word_embs, (batchsize, 1, -1, self.dim))
+        word_embs = F.reshape(word_embs, (x_data.shape[0], 1, -1, self.dim))
 
         if self.use_dropout:
             word_embs = F.dropout(word_embs, ratio=self.use_dropout)
