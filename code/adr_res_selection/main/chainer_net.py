@@ -50,7 +50,7 @@ class SentenceEncoderCNN(chainer.Chain):
         xp = self.xp
         batchsize = len(x_data)
         lengths = xp.concatenate(lengths, axis=0)
-        max_len = max(lengths)
+        # max_len = max(lengths)
 
         x_data = F.pad_sequence(x_data, padding=-1).data
         pad = xp.full((batchsize, self.window_size - 1), -1., dtype=xp.int32)
@@ -73,6 +73,8 @@ class SentenceEncoderCNN(chainer.Chain):
         # Where Filter
         minus_inf_batch = self.xp.zeros(word_embs.data.shape,
                                         dtype=self.xp.float32) - 1024
+        enable = enable[:, 2:]
+        enable = xp.reshape(enable, (enable.shape[0], 1, -1))
         enable = xp.broadcast_to(enable, word_embs.shape)
         word_embs = F.where(enable, word_embs, minus_inf_batch)
         # max
