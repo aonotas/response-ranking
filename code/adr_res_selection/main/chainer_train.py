@@ -246,7 +246,7 @@ def main():
     if args.use_ubuntu_vocab:
         # use Ubuntu vocab
         for w in words:
-            if w not in vocab_words:
+            if not vocab_words.has_key(w):
                 vocab_words.add_word(w)
                 add_n_vocab += 1
         say('\n add_n_vocab = %d \n' % (add_n_vocab))
