@@ -28,6 +28,7 @@ def load_dataset(fn, vocab=set([]), data_size=1000000, test=False):
     threads = []
     thread = []
     file_open = gzip.open if fn.endswith(".gz") else open
+    tmp_vocab = {}
 
     with file_open(fn) as gf:
         # line: (time, speaker_id, addressee_id, cand_res1, cand_res2, ... , label)
@@ -46,7 +47,9 @@ def load_dataset(fn, vocab=set([]), data_size=1000000, test=False):
                     for w in sent.split():
                         w = w.lower()
                         if test is False:
-                            vocab.add(w)
+                            # vocab.add(w)
+                            # NOTE: change use min_word_count
+                            tmp_vocab[w] = tmp_vocab.get(w, 0) + 1
                         words.append(w)
                     line[3 + i] = words
 
@@ -57,6 +60,11 @@ def load_dataset(fn, vocab=set([]), data_size=1000000, test=False):
                 ##################
                 line[-1] = -1 if line[-1] == '-' else int(line[-1])
                 thread.append(line)
+
+    # NOTE: change use min_word_count
+    for word, word_cnt in tmp_vocab.items():
+        if word_cnt >= argv.min_word_count:
+            vocab.add(word)
 
     return threads, vocab
 
@@ -104,7 +112,8 @@ def load_init_emb(init_emb, word_set=None):
         emb.insert(0, unk)
         emb = np.asarray(emb, dtype=theano.config.floatX)
 
-        assert emb.shape[0] == vocab_word.size() - 1, 'emb: %d  vocab: %d' % (emb.shape[0], vocab_word.size())
+        assert emb.shape[0] == vocab_word.size(
+        ) - 1, 'emb: %d  vocab: %d' % (emb.shape[0], vocab_word.size())
         say('\n\tWord Embedding Size: %d' % emb.shape[0])
 
     return vocab_word, emb
@@ -143,7 +152,8 @@ def load_multi_ling_init_emb(init_emb, target_lang):
     emb.insert(0, unk)
     emb = np.asarray(emb, dtype=theano.config.floatX)
 
-    assert emb.shape[0] == vocab_word.size() - 1, 'emb: %d  vocab: %d' % (emb.shape[0], vocab_word.size())
+    assert emb.shape[0] == vocab_word.size(
+    ) - 1, 'emb: %d  vocab: %d' % (emb.shape[0], vocab_word.size())
     say('\n\tWord Embedding Size: %d' % emb.shape[0])
 
     return vocab_word, emb
@@ -217,4 +227,3 @@ def check_identifier(fn):
     if not fn.endswith(".pkl.gz"):
         fn += ".gz" if fn.endswith(".pkl") else ".pkl.gz"
     return fn
-

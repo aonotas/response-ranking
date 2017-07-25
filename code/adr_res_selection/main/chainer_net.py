@@ -25,12 +25,13 @@ to_gpu = chainer.cuda.to_gpu
 class SentenceEncoderCNN(chainer.Chain):
 
     def __init__(self, emb_dim=100, window_size=3, hidden_dim=100,
-                 n_vocab=None, use_dropout=0.50):
+                 n_vocab=None, use_dropout=0.50, add_n_vocab=0):
         dim = emb_dim
         self.hidden_dim = hidden_dim
         super(SentenceEncoderCNN, self).__init__(
             pad_emb=L.EmbedID(1, emb_dim, ignore_label=-1),
             word_embed=L.EmbedID(n_vocab, emb_dim, ignore_label=-1),
+            add_word_embed=L.EmbedID(add_n_vocab, emb_dim, ignore_label=-1),
             conv=L.Convolution2D(in_channels=1, out_channels=hidden_dim,
                                  ksize=(window_size, dim),
                                  stride=(1, dim), pad=0)
@@ -64,7 +65,7 @@ class SentenceEncoderCNN(chainer.Chain):
         # add offset (padding)
         x_data = x_data + 1
 
-        word_embW = F.concat([self.pad_emb.W, self.word_embed.W], axis=0)
+        word_embW = F.concat([self.pad_emb.W, self.word_embed.W, self.add_word_embed.W], axis=0)
         word_embs = F.embed_id(x_data, word_embW, ignore_label=-1)
         word_embs = F.reshape(word_embs, (x_data.shape[0], 1, -1, self.dim))
 
@@ -88,9 +89,10 @@ class SentenceEncoderCNN(chainer.Chain):
 
 class SentenceEncoderAverage(chainer.Chain):
 
-    def __init__(self, n_vocab, emb_dim, hidden_dim, use_dropout, enc_type='avg'):
+    def __init__(self, n_vocab, emb_dim, hidden_dim, use_dropout, enc_type='avg', add_n_vocab=0):
         super(SentenceEncoderAverage, self).__init__(
             word_embed=L.EmbedID(n_vocab, emb_dim, ignore_label=-1),
+            add_word_embed=L.EmbedID(add_n_vocab, emb_dim, ignore_label=-1),
             output=L.Linear(emb_dim, hidden_dim),
         )
         self.use_dropout = use_dropout
@@ -107,7 +109,10 @@ class SentenceEncoderAverage(chainer.Chain):
         split_size = xp.cumsum(lengths)[:-1]
 
         xs = Variable(xs)
-        xs = self.word_embed(xs)
+
+        word_embW = F.concat([self.word_embed.W, self.add_word_embed.W], axis=0)
+        xs = F.embed_id(xs, word_embW, ignore_label=-1)
+        # xs = self.word_embed(xs)
         if self.use_dropout > 0.0:
             xs = F.dropout(xs, ratio=self.use_dropout)
 
@@ -133,9 +138,10 @@ class SentenceEncoderAverage(chainer.Chain):
 
 class SentenceEncoderGRU(chainer.Chain):
 
-    def __init__(self, n_vocab, emb_dim, hidden_dim, use_dropout):
+    def __init__(self, n_vocab, emb_dim, hidden_dim, use_dropout, add_n_vocab=0):
         super(SentenceEncoderGRU, self).__init__(
             word_embed=L.EmbedID(n_vocab, emb_dim, ignore_label=-1),
+            add_word_embed=L.EmbedID(add_n_vocab, emb_dim, ignore_label=-1),
             gru=L.NStepGRU(n_layers=1, in_size=emb_dim,
                            out_size=hidden_dim, dropout=use_dropout)
         )
@@ -152,7 +158,10 @@ class SentenceEncoderGRU(chainer.Chain):
         split_size = xp.cumsum(lengths)[:-1]
 
         xs = Variable(xs)
-        xs = self.word_embed(xs)
+
+        word_embW = F.concat([self.word_embed.W, self.add_word_embed.W], axis=0)
+        xs = F.embed_id(xs, word_embW, ignore_label=-1)
+        # xs = self.word_embed(xs)
         if self.use_dropout > 0.0:
             xs = F.dropout(xs, ratio=self.use_dropout)
 
@@ -218,18 +227,18 @@ class ConversationEncoderGRU(chainer.Chain):
 
 class MultiLingualConv(chainer.Chain):
 
-    def __init__(self, args, n_vocab, init_emb=None):
+    def __init__(self, args, n_vocab, init_emb=None, add_n_vocab=0):
         hidden_dim = args.dim_hidden
         if args.sentence_encoder_type == 'gru':
             sentence_encoder_context = SentenceEncoderGRU(
-                n_vocab, args.dim_emb, hidden_dim, args.use_dropout)
+                n_vocab, args.dim_emb, hidden_dim, args.use_dropout, add_n_vocab=add_n_vocab)
         elif args.sentence_encoder_type in ['avg', 'sum']:
             sentence_encoder_context = SentenceEncoderAverage(
-                n_vocab, args.dim_emb, hidden_dim, args.use_dropout, args.sentence_encoder_type)
+                n_vocab, args.dim_emb, hidden_dim, args.use_dropout, args.sentence_encoder_type, add_n_vocab=add_n_vocab)
 
         elif args.sentence_encoder_type == 'cnn':
             sentence_encoder_context = SentenceEncoderCNN(args.dim_emb, window_size=args.cnn_windows,
-                                                          hidden_dim=hidden_dim, n_vocab=n_vocab, use_dropout=args.use_dropout)
+                                                          hidden_dim=hidden_dim, n_vocab=n_vocab, use_dropout=args.use_dropout, , add_n_vocab=add_n_vocab)
 
             # sentence_encoder_response = SentenceEncoderGRU(
             #     n_vocab, args.dim_emb, hidden_dim, args.use_dropout)

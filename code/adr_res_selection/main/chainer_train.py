@@ -197,6 +197,10 @@ def main():
 
     parser.add_argument('--cnn_windows', dest='cnn_windows',
                         type=int, default=3, help='cnn_windows')
+    parser.add_argument('--min_word_count', dest='min_word_count',
+                        type=int, default=1, help='min_word_count')
+    parser.add_argument('--use_ubuntu_vocab', dest='use_ubuntu_vocab',
+                        type=int, default=0, help='use_ubuntu_vocab')
 
     parser.add_argument('--test', dest='test',
                         type=str, default='', help='test')
@@ -236,7 +240,21 @@ def main():
     elif argv.emb_type == 'glove':
         vocab_words, init_emb = load_init_emb(argv.init_emb, words)
 
-    # write vocab files
+    n_vocab = vocab_words.size()
+    add_n_vocab = 0
+
+    if args.use_ubuntu_vocab:
+        # use Ubuntu vocab
+        for w in words:
+            if w not in vocab_words:
+                vocab_words.add_word(w)
+                add_n_vocab += 1
+        say('\n add_n_vocab = %d \n' % (add_n_vocab))
+
+    if add_n_vocab == 0:
+        add_n_vocab = 1
+
+    # # write vocab files
     if args.save_vocab:
         vocab_file = argv.output_fn + '_' + argv.emb_type + '.vocab'
         vcb_f = open(vocab_file, 'w')
@@ -247,9 +265,9 @@ def main():
                 print 'error:', word
         vcb_f.close()
 
-    ###############
-    # Set samples #
-    ###############
+        ###############
+        # Set samples #
+        ###############
     train_samples, dev_samples, test_samples, n_train_batches, evalset =\
         create_samples(argv, train_dataset, dev_dataset, test_dataset, vocab_words)
     del train_dataset
@@ -278,8 +296,8 @@ def main():
                     test_agents_ids, test_n_agents, test_binned_n_agents, test_y_adr, test_y_res, max_idx_test]
 
     from chainer_net import MultiLingualConv
-    n_vocab = vocab_words.size()
-    model = MultiLingualConv(args, n_vocab, init_emb=init_emb)
+
+    model = MultiLingualConv(args, n_vocab, init_emb=init_emb, add_n_vocab=add_n_vocab)
 
     if args.gpu >= 0:
         model.to_gpu()
