@@ -238,7 +238,7 @@ class MultiLingualConv(chainer.Chain):
 
         elif args.sentence_encoder_type == 'cnn':
             sentence_encoder_context = SentenceEncoderCNN(args.dim_emb, window_size=args.cnn_windows,
-                                                          hidden_dim=hidden_dim, n_vocab=n_vocab, use_dropout=args.use_dropout, , add_n_vocab=add_n_vocab)
+                                                          hidden_dim=hidden_dim, n_vocab=n_vocab, use_dropout=args.use_dropout, add_n_vocab=add_n_vocab)
 
             # sentence_encoder_response = SentenceEncoderGRU(
             #     n_vocab, args.dim_emb, hidden_dim, args.use_dropout)
