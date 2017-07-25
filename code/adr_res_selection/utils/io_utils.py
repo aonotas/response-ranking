@@ -15,7 +15,7 @@ def say(s, stream=sys.stdout):
     stream.flush()
 
 
-def load_dataset(fn, vocab=set([]), data_size=1000000, test=False):
+def load_dataset(fn, vocab=set([]), data_size=1000000, test=False, min_word_count=1):
     """
     :param fn: file name
     :param vocab: vocab set
@@ -63,7 +63,7 @@ def load_dataset(fn, vocab=set([]), data_size=1000000, test=False):
 
     # NOTE: change use min_word_count
     for word, word_cnt in tmp_vocab.items():
-        if word_cnt >= argv.min_word_count:
+        if word_cnt >= min_word_count:
             vocab.add(word)
 
     return threads, vocab

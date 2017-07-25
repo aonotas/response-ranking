@@ -36,11 +36,12 @@ def get_datasets(argv):
     # dataset: 1D: n_docs, 2D: n_utterances, 3D: elem=(time, speaker_id,
     # addressee_id, response1, ... , label)
     say('\nLoad dataset...')
-    train_dataset, words = load_dataset(fn=argv.train_data, data_size=argv.data_size, test=False)
+    train_dataset, words = load_dataset(
+        fn=argv.train_data, data_size=argv.data_size, test=False, min_word_count=argv.min_word_count)
     dev_dataset, words = load_dataset(fn=argv.dev_data, vocab=words,
-                                      data_size=argv.data_size, test=True)
+                                      data_size=argv.data_size, test=True, min_word_count=argv.min_word_count)
     test_dataset, words = load_dataset(
-        fn=argv.test_data, vocab=words, data_size=argv.data_size, test=True)
+        fn=argv.test_data, vocab=words, data_size=argv.data_size, test=True, min_word_count=argv.min_word_count)
     return train_dataset, dev_dataset, test_dataset, words
 
 
