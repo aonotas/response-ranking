@@ -250,6 +250,7 @@ def main():
             if not vocab_words.has_key(w):
                 vocab_words.add_word(w)
                 add_n_vocab += 1
+        say('\n n_vocab = %d \n' % (n_vocab))
         say('\n add_n_vocab = %d \n' % (add_n_vocab))
 
     if add_n_vocab == 0:
