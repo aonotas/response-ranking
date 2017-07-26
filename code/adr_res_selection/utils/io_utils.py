@@ -15,7 +15,7 @@ def say(s, stream=sys.stdout):
     stream.flush()
 
 
-def load_dataset(fn, vocab=set([]), data_size=1000000, test=False, min_word_count=1):
+def load_dataset(fn, vocab=set([]), data_size=1000000, test=False, min_word_count=1, vocab_all=set([])):
     """
     :param fn: file name
     :param vocab: vocab set
@@ -24,11 +24,11 @@ def load_dataset(fn, vocab=set([]), data_size=1000000, test=False, min_word_coun
     """
     if fn is None:
         return None, vocab
-
     threads = []
     thread = []
     file_open = gzip.open if fn.endswith(".gz") else open
     tmp_vocab = {}
+    tmp_vocab_all = {}
 
     with file_open(fn) as gf:
         # line: (time, speaker_id, addressee_id, cand_res1, cand_res2, ... , label)
@@ -50,6 +50,8 @@ def load_dataset(fn, vocab=set([]), data_size=1000000, test=False, min_word_coun
                             # vocab.add(w)
                             # NOTE: change use min_word_count
                             tmp_vocab[w] = tmp_vocab.get(w, 0) + 1
+
+                        tmp_vocab_all[w] = tmp_vocab_all.get(w, 0) + 1
                         words.append(w)
                     line[3 + i] = words
 
@@ -66,7 +68,11 @@ def load_dataset(fn, vocab=set([]), data_size=1000000, test=False, min_word_coun
         if word_cnt >= min_word_count:
             vocab.add(word)
 
-    return threads, vocab
+    for word, word_cnt in tmp_vocab_all.items():
+        if word_cnt >= min_word_count:
+            vocab_all.add(word)
+
+    return threads, vocab, vocab_all
 
 
 def load_init_emb(init_emb, word_set=None):
@@ -119,7 +125,7 @@ def load_init_emb(init_emb, word_set=None):
     return vocab_word, emb
 
 
-def load_multi_ling_init_emb(init_emb, target_lang):
+def load_multi_ling_init_emb(init_emb, target_lang, words_all=None):
     """
     :param init_emb: Column 0 = word, Column 1- = value; e.g., [the 0.418 0.24968 -0.41242 ...]
     :return: vocab_word: Vocab()
@@ -145,6 +151,8 @@ def load_multi_ling_init_emb(init_emb, target_lang):
                 continue
             e = line[1:]
             if not vocab_word.has_key(w):
+                if words_all is not None and w not in words_all:
+                    continue
                 vocab_word.add_word(w)
                 emb.append(np.asarray(e, dtype=theano.config.floatX))
 
