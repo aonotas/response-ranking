@@ -43,6 +43,7 @@ class SentenceEncoderCNN(chainer.Chain):
             add_word_embed = L.EmbedID(add_n_vocab, emb_dim, ignore_label=-1)
             self.add_link('add_word_embed', add_word_embed)
 
+        self.add_n_vocab = add_n_vocab
         self.use_dropout = use_dropout
         self.train = True
 
@@ -68,7 +69,11 @@ class SentenceEncoderCNN(chainer.Chain):
         # add offset (padding)
         x_data = x_data + 1
 
-        word_embW = F.concat([self.pad_emb.W, self.word_embed.W, self.add_word_embed.W], axis=0)
+        if self.add_n_vocab:
+            word_embW = F.concat([self.pad_emb.W, self.word_embed.W, self.add_word_embed.W], axis=0)
+        else:
+            word_embW = F.concat([self.pad_emb.W, self.word_embed.W], axis=0)
+        # word_embW = F.concat([self.pad_emb.W, self.word_embed.W, self.add_word_embed.W], axis=0)
         word_embs = F.embed_id(x_data, word_embW, ignore_label=-1)
         word_embs = F.reshape(word_embs, (x_data.shape[0], 1, -1, self.dim))
 
