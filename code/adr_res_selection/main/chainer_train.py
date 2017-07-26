@@ -300,6 +300,10 @@ def main():
 
     model = MultiLingualConv(args, n_vocab, init_emb=init_emb, add_n_vocab=add_n_vocab)
 
+    # TODO: load Trained model
+    if args.load_param is not None:
+        serializers.load_hdf5(args.load_param, model)
+
     if args.gpu >= 0:
         model.to_gpu()
 
