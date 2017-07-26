@@ -154,6 +154,7 @@ class SentenceEncoderGRU(chainer.Chain):
         if add_n_vocab:
             add_word_embed = L.EmbedID(add_n_vocab, emb_dim, ignore_label=-1)
             self.add_link('add_word_embed', add_word_embed)
+        self.add_n_vocab = add_n_vocab
 
     def __call__(self, x_data, lengths):
         batchsize = len(x_data)
@@ -166,8 +167,10 @@ class SentenceEncoderGRU(chainer.Chain):
         split_size = xp.cumsum(lengths)[:-1]
 
         xs = Variable(xs)
-
-        word_embW = F.concat([self.word_embed.W, self.add_word_embed.W], axis=0)
+        if self.add_n_vocab:
+            word_embW = F.concat([self.word_embed.W, self.add_word_embed.W], axis=0)
+        else:
+            word_embW = self.word_embed.W
         xs = F.embed_id(xs, word_embW, ignore_label=-1)
         # xs = self.word_embed(xs)
         if self.use_dropout > 0.0:
