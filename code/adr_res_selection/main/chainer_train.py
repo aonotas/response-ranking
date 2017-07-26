@@ -297,6 +297,7 @@ def main():
             except:
                 print 'error:', word
         vcb_f.close()
+        return ''
 
         ###############
         # Set samples #
