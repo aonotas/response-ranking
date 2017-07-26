@@ -320,6 +320,31 @@ def main():
     if args.gpu >= 0:
         model.to_gpu()
 
+    if args.load_param is not None:
+        epoch = 0
+        say('\n\n  Load model and Evaluation (No-Finetune)  ')
+        say('\n\n  DEV  ')
+        dev_acc_both, dev_acc_adr, dev_acc_res = model.predict_all(dev_samples)
+
+        best_dev_acc_both = dev_acc_both
+        acc_history[epoch] = [(best_dev_acc_both, dev_acc_adr, dev_acc_res)]
+
+        say('\n\n\r  TEST  ')
+        test_acc_both, test_acc_adr, test_acc_res = model.predict_all(test_samples)
+        acc_history[epoch].append((test_acc_both, test_acc_adr, test_acc_res))
+
+        #####################
+        # Show best results #
+        #####################
+        say('\n\tBEST ACCURACY HISTORY')
+        for k, v in sorted(acc_history.items()):
+            text = '\n\tEPOCH-{:>3} | DEV  Both:{:>7.2%}  Adr:{:>7.2%}  Res:{:>7.2%}'
+            text = text.format(k, v[0][0], v[0][1], v[0][2])
+            if len(v) == 2:
+                text += ' | TEST  Both:{:>7.2%}  Adr:{:>7.2%}  Res:{:>7.2%}'
+                text = text.format(v[1][0], v[1][1], v[1][2])
+            say(text)
+
     # opt = optimizers.Adam(alpha=0.001, beta1=0.9, beta2=0.999, eps=1e-8)
     opt = optimizers.Adam(alpha=0.001, beta1=0.9, beta2=0.9, eps=1e-12)
     opt.setup(model)
