@@ -192,6 +192,8 @@ def main():
                         type=int, default=1, help='freeze_wordemb')
     parser.add_argument('--save_vocab', dest='save_vocab',
                         type=int, default=0, help='save_vocab')
+    parser.add_argument('--save_vocab_ubuntu', dest='save_vocab_ubuntu',
+                        type=int, default=0, help='save_vocab_ubuntu')
     parser.add_argument('--normalize_loss', dest='normalize_loss',
                         type=int, default=0, help='normalize_loss')
     parser.add_argument('--clip', type=float, default=5.0, help='learning rate')
@@ -202,6 +204,8 @@ def main():
                         type=int, default=1, help='min_word_count')
     parser.add_argument('--use_ubuntu_vocab', dest='use_ubuntu_vocab',
                         type=int, default=0, help='use_ubuntu_vocab')
+    parser.add_argument('--use_ubuntu_vocab_en', dest='use_ubuntu_vocab_en',
+                        type=str, default=None, help='use_ubuntu_vocab_en')
 
     parser.add_argument('--test', dest='test',
                         type=str, default='', help='test')
@@ -259,6 +263,17 @@ def main():
         say('\n n_vocab = %d \n' % (n_vocab))
         say('\n add_n_vocab = %d \n' % (add_n_vocab))
 
+    if args.use_ubuntu_vocab_en is not None:
+        use_ubuntu_vocab_en = args.use_ubuntu_vocab_en
+        say('\n use_ubuntu_vocab_en = %s \n' % (use_ubuntu_vocab_en))
+        for l in open(use_ubuntu_vocab_en):
+            w = l.decode('utf-8').strip()
+            if not vocab_words.has_key(w):
+                vocab_words.add_word(w)
+                add_n_vocab += 1
+        say('\n n_vocab = %d \n' % (n_vocab))
+        say('\n add_n_vocab = %d \n' % (add_n_vocab))
+
     if add_n_vocab == 0:
         add_n_vocab = 1
 
@@ -267,6 +282,16 @@ def main():
         vocab_file = argv.output_fn + '_' + argv.emb_type + '.vocab'
         vcb_f = open(vocab_file, 'w')
         for word, word_id in sorted(vocab_words.w2i.items(), key=lambda x: x[1]):
+            try:
+                vcb_f.write(word.encode('utf-8') + '\n')
+            except:
+                print 'error:', word
+        vcb_f.close()
+
+    if args.save_vocab_ubuntu:
+        vocab_file = argv.output_fn + '_' + argv.emb_type + '_ubuntu.vocab'
+        vcb_f = open(vocab_file, 'w')
+        for word in words:
             try:
                 vcb_f.write(word.encode('utf-8') + '\n')
             except:
