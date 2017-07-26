@@ -208,6 +208,10 @@ def main():
 
     parser.add_argument('--s_n_vocab', dest='s_n_vocab', type=int, default=0, help='test')
     parser.add_argument('--s_add_n_vocab', dest='s_add_n_vocab', type=int, default=0, help='test')
+
+    # en
+    #  n_vocab = 176693
+    # add_n_vocab = 24841
     args = parser.parse_args()
     argv = args
     batchsize = args.batch
@@ -308,7 +312,7 @@ def main():
         model_prev_W = model.sentence_encoder.word_embed.W.data[:]
         s_n_vocab = args.s_n_vocab
         s_add_n_vocab = args.s_add_n_vocab
-        model = MultiLingualConv(args, s_n_vocab, init_emb=init_emb, add_n_vocab=s_add_n_vocab)
+        model = MultiLingualConv(args, s_n_vocab, init_emb=None, add_n_vocab=s_add_n_vocab)
         serializers.load_hdf5(args.load_param, model)
 
         model.sentence_encoder.word_embed.W.data = model_prev_W
