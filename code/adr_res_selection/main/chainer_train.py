@@ -292,10 +292,11 @@ def main():
         vocab_file = argv.output_fn + '_' + argv.emb_type + '_ubuntu.vocab'
         vcb_f = open(vocab_file, 'w')
         for word in words:
-            try:
-                vcb_f.write(word.encode('utf-8') + '\n')
-            except:
-                print 'error:', word
+            if not vocab_words.has_key(word):
+                try:
+                    vcb_f.write(word.encode('utf-8') + '\n')
+                except:
+                    print 'error:', word
         vcb_f.close()
         return ''
 
