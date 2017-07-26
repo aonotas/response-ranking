@@ -352,6 +352,7 @@ def main():
 
     if args.load_param is not None:
         epoch = 0
+        chainer.config.train = False
         say('\n\n  Load model and Evaluation (No-Finetune)  ')
         say('\n\n  DEV  ')
         dev_acc_both, dev_acc_adr, dev_acc_res = model.predict_all(dev_samples)
