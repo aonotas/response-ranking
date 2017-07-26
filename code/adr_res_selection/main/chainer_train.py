@@ -305,7 +305,7 @@ def main():
 
     # TODO: load Trained model
     if args.load_param is not None:
-        model_prev_W = model_prev.sentence_encoder.word_embed.W.data[:]
+        model_prev_W = model.sentence_encoder.word_embed.W.data[:]
         s_n_vocab = args.s_n_vocab
         s_add_n_vocab = args.s_add_n_vocab
         model = MultiLingualConv(args, s_n_vocab, init_emb=init_emb, add_n_vocab=s_add_n_vocab)
