@@ -256,9 +256,11 @@ def main():
 
     if args.use_ubuntu_vocab:
         # use Ubuntu vocab
+        ubuntu_word_list = []
         for w in words:
             if not vocab_words.has_key(w):
                 vocab_words.add_word(w)
+                ubuntu_word_list.append(w)
                 add_n_vocab += 1
         say('\n n_vocab = %d \n' % (n_vocab))
         say('\n add_n_vocab = %d \n' % (add_n_vocab))
@@ -291,12 +293,11 @@ def main():
     if args.save_vocab_ubuntu:
         vocab_file = argv.output_fn + '_' + argv.emb_type + '_ubuntu.vocab'
         vcb_f = open(vocab_file, 'w')
-        for word in words:
-            if not vocab_words.has_key(word):
-                try:
-                    vcb_f.write(word.encode('utf-8') + '\n')
-                except:
-                    print 'error:', word
+        for word in ubuntu_word_list:
+            try:
+                vcb_f.write(word.encode('utf-8') + '\n')
+            except:
+                print 'error:', word
         vcb_f.close()
         return ''
 
