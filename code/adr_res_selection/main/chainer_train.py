@@ -36,13 +36,13 @@ def get_datasets(argv):
     # dataset: 1D: n_docs, 2D: n_utterances, 3D: elem=(time, speaker_id,
     # addressee_id, response1, ... , label)
     say('\nLoad dataset...')
-    train_dataset, words = load_dataset(
+    train_dataset, words, words_all = load_dataset(
         fn=argv.train_data, data_size=argv.data_size, test=False, min_word_count=argv.min_word_count)
-    dev_dataset, words = load_dataset(fn=argv.dev_data, vocab=words,
-                                      data_size=argv.data_size, test=True, min_word_count=argv.min_word_count)
-    test_dataset, words = load_dataset(
-        fn=argv.test_data, vocab=words, data_size=argv.data_size, test=True, min_word_count=argv.min_word_count)
-    return train_dataset, dev_dataset, test_dataset, words
+    dev_dataset, words, words_all = load_dataset(fn=argv.dev_data, vocab=words,
+                                                 data_size=argv.data_size, test=True, min_word_count=argv.min_word_count, vocab_all=words_all)
+    test_dataset, words, words_all = load_dataset(
+        fn=argv.test_data, vocab=words, data_size=argv.data_size, test=True, min_word_count=argv.min_word_count, vocab_all=words_all)
+    return train_dataset, dev_dataset, test_dataset, words, words_all
 
 
 def create_samples(argv, train_dataset, dev_dataset, test_dataset, vocab_word):
@@ -212,6 +212,8 @@ def main():
 
     parser.add_argument('--s_n_vocab', dest='s_n_vocab', type=int, default=0, help='test')
     parser.add_argument('--s_add_n_vocab', dest='s_add_n_vocab', type=int, default=0, help='test')
+    parser.add_argument('--use_small_emb', dest='use_small_emb',
+                        type=int, default=0, help='use_small_emb')
 
     # en
     #  n_vocab = 176693
@@ -236,7 +238,7 @@ def main():
     ###############
     # Set dataset #
     ###############
-    train_dataset, dev_dataset, test_dataset, words = get_datasets(argv)
+    train_dataset, dev_dataset, test_dataset, words, words_all = get_datasets(argv)
 
     ##########################
     # Set initial embeddings #
@@ -247,7 +249,12 @@ def main():
         vocab_words, init_emb = load_init_emb(argv.init_emb, words)
         init_emb = initialize_weights(vocab_words.size() - 1, argv.dim_emb)
     elif argv.emb_type == 'multi':
-        vocab_words, init_emb = load_multi_ling_init_emb(argv.init_emb, argv.lang)
+        if argsv.use_small_emb == 0:
+            words_all = None
+
+        vocab_words, init_emb = load_multi_ling_init_emb(
+            argv.init_emb, argv.lang, words_all=words_all)
+
     elif argv.emb_type == 'glove':
         vocab_words, init_emb = load_init_emb(argv.init_emb, words)
 
