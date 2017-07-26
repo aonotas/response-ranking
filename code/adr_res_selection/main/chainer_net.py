@@ -31,7 +31,6 @@ class SentenceEncoderCNN(chainer.Chain):
         super(SentenceEncoderCNN, self).__init__(
             pad_emb=L.EmbedID(1, emb_dim, ignore_label=-1),
             word_embed=L.EmbedID(n_vocab, emb_dim, ignore_label=-1),
-            add_word_embed=L.EmbedID(add_n_vocab, emb_dim, ignore_label=-1),
             conv=L.Convolution2D(in_channels=1, out_channels=hidden_dim,
                                  ksize=(window_size, dim),
                                  stride=(1, dim), pad=0)
@@ -39,6 +38,10 @@ class SentenceEncoderCNN(chainer.Chain):
         self.emb_dim = emb_dim
         self.window_size = window_size
         self.dim = dim
+
+        if add_n_vocab:
+            add_word_embed = L.EmbedID(add_n_vocab, emb_dim, ignore_label=-1)
+            self.add_link('add_word_embed', add_word_embed)
 
         self.use_dropout = use_dropout
         self.train = True
@@ -92,11 +95,14 @@ class SentenceEncoderAverage(chainer.Chain):
     def __init__(self, n_vocab, emb_dim, hidden_dim, use_dropout, enc_type='avg', add_n_vocab=0):
         super(SentenceEncoderAverage, self).__init__(
             word_embed=L.EmbedID(n_vocab, emb_dim, ignore_label=-1),
-            add_word_embed=L.EmbedID(add_n_vocab, emb_dim, ignore_label=-1),
             output=L.Linear(emb_dim, hidden_dim),
         )
         self.use_dropout = use_dropout
         self.enc_type = enc_type
+
+        if add_n_vocab:
+            add_word_embed = L.EmbedID(add_n_vocab, emb_dim, ignore_label=-1)
+            self.add_link('add_word_embed', add_word_embed)
 
     def __call__(self, x_data, lengths):
         batchsize = len(x_data)
@@ -141,11 +147,13 @@ class SentenceEncoderGRU(chainer.Chain):
     def __init__(self, n_vocab, emb_dim, hidden_dim, use_dropout, add_n_vocab=0):
         super(SentenceEncoderGRU, self).__init__(
             word_embed=L.EmbedID(n_vocab, emb_dim, ignore_label=-1),
-            add_word_embed=L.EmbedID(add_n_vocab, emb_dim, ignore_label=-1),
             gru=L.NStepGRU(n_layers=1, in_size=emb_dim,
                            out_size=hidden_dim, dropout=use_dropout)
         )
         self.use_dropout = use_dropout
+        if add_n_vocab:
+            add_word_embed = L.EmbedID(add_n_vocab, emb_dim, ignore_label=-1)
+            self.add_link('add_word_embed', add_word_embed)
 
     def __call__(self, x_data, lengths):
         batchsize = len(x_data)
