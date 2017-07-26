@@ -320,6 +320,8 @@ def main():
     if args.gpu >= 0:
         model.to_gpu()
 
+    acc_history = {}
+
     if args.load_param is not None:
         epoch = 0
         say('\n\n  Load model and Evaluation (No-Finetune)  ')
@@ -370,7 +372,6 @@ def main():
     if args.freeze_wordemb:
         opt.add_hook(DelGradient(['/sentence_encoder/word_embed/W']))
 
-    acc_history = {}
     best_dev_acc_both = 0.
     unchanged = 0
     for epoch in xrange(args.n_epoch):
