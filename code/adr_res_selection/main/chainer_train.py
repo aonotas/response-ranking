@@ -434,8 +434,8 @@ def main():
             # agents_ids = train_agents_ids[xp_index]
 
             # contexts_length = train_contexts_length[xp_index]
-            contexts_length = [to_gpu(train_contexts_length[_i]) for _i in xp_index]
-            responses_length = to_gpu(train_responses_length[xp_index])
+            contexts_length = [train_contexts_length[_i] for _i in xp_index]
+            responses_length = train_responses_length[xp_index]
             n_agents = to_gpu(train_n_agents[xp_index])
             binned_n_agents_cpu = train_binned_n_agents[xp_index]
             binned_n_agents = to_gpu(binned_n_agents_cpu)
