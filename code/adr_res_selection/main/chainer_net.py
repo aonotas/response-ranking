@@ -313,9 +313,9 @@ class MultiLingualConv(chainer.Chain):
                 contexts = [to_gpu(_i) for _i in contexts]
                 responses = [to_gpu(_i) for _i in responses]
                 agents_ids = [to_gpu(_i) for _i in agents_ids]
-                contexts_length = [to_gpu(_i) for _i in contexts_length]
+                contexts_length = [_i for _i in contexts_length]
 
-                responses_length = to_gpu(dev_responses_length[start:end][index:index + batchsize])
+                responses_length = dev_responses_length[start:end][index:index + batchsize]
                 n_agents = to_gpu(dev_n_agents[start:end][index:index + batchsize])
                 binned_n_agents_cpu = dev_binned_n_agents[start:end][index:index + batchsize]
                 binned_n_agents = to_gpu(binned_n_agents_cpu)
