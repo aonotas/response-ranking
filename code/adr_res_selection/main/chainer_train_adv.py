@@ -284,7 +284,7 @@ def main():
 
         train_samples = [train_contexts, train_contexts_length, train_responses,
                          train_responses_length, train_agents_ids, train_n_agents,
-                         train_binned_n_agents, train_y_adr, train_y_res, max_idx]
+                         train_binned_n_agents, train_y_adr, train_y_res]
 
         say('\nmake dev data')
         (dev_contexts, dev_contexts_length, dev_responses,
@@ -292,7 +292,7 @@ def main():
          dev_binned_n_agents, dev_y_adr, dev_y_res, max_idx_dev) = ch_util.pre_process(dev_samples, xp, is_test=True, batch=batchsize, n_prev_sents=args.n_prev_sents)
 
         dev_samples = [dev_contexts, dev_contexts_length, dev_responses, dev_responses_length,
-                       dev_agents_ids, dev_n_agents, dev_binned_n_agents, dev_y_adr, dev_y_res, max_idx_dev]
+                       dev_agents_ids, dev_n_agents, dev_binned_n_agents, dev_y_adr, dev_y_res]
 
         say('\nmake test data')
         (test_contexts, test_contexts_length, test_responses,
@@ -300,7 +300,7 @@ def main():
          test_binned_n_agents, test_y_adr, test_y_res, max_idx_test) = ch_util.pre_process(test_samples, xp, is_test=True, batch=batchsize, n_prev_sents=args.n_prev_sents)
 
         test_samples = [test_contexts, test_contexts_length, test_responses, test_responses_length,
-                        test_agents_ids, test_n_agents, test_binned_n_agents, test_y_adr, test_y_res, max_idx_test]
+                        test_agents_ids, test_n_agents, test_binned_n_agents, test_y_adr, test_y_res]
 
         train_samples_list.append(train_samples)
         dev_samples_list.append(dev_samples)
@@ -422,7 +422,6 @@ def main():
     best_dev_acc_both = 0.
     unchanged = 0
     for epoch in xrange(args.n_epoch):
-        train_perms = set_perms(train_samples_list)
         say('\n\n\nEpoch: %d' % (epoch + 1))
         say('\n  TRAIN  ')
         evaluator = Evaluator()
@@ -440,7 +439,7 @@ def main():
 
             [train_contexts, train_contexts_length, train_responses,
              train_responses_length, train_agents_ids, train_n_agents,
-             train_binned_n_agents, train_y_adr, train_y_res, max_idx] = samples
+             train_binned_n_agents, train_y_adr, train_y_res] = samples
 
             xp_index = range(len(train_contexts))
 
