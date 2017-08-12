@@ -494,6 +494,9 @@ def main():
             y_adr = to_gpu(y_adr_cpu)
             y_res_cpu = train_y_res[xp_index]
             y_res = to_gpu(y_res_cpu)
+
+            sample = [contexts, contexts_length, responses, responses_length,
+                      agents_ids, n_agents, binned_n_agents, y_adr, y_res]
             dot_r, dot_a, predict_r, predict_a, y_res_pad, y_adr_pad = model(sample)
 
             loss_alpha = 0.5
