@@ -472,36 +472,36 @@ def main():
         evaluator = Evaluator()
         # train
         model.cleargrads()
-        model.n_prev_sents = args.n_prev_sents
-        chainer.config.train = True
-        iteration_list = range(0, train_sizes[max_domain_idx], batchsize)
-        train_perms = set_perms(train_sizes)
-        predict_lists = []
-        sum_loss = 0.0
-        for i_index, index in enumerate(iteration_list):
+        # model.n_prev_sents = args.n_prev_sents
+        # chainer.config.train = True
+        # iteration_list = range(0, train_sizes[max_domain_idx], batchsize)
+        # train_perms = set_perms(train_sizes)
+        # predict_lists = []
+        # sum_loss = 0.0
+        # for i_index, index in enumerate(iteration_list):
+        #
+        #     sample = get_samples_batch(batchsize, index, train_perms)
+        #
+        #     dot_r, dot_a, predict_r, predict_a, y_res_pad, y_adr_pad = model(sample)
+        #
+        #     #
+        #     [_, _, _, _, _, _, _, y_adr, y_res] = sample
+        #
+        #     loss_alpha = 0.5
+        #     loss_r = F.softmax_cross_entropy(
+        #         dot_r, y_res, ignore_label=-1, normalize=args.normalize_loss)
+        #     loss_a = F.softmax_cross_entropy(
+        #         dot_a, y_adr, ignore_label=-1, normalize=args.normalize_loss)
+        #     loss = loss_alpha * loss_r + (1 - loss_alpha) * loss_a
+        #     sum_loss += loss.data
+        #
+        #     # update
+        #     model.cleargrads()
+        #     loss.backward()
+        #     opt.update()
 
-            sample = get_samples_batch(batchsize, index, train_perms)
-
-            dot_r, dot_a, predict_r, predict_a, y_res_pad, y_adr_pad = model(sample)
-
-            #
-            [_, _, _, _, _, _, _, y_adr, y_res] = sample
-
-            loss_alpha = 0.5
-            loss_r = F.softmax_cross_entropy(
-                dot_r, y_res, ignore_label=-1, normalize=args.normalize_loss)
-            loss_a = F.softmax_cross_entropy(
-                dot_a, y_adr, ignore_label=-1, normalize=args.normalize_loss)
-            loss = loss_alpha * loss_r + (1 - loss_alpha) * loss_a
-            sum_loss += loss.data
-
-            # update
-            model.cleargrads()
-            loss.backward()
-            opt.update()
-
-            # evaluator.update(binned_n_agents_cpu, 0., 0., to_cpu(
-            #     predict_a.data), to_cpu(predict_r.data), y_adr_cpu, y_res_cpu)
+        # evaluator.update(binned_n_agents_cpu, 0., 0., to_cpu(
+        #     predict_a.data), to_cpu(predict_r.data), y_adr_cpu, y_res_cpu)
         # evaluator.show_results()
 
         say('\n loss: %s' % str(sum_loss))
