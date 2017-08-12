@@ -447,7 +447,7 @@ class MultiLingualConv(chainer.Chain):
         agent_o = self.layer_agent(a_h)
 
         self.domain_loss = 0.0
-        if self.use_domain_adapt:
+        if self.use_domain_adapt and y_domain is not None:
             h_domain = ReverseGrad(True)(a_h)
             h_domain = self.critic(h_domain)
             self.domain_loss = F.softmax_cross_entropy(h_domain, y_domain)
