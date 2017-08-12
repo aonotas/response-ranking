@@ -315,13 +315,12 @@ def main():
         print 'dataset:', len(dataset[0])
         [contexts, contexts_length, responses, responses_length,
          agents_ids, n_agents, binned_n_agents, y_adr, y_res] = dataset[:]
-
         if domain_index >= 1:
-            contexts += train_samples_concat[0]
-            contexts_length += train_samples_concat[1]
-            responses += train_samples_concat[2]
+            contexts = train_samples_concat[0] + contexts
+            contexts_length = train_samples_concat[1] + contexts_length
+            responses = train_samples_concat[2] + responses
             responses_length = np.concatenate([train_samples_concat[3], responses_length], axis=0)
-            agents_ids += train_samples_concat[4]
+            agents_ids = train_samples_concat[4] + agents_ids
             n_agents = np.concatenate([train_samples_concat[5], n_agents], axis=0)
             binned_n_agents = np.concatenate([train_samples_concat[6], binned_n_agents], axis=0)
             y_adr = np.concatenate([train_samples_concat[7], y_adr], axis=0)
