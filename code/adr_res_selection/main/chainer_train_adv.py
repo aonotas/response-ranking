@@ -282,6 +282,7 @@ def main():
          train_responses_length, train_agents_ids, train_n_agents,
          train_binned_n_agents, train_y_adr, train_y_res, max_idx) = ch_util.pre_process(train_samples, xp, is_test=False)
 
+        print 'train_contexts:', len(train_contexts)
         train_samples = [train_contexts, train_contexts_length, train_responses,
                          train_responses_length, train_agents_ids, train_n_agents,
                          train_binned_n_agents, train_y_adr, train_y_res]
@@ -308,7 +309,8 @@ def main():
 
     # concat all dataset
     for domain_index, dataset in enumerate(train_samples_list):
-
+        print 'domain_index:', domain_index
+        print 'dataset:', len(dataset[0])
         [contexts, contexts_length, responses, responses_length,
          agents_ids, n_agents, binned_n_agents, y_adr, y_res] = dataset
 
