@@ -435,13 +435,15 @@ def main():
 
         return train_perms
 
-    def get_samples_batch(train_samples_concat, batchsize, index, train_perms):
+    # all train dataset
+    [train_contexts, train_contexts_length, train_responses,
+     train_responses_length, train_agents_ids, train_n_agents,
+     train_binned_n_agents, train_y_adr, train_y_res] = train_samples_concat
+
+    def get_samples_batch(batchsize, index, train_perms):
 
         xp_index = np.concatenate([train_perms[domain_index][index:index + batchsize]
                                    for domain_index in range(n_domain)])
-        [train_contexts, train_contexts_length, train_responses,
-         train_responses_length, train_agents_ids, train_n_agents,
-         train_binned_n_agents, train_y_adr, train_y_res] = train_samples_concat
         contexts = [to_gpu(train_contexts[_i]) for _i in xp_index]
         responses = [to_gpu(train_responses[_i]) for _i in xp_index]
         agents_ids = [to_gpu(train_agents_ids[_i]) for _i in xp_index]
@@ -475,12 +477,12 @@ def main():
         sum_loss = 0.0
         for i_index, index in enumerate(iteration_list):
 
-            sample = get_samples_batch(train_samples_concat, batchsize, index, train_perms)
-            #
-            [contexts, contexts_length, responses, responses_length,
-             agents_ids, n_agents, binned_n_agents, y_adr, y_res] = sample
+            sample = get_samples_batch(batchsize, index, train_perms)
 
             dot_r, dot_a, predict_r, predict_a, y_res_pad, y_adr_pad = model(sample)
+
+            #
+            [_, _, _, _, _, _, _, y_adr, y_res] = sample
 
             loss_alpha = 0.5
             loss_r = F.softmax_cross_entropy(
