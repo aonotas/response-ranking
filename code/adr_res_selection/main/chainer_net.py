@@ -343,14 +343,8 @@ class MultiLingualConv(chainer.Chain):
         flag = agents_ids == -1
         n_prev_sents = self.n_prev_sents
         batchsize = len(n_agents_list)
-        print '-- padding_offset --'
-        print ' batchsize:', batchsize
-        print ' n_prev_sents:', n_prev_sents
-        print ' n_agents_list:', len(n_agents_list), n_agents_list
         offset = xp.arange(0, batchsize * n_prev_sents, n_prev_sents).astype(xp.int32)
         offset = xp.repeat(offset, repeats=n_agents_list, axis=0)[..., None]
-        print 'offset:', offset.shape
-        print 'agents_ids.shape:', agents_ids.shape
         offset = xp.broadcast_to(offset, agents_ids.shape)
         if self.use_pad_unk:
             offset += 1
@@ -370,7 +364,6 @@ class MultiLingualConv(chainer.Chain):
         context_vecs = self.sentence_encoder(contexts, contexts_length)
         pad_context_vecs = context_vecs
         batchsize = n_agents.shape[0]
-        print 'call batchsize:', batchsize
         if self.use_pad_unk:
             pad_context_vecs = F.concat([self.dammy_emb.W, context_vecs], axis=0)
 

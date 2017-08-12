@@ -311,8 +311,6 @@ def main():
 
     # concat all dataset
     for domain_index, dataset in enumerate(train_samples_list):
-        print 'domain_index:', domain_index
-        print 'dataset:', len(dataset[0])
         [contexts, contexts_length, responses, responses_length,
          agents_ids, n_agents, binned_n_agents, y_adr, y_res] = dataset[:]
         if domain_index >= 1:
@@ -329,8 +327,6 @@ def main():
         train_samples_concat = [contexts, contexts_length, responses,
                                 responses_length, agents_ids, n_agents,
                                 binned_n_agents, y_adr, y_res]
-    print 'train_sizes:', train_sizes
-    print 'train_samples_concat[0]:', len(train_samples_concat[0])
 
     n_vocab = vocab_words.size()
     add_n_vocab = 1
@@ -442,11 +438,9 @@ def main():
 
         xp_index = np.concatenate([train_perms[domain_index][index:index + batchsize]
                                    for domain_index in range(n_domain)])
-        print 'xp_index:', xp_index
         [train_contexts, train_contexts_length, train_responses,
          train_responses_length, train_agents_ids, train_n_agents,
          train_binned_n_agents, train_y_adr, train_y_res] = train_samples_concat
-        print 'train_contexts:', len(train_contexts)
         contexts = [to_gpu(train_contexts[_i]) for _i in xp_index]
         responses = [to_gpu(train_responses[_i]) for _i in xp_index]
         agents_ids = [to_gpu(train_agents_ids[_i]) for _i in xp_index]
@@ -456,9 +450,6 @@ def main():
         binned_n_agents = to_gpu(train_binned_n_agents[xp_index])
         y_adr = to_gpu(train_y_adr[xp_index])
         y_res = to_gpu(train_y_res[xp_index])
-
-        print 'n_agents:', n_agents.shape, n_agents
-        print 'agents_ids:', len(agents_ids), agents_ids
 
         samples = [contexts, contexts_length, responses,
                    responses_length, agents_ids, n_agents,
