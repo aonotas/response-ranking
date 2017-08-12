@@ -448,7 +448,7 @@ class MultiLingualConv(chainer.Chain):
 
         self.domain_loss = 0.0
         if self.use_domain_adapt:
-            h_domain = ReverseGrad(a_h)
+            h_domain = ReverseGrad(True)(a_h)
             print 'h_domain:', h_domain.shape
 
             h_domain = self.critic(h_domain)
