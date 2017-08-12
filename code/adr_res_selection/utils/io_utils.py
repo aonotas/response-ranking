@@ -125,7 +125,7 @@ def load_init_emb(init_emb, word_set=None):
     return vocab_word, emb
 
 
-def load_multi_ling_init_emb(init_emb, target_lang, words_all=None):
+def load_multi_ling_init_emb(init_emb, target_lang, words_all=None, vocab_word=None, emb_array=None):
     """
     :param init_emb: Column 0 = word, Column 1- = value; e.g., [the 0.418 0.24968 -0.41242 ...]
     :return: vocab_word: Vocab()
@@ -137,9 +137,10 @@ def load_multi_ling_init_emb(init_emb, target_lang, words_all=None):
     ##################
     # Set vocab word #
     ##################
-    vocab_word = Vocab()
-    vocab_word.add_word(PAD)
-    vocab_word.add_word(UNK)
+    if vocab_word is None:
+        vocab_word = Vocab()
+        vocab_word.add_word(PAD)
+        vocab_word.add_word(UNK)
 
     emb = []
     with open(init_emb) as lines:
@@ -156,15 +157,21 @@ def load_multi_ling_init_emb(init_emb, target_lang, words_all=None):
                 vocab_word.add_word(w)
                 emb.append(np.asarray(e, dtype=theano.config.floatX))
 
-    unk = np.mean(emb, 0)
-    emb.insert(0, unk)
-    emb = np.asarray(emb, dtype=theano.config.floatX)
+    if emb_array is None:
+        unk = np.mean(emb, 0)
+        emb.insert(0, unk)
+        emb_array = np.asarray(emb, dtype=theano.config.floatX)
+    else:
+        tmp_emb_array = np.asarray(emb, dtype=theano.config.floatX)
+        print 'before:', emb_array.shape
+        emb_array = np.concatenate([emb_array, tmp_emb_array], axis=1)
+        print 'after:', emb_array.shape
 
-    assert emb.shape[0] == vocab_word.size(
-    ) - 1, 'emb: %d  vocab: %d' % (emb.shape[0], vocab_word.size())
-    say('\n\tWord Embedding Size: %d' % emb.shape[0])
+    assert emb_array.shape[0] == vocab_word.size(
+    ) - 1, 'emb: %d  vocab: %d' % (emb_array.shape[0], vocab_word.size())
+    say('\n\tWord Embedding Size: %d' % emb_array.shape[0])
 
-    return vocab_word, emb
+    return vocab_word, emb_array
 
 
 def output_samples(fn, samples, vocab_word=None):
