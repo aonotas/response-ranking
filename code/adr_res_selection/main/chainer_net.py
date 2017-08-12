@@ -374,7 +374,7 @@ class MultiLingualConv(chainer.Chain):
         # Sentence Encoder
         xp = self.xp
         contexts, contexts_length, responses, responses_length, agents_ids, n_agents, n_agents_list, binned_n_agents, y_adr, y_res = samples
-        # n_agents_list = n_agents.tolist()
+        n_agents_list = to_cpu(n_agents).tolist()
         context_vecs = self.sentence_encoder(contexts, contexts_length)
         pad_context_vecs = context_vecs
         batchsize = n_agents.shape[0]

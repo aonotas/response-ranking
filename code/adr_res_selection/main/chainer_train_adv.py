@@ -450,13 +450,12 @@ def main():
         # responses_length = to_gpu(train_responses_length[xp_index])
         responses_length = train_responses_length[xp_index]
         n_agents = to_gpu(train_n_agents[xp_index])
-        n_agents_list = train_n_agents[xp_index].tolist()
         binned_n_agents = to_gpu(train_binned_n_agents[xp_index])
         y_adr = to_gpu(train_y_adr[xp_index])
         y_res = to_gpu(train_y_res[xp_index])
 
         samples = [contexts, contexts_length, responses,
-                   responses_length, agents_ids, n_agents, n_agents_list,
+                   responses_length, agents_ids, n_agents,
                    binned_n_agents, y_adr, y_res]
         return samples
 
