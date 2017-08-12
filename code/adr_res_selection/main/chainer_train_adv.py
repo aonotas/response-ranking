@@ -307,12 +307,14 @@ def main():
         dev_samples_list.append(dev_samples)
         test_samples_list.append(test_samples)
 
+    train_sizes = [len(x[0]) for x in train_samples_list]
+
     # concat all dataset
     for domain_index, dataset in enumerate(train_samples_list):
         print 'domain_index:', domain_index
         print 'dataset:', len(dataset[0])
         [contexts, contexts_length, responses, responses_length,
-         agents_ids, n_agents, binned_n_agents, y_adr, y_res] = dataset
+         agents_ids, n_agents, binned_n_agents, y_adr, y_res] = dataset[:]
 
         if domain_index >= 1:
             contexts += train_samples_concat[0]
@@ -328,8 +330,6 @@ def main():
         train_samples_concat = [contexts, contexts_length, responses,
                                 responses_length, agents_ids, n_agents,
                                 binned_n_agents, y_adr, y_res]
-
-    train_sizes = [len(x[0]) for x in train_samples_list]
     print 'train_sizes:', train_sizes
     print 'train_samples_concat[0]:', len(train_samples_concat[0])
 
