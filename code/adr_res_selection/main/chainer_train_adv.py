@@ -458,6 +458,9 @@ def main():
         y_adr = to_gpu(train_y_adr[xp_index])
         y_res = to_gpu(train_y_res[xp_index])
 
+        print 'n_agents:', n_agents.shape, n_agents
+        print 'agents_ids:', len(agents_ids), agents_ids
+
         samples = [contexts, contexts_length, responses,
                    responses_length, agents_ids, n_agents,
                    binned_n_agents, y_adr, y_res]
