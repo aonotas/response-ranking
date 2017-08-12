@@ -296,7 +296,7 @@ def main():
          dev_binned_n_agents, dev_y_adr, dev_y_res, max_idx_dev) = ch_util.pre_process(dev_samples, xp, is_test=True, batch=batchsize, n_prev_sents=args.n_prev_sents)
 
         dev_samples = [dev_contexts, dev_contexts_length, dev_responses, dev_responses_length,
-                       dev_agents_ids, dev_n_agents, dev_binned_n_agents, dev_y_adr, dev_y_res]
+                       dev_agents_ids, dev_n_agents, dev_binned_n_agents, dev_y_adr, dev_y_res, max_idx_dev]
 
         say('\nmake test data')
         (test_contexts, test_contexts_length, test_responses,
@@ -304,7 +304,7 @@ def main():
          test_binned_n_agents, test_y_adr, test_y_res, max_idx_test) = ch_util.pre_process(test_samples, xp, is_test=True, batch=batchsize, n_prev_sents=args.n_prev_sents)
 
         test_samples = [test_contexts, test_contexts_length, test_responses, test_responses_length,
-                        test_agents_ids, test_n_agents, test_binned_n_agents, test_y_adr, test_y_res]
+                        test_agents_ids, test_n_agents, test_binned_n_agents, test_y_adr, test_y_res, max_idx_test]
 
         train_samples_list.append(train_samples)
         dev_samples_list.append(dev_samples)
@@ -504,7 +504,7 @@ def main():
         #     predict_a.data), to_cpu(predict_r.data), y_adr_cpu, y_res_cpu)
         # evaluator.show_results()
 
-        say('\n loss: %s' % str(sum_loss))
+        # say('\n loss: %s' % str(sum_loss))
 
         for i, dev_samples in enumerate(dev_samples_list):
             lang = languages_list[i]
