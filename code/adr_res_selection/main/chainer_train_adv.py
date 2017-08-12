@@ -350,6 +350,7 @@ def main():
 
     from chainer_net import MultiLingualConv
 
+    n_domain = len(languages_list)
     model = MultiLingualConv(args, n_vocab, init_emb=init_emb,
                              add_n_vocab=add_n_vocab, use_domain_adapt=args.use_domain_adapt, n_domain=n_domain)
 
@@ -423,8 +424,6 @@ def main():
         opt.add_hook(DelGradient(['/sentence_encoder/word_embed/W']))
 
     max_domain_idx = np.argsort([size for size in train_sizes])[-1]
-
-    n_domain = len(languages_list)
 
     def set_perms(train_sizes):
         train_perms = []
