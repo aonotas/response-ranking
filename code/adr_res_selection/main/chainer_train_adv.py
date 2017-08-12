@@ -329,6 +329,7 @@ def main():
                                 binned_n_agents, y_adr, y_res]
 
     n_vocab = vocab_words.size()
+    del train_samples_list
     add_n_vocab = 1
 
     # # write vocab files
@@ -434,7 +435,7 @@ def main():
 
         return train_perms
 
-    def get_samples_batch(train_samples_list, batchsize, index, train_perms):
+    def get_samples_batch(train_samples_concat, batchsize, index, train_perms):
 
         xp_index = np.concatenate([train_perms[domain_index][index:index + batchsize]
                                    for domain_index in range(n_domain)])
@@ -472,7 +473,7 @@ def main():
         sum_loss = 0.0
         for i_index, index in enumerate(iteration_list):
 
-            sample = get_samples_batch(train_samples_list, batchsize, index, train_perms)
+            sample = get_samples_batch(train_samples_concat, batchsize, index, train_perms)
             #
             [contexts, contexts_length, responses, responses_length,
              agents_ids, n_agents, binned_n_agents, y_adr, y_res] = sample
