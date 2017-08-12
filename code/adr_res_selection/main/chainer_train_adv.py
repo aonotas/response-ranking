@@ -482,6 +482,7 @@ def main():
         train_perms = set_perms(train_sizes)
         predict_lists = []
         sum_loss = 0.0
+        domain_sum_loss = 0.0
         for i_index, index in enumerate(iteration_list):
 
             sample, y_domain = get_samples_batch(batchsize, index, train_perms)
@@ -498,6 +499,12 @@ def main():
             loss_a = F.softmax_cross_entropy(
                 dot_a, y_adr, ignore_label=-1, normalize=args.normalize_loss)
             loss = loss_alpha * loss_r + (1 - loss_alpha) * loss_a
+
+            if args.use_domain_adapt:
+                domain_loss = 0.5 * model.domain_loss
+                loss += domain_loss
+                domain_sum_loss += domain_loss.data
+
             sum_loss += loss.data
 
             # update
@@ -510,6 +517,7 @@ def main():
         evaluator.show_results()
 
         say('\n loss: %s' % str(sum_loss))
+        say('\n domain_loss: %s' % str(domain_sum_loss))
 
         for i, dev_samples in enumerate(dev_samples_list):
             lang = languages_list[i]

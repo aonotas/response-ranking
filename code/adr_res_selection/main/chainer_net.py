@@ -449,10 +449,7 @@ class MultiLingualConv(chainer.Chain):
         self.domain_loss = 0.0
         if self.use_domain_adapt:
             h_domain = ReverseGrad(True)(a_h)
-            print 'h_domain:', h_domain.shape
-
             h_domain = self.critic(h_domain)
-            print 'y_domain:', y_domain.shape
             self.domain_loss = F.softmax_cross_entropy(h_domain, y_domain)
 
         r_shape = (batchsize, self.candidate_size, -1)
