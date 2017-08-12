@@ -339,6 +339,9 @@ def main():
 
     acc_history = {}
 
+    for i, lang in enumerate(languages_list):
+        acc_history[i] = {}
+
     if args.load_param is not None:
         epoch = 0
         chainer.config.train = False
@@ -455,33 +458,9 @@ def main():
         for i_index, index in enumerate(iteration_list):
 
             sample = get_samples_batch(train_samples_list, batchsize, index, train_perms)
-
-            # [train_contexts, train_contexts_length, train_responses,
-            #  train_responses_length, train_agents_ids, train_n_agents,
-            #  train_binned_n_agents, train_y_adr, train_y_res] = samples
-
-            # xp_index = range(len(train_contexts))
             #
-            # contexts = [to_gpu(train_contexts[_i]) for _i in xp_index]
-            # responses = [to_gpu(train_responses[_i]) for _i in xp_index]
-            # agents_ids = [to_gpu(train_agents_ids[_i]) for _i in xp_index]
-            # # contexts = train_contexts[xp_index]
-            # # responses = train_responses[xp_index]
-            # # agents_ids = train_agents_ids[xp_index]
-            #
-            # # contexts_length = train_contexts_length[xp_index]
-            # contexts_length = [to_gpu(train_contexts_length[_i]) for _i in xp_index]
-            # responses_length = to_gpu(train_responses_length[xp_index])
-            # n_agents = to_gpu(train_n_agents[xp_index])
-            # binned_n_agents_cpu = train_binned_n_agents[xp_index]
-            # binned_n_agents = to_gpu(binned_n_agents_cpu)
-            # y_adr_cpu = train_y_adr[xp_index]
-            # y_adr = to_gpu(y_adr_cpu)
-            # y_res_cpu = train_y_res[xp_index]
-            # y_res = to_gpu(y_res_cpu)
-            #
-            # sample = [contexts, contexts_length, responses, responses_length,
-            #           agents_ids, n_agents, binned_n_agents, y_adr, y_res]
+            [contexts, contexts_length, responses, responses_length,
+             agents_ids, n_agents, binned_n_agents, y_adr, y_res] = sample
 
             dot_r, dot_a, predict_r, predict_a, y_res_pad, y_adr_pad = model(sample)
 
@@ -504,40 +483,44 @@ def main():
 
         say('\n loss: %s' % str(sum_loss))
 
-        chainer.config.train = False
-        say('\n\n  DEV  ')
-        dev_acc_both, dev_acc_adr, dev_acc_res = model.predict_all(dev_samples)
+        for i, dev_samples in enumerate(dev_samples_list):
+            lang = languages_list[i]
+            chainer.config.train = False
+            say('\n\n  DEV  ' + lang)
+            dev_acc_both, dev_acc_adr, dev_acc_res = model.predict_all(dev_samples)
 
-        if dev_acc_both > best_dev_acc_both:
-            unchanged = 0
-            best_dev_acc_both = dev_acc_both
-            acc_history[epoch + 1] = [(best_dev_acc_both, dev_acc_adr, dev_acc_res)]
+            if dev_acc_both > best_dev_acc_both:
+                unchanged = 0
+                best_dev_acc_both = dev_acc_both
+                acc_history[i][epoch + 1] = [(best_dev_acc_both, dev_acc_adr, dev_acc_res)]
 
-            model_filename = './models/' + argv.output_fn + '_' + \
-                argv.emb_type + '_epoch' + str(epoch) + '.model'
-            serializers.save_hdf5(model_filename + '.model', model)
+                model_filename = './models/' + argv.output_fn + '_' + \
+                    argv.emb_type + '_epoch' + str(epoch) + '.model'
+                serializers.save_hdf5(model_filename + '.model', model)
 
-        say('\n\n\r  TEST  ')
-        test_acc_both, test_acc_adr, test_acc_res = model.predict_all(test_samples)
+        for i, test_samples in enumerate(test_samples_list):
+            lang = languages_list[i]
+            say('\n\n\r  TEST  ')
+            test_acc_both, test_acc_adr, test_acc_res = model.predict_all(test_samples)
 
-        if unchanged == 0:
-            if epoch + 1 in acc_history:
-                acc_history[epoch + 1].append((test_acc_both, test_acc_adr, test_acc_res))
-            else:
-                acc_history[epoch + 1] = [(test_acc_both, test_acc_adr, test_acc_res)]
-        unchanged += 1
+            if unchanged == 0:
+                if epoch + 1 in acc_history[i]:
+                    acc_history[i][epoch + 1].append((test_acc_both, test_acc_adr, test_acc_res))
+                else:
+                    acc_history[i][epoch + 1] = [(test_acc_both, test_acc_adr, test_acc_res)]
+            unchanged += 1
 
-        #####################
-        # Show best results #
-        #####################
-        say('\n\tBEST ACCURACY HISTORY')
-        for k, v in sorted(acc_history.items()):
-            text = '\n\tEPOCH-{:>3} | DEV  Both:{:>7.2%}  Adr:{:>7.2%}  Res:{:>7.2%}'
-            text = text.format(k, v[0][0], v[0][1], v[0][2])
-            if len(v) == 2:
-                text += ' | TEST  Both:{:>7.2%}  Adr:{:>7.2%}  Res:{:>7.2%}'
-                text = text.format(v[1][0], v[1][1], v[1][2])
-            say(text)
+            #####################
+            # Show best results #
+            #####################
+            say('\n\tBEST ACCURACY HISTORY')
+            for k, v in sorted(acc_history[i].items()):
+                text = '\n\tEPOCH-{:>3} | DEV  Both:{:>7.2%}  Adr:{:>7.2%}  Res:{:>7.2%}'
+                text = text.format(k, v[0][0], v[0][1], v[0][2])
+                if len(v) == 2:
+                    text += ' | TEST  Both:{:>7.2%}  Adr:{:>7.2%}  Res:{:>7.2%}'
+                    text = text.format(v[1][0], v[1][1], v[1][2])
+                say(text)
 
 
 if __name__ == '__main__':
