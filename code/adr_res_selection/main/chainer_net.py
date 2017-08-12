@@ -260,9 +260,48 @@ class ConversationEncoderGRU(chainer.Chain):
         return agent_vecs, h_context, spk_agent_vecs
 
 
+class ReverseGrad(function.Function):
+
+    def __init__(self, reverse_flag=True):
+        self.reverse_flag = reverse_flag
+        flag = - 1.0
+        if not reverse_flag:
+            flag = 1.0
+        self.flag = flag
+
+    def forward(self, inputs):
+        return inputs
+
+    def backward(self, inputs, grad_outputs):
+        # x, y = inputs
+        gz, = grad_outputs
+
+        gx = gz * inputs[0]
+
+        return self.flag * gx,
+
+
+class Critic(chainer.Chain):
+
+    def __init__(self, input_dim, hidden_dim=512, output_dim=1, use_wgan=False):
+        super(Critic, self).__init__(
+            domain_layer=L.Linear(input_dim, hidden_dim),
+            domain_final=L.Linear(hidden_dim, output_dim),
+        )
+        self.use_wgan = use_wgan
+
+    def __call__(self, x):
+        h = self.domain_layer(x)
+        h = F.relu(h)
+        h = self.domain_final(h)
+        if self.use_wgan:
+            h = F.sum(h) / h.size  # Mean
+        return h
+
+
 class MultiLingualConv(chainer.Chain):
 
-    def __init__(self, args, n_vocab, init_emb=None, add_n_vocab=0):
+    def __init__(self, args, n_vocab, init_emb=None, add_n_vocab=0, use_domain_adapt=0, n_domain=1):
         hidden_dim = args.dim_hidden
         if args.sentence_encoder_type == 'gru':
             sentence_encoder_context = SentenceEncoderGRU(
@@ -292,6 +331,13 @@ class MultiLingualConv(chainer.Chain):
             layer_agent=L.Linear(hidden_dim * 2, hidden_dim, nobias=True),
             layer_response=L.Linear(hidden_dim * 2, hidden_dim, nobias=True),
         )
+
+        if use_domain_adapt:
+            critic = Critic(input_dim=hidden_dim * 2,
+                            hidden_dim=hidden_dim, output_dim=n_domain)
+            self.add_link('critic', critic)
+        self.use_domain_adapt = use_domain_adapt
+        self.n_domain = n_domain
         self.args = args
         self.use_pad_unk = args.use_pad_unk
         self.n_prev_sents = args.n_prev_sents
@@ -370,7 +416,7 @@ class MultiLingualConv(chainer.Chain):
 
         return agents_ids
 
-    def __call__(self, samples):
+    def __call__(self, samples, y_domain=None):
         # Sentence Encoder
         xp = self.xp
         contexts, contexts_length, responses, responses_length, agents_ids, n_agents, binned_n_agents, y_adr, y_res = samples
@@ -399,6 +445,15 @@ class MultiLingualConv(chainer.Chain):
 
         response_o = self.layer_response(a_h)
         agent_o = self.layer_agent(a_h)
+
+        self.domain_loss = 0.0
+        if self.use_domain_adapt:
+            h_domain = ReverseGrad(a_h)
+            print 'h_domain:', h_domain.shape
+
+            h_domain = self.critic(h_domain)
+            print 'y_domain:', y_domain.shape
+            self.domain_loss = F.softmax_cross_entropy(h_domain, y_domain)
 
         r_shape = (batchsize, self.candidate_size, -1)
         response_vecs = F.reshape(response_vecs, r_shape)  # (batch, candidate_size, 256)

@@ -216,6 +216,8 @@ def main():
     parser.add_argument('--s_add_n_vocab', dest='s_add_n_vocab', type=int, default=0, help='test')
     parser.add_argument('--use_small_emb', dest='use_small_emb',
                         type=int, default=0, help='use_small_emb')
+    parser.add_argument('--use_domain_adapt', dest='use_domain_adapt',
+                        type=int, default=0, help='use_domain_adapt')
 
     # en
     #  n_vocab = 176693
@@ -348,7 +350,8 @@ def main():
 
     from chainer_net import MultiLingualConv
 
-    model = MultiLingualConv(args, n_vocab, init_emb=init_emb, add_n_vocab=add_n_vocab)
+    model = MultiLingualConv(args, n_vocab, init_emb=init_emb,
+                             add_n_vocab=add_n_vocab, use_domain_adapt=args.use_domain_adapt, n_domain=n_domain)
 
     # TODO: load Trained model
     if args.load_param is not None:
@@ -447,6 +450,8 @@ def main():
 
         xp_index = np.concatenate([train_perms[domain_index][index:index + batchsize]
                                    for domain_index in range(n_domain)])
+        y_domain = xp.concatenate([xp.full((batchsize, ), domain_index, xp.int32)
+                                   for domain_index in range(n_domain)])
         contexts = [to_gpu(train_contexts[_i]) for _i in xp_index]
         responses = [to_gpu(train_responses[_i]) for _i in xp_index]
         agents_ids = [to_gpu(train_agents_ids[_i]) for _i in xp_index]
@@ -462,7 +467,7 @@ def main():
         samples = [contexts, contexts_length, responses,
                    responses_length, agents_ids, n_agents,
                    binned_n_agents, y_adr, y_res]
-        return samples
+        return samples, y_domain
 
     best_dev_acc_both = 0.
     unchanged = 0
@@ -480,9 +485,10 @@ def main():
         sum_loss = 0.0
         for i_index, index in enumerate(iteration_list):
 
-            sample = get_samples_batch(batchsize, index, train_perms)
+            sample, y_domain = get_samples_batch(batchsize, index, train_perms)
 
-            dot_r, dot_a, predict_r, predict_a, y_res_pad, y_adr_pad = model(sample)
+            dot_r, dot_a, predict_r, predict_a, y_res_pad, y_adr_pad = model(
+                sample, y_domain=y_domain)
 
             #
             [_, _, _, _, _, _, _, y_adr, y_res] = sample
