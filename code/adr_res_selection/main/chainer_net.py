@@ -54,12 +54,16 @@ class SentenceEncoderCNN(chainer.Chain):
 
         xp = self.xp
         batchsize = len(x_data)
-        lengths = xp.concatenate(lengths, axis=0)
+
+        # lengths = xp.concatenate(lengths, axis=0)
+        lengths = np.concatenate(lengths, axis=0)
         # max_len = max(lengths)
 
         x_data = xp.concatenate(x_data, axis=0)
-        split_size = xp.cumsum(lengths)[:-1]
-        x_data = F.split_axis(x_data, to_cpu(split_size), axis=0)
+        # split_size = xp.cumsum(lengths)[:-1]
+        # split_size = to_cpu(split_size)
+        split_size = np.cumsum(lengths)[:-1]
+        x_data = F.split_axis(x_data, split_size, axis=0)
 
         x_data = F.pad_sequence(x_data, padding=-1).data
         pad = xp.full((x_data.shape[0], self.window_size - 1), -1., dtype=xp.int32)
@@ -117,8 +121,11 @@ class SentenceEncoderAverage(chainer.Chain):
 
         # 1-D flatten
         xs = xp.concatenate(x_data, axis=0)
-        lengths = xp.concatenate(lengths, axis=0)
-        split_size = xp.cumsum(lengths)[:-1]
+        # lengths = xp.concatenate(lengths, axis=0)
+        # split_size = xp.cumsum(lengths)[:-1]
+        # split_size = to_cpu(split_size)
+        lengths = np.concatenate(lengths, axis=0)
+        split_size = np.cumsum(lengths)[:-1]
 
         xs = Variable(xs)
 
@@ -133,9 +140,10 @@ class SentenceEncoderAverage(chainer.Chain):
             xs = F.dropout(xs, ratio=self.use_dropout)
 
         # split
-        xs = F.split_axis(xs, to_cpu(split_size), axis=0)
+        xs = F.split_axis(xs, split_size, axis=0)
         xs = F.pad_sequence(xs, padding=0.0)
         sum_xs = F.sum(xs, axis=1)
+        lengths = to_gpu(lengths)
         lengths_avg = xp.broadcast_to(lengths[..., None], sum_xs.shape)
 
         avg_xs = sum_xs / lengths_avg
@@ -173,8 +181,11 @@ class SentenceEncoderGRU(chainer.Chain):
 
         # 1-D flatten
         xs = xp.concatenate(x_data, axis=0)
-        lengths = xp.concatenate(lengths, axis=0)
-        split_size = xp.cumsum(lengths)[:-1]
+        # lengths = xp.concatenate(lengths, axis=0)
+        # split_size = xp.cumsum(lengths)[:-1]
+        # split_size = to_cpu(split_size)
+        lengths = np.concatenate(lengths, axis=0)
+        split_size = np.cumsum(lengths)[:-1]
 
         xs = Variable(xs)
         if self.add_n_vocab:
@@ -187,7 +198,7 @@ class SentenceEncoderGRU(chainer.Chain):
             xs = F.dropout(xs, ratio=self.use_dropout)
 
         # split
-        xs = F.split_axis(xs, to_cpu(split_size), axis=0)
+        xs = F.split_axis(xs, split_size, axis=0)
 
         # GRU
         hy, ys = self.gru(hx=hx, xs=xs)
@@ -212,7 +223,9 @@ class ConversationEncoderGRU(chainer.Chain):
         self.use_dropout = use_dropout
         self.use_pad_unk = use_pad_unk
 
-    def __call__(self, x_data, n_agents):
+    def __call__(self, x_data, n_agents, n_agents_list=None):
+        if n_agents_list is None:
+            n_agents_list = n_agents.tolist()
 
         batchsize = len(x_data)
         hx = None
@@ -235,10 +248,11 @@ class ConversationEncoderGRU(chainer.Chain):
 
         # Extract First Agent (idx=0)
         cumsum_idx = xp.cumsum(n_agents).astype(xp.int32)
+        cumsum_idx_cpu = np.cumsum(n_agents_list).astype(np.int32)
         first_agent_idx = xp.concatenate([xp.zeros((1, ), dtype=xp.int32), cumsum_idx[:-1]], axis=0)
         spk_agent_vecs = F.embed_id(first_agent_idx, agent_vecs, ignore_label=-1)
 
-        split_agent_vecs = F.split_axis(agent_vecs, to_cpu(cumsum_idx[:-1]), axis=0)
+        split_agent_vecs = F.split_axis(agent_vecs, cumsum_idx_cpu[:-1], axis=0)
         pad_agent_vecs = F.pad_sequence(split_agent_vecs, padding=-1024.)
         # Max Pooling
         h_context = F.max(pad_agent_vecs, axis=1)
@@ -359,8 +373,8 @@ class MultiLingualConv(chainer.Chain):
     def __call__(self, samples):
         # Sentence Encoder
         xp = self.xp
-        contexts, contexts_length, responses, responses_length, agents_ids, n_agents, binned_n_agents, y_adr, y_res = samples
-        n_agents_list = n_agents.tolist()
+        contexts, contexts_length, responses, responses_length, agents_ids, n_agents, n_agents_list, binned_n_agents, y_adr, y_res = samples
+        # n_agents_list = n_agents.tolist()
         context_vecs = self.sentence_encoder(contexts, contexts_length)
         pad_context_vecs = context_vecs
         batchsize = n_agents.shape[0]
@@ -378,7 +392,7 @@ class MultiLingualConv(chainer.Chain):
         agent_input_vecs = F.split_axis(agent_input_vecs, split_size_cpu, axis=0)
 
         agent_vecs, h_context, spk_agent_vecs = self.conversation_encoder(
-            agent_input_vecs, n_agents)
+            agent_input_vecs, n_agents, n_agents_list)
 
         # predict
         a_h = F.concat([spk_agent_vecs, h_context], axis=1)
@@ -397,8 +411,10 @@ class MultiLingualConv(chainer.Chain):
         # offset = xp.arange(0, batchsize * dot_r.shape[1], dot_r.shape[1]).astype(xp.int32)
         # y_res = y_res + offset
 
-        cumsum_idx = xp.cumsum(n_agents).astype(xp.int32)
-        agent_vec_list = F.split_axis(agent_vecs, to_cpu(cumsum_idx[:-1]), axis=0)
+        # cumsum_idx = xp.cumsum(n_agents).astype(xp.int32)
+        # cumsum_idx = to_cpu(cumsum_idx[:-1])
+        cumsum_idx = np.cumsum(n_agents_list).astype(xp.int32)[:-1]
+        agent_vec_list = F.split_axis(agent_vecs, cumsum_idx, axis=0)
         agent_vec_pad = F.pad_sequence(agent_vec_list, padding=-1024.)
         agent_vec_pad = agent_vec_pad[:, 1:, :]  # except speaker_agent
         agent_o = F.reshape(agent_o, (batchsize, 1, -1))
