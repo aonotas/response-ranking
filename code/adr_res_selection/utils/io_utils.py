@@ -164,7 +164,7 @@ def load_multi_ling_init_emb(init_emb, target_lang, words_all=None, vocab_word=N
     else:
         tmp_emb_array = np.asarray(emb, dtype=theano.config.floatX)
         print 'before:', emb_array.shape
-        emb_array = np.concatenate([emb_array, tmp_emb_array], axis=1)
+        emb_array = np.concatenate([emb_array, tmp_emb_array], axis=0)
         print 'after:', emb_array.shape
 
     assert emb_array.shape[0] == vocab_word.size(
