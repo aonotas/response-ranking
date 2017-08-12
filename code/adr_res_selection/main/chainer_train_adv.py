@@ -399,22 +399,41 @@ def main():
 
     def get_samples_batch(train_samples_list, batchsize, index, train_perms):
 
-        element_num = len(train_samples_list[0])
-        samples = [[] for i in range(element_num)]
         for domain_index, dataset in enumerate(train_samples_list):
             perm = train_perms[domain_index]
 
-            sample_idx = perm[index:index + batchsize]
-            if len(sample_idx) < batchsize:
+            xp_index = perm[index:index + batchsize]
+            [train_contexts, train_contexts_length, train_responses,
+             train_responses_length, train_agents_ids, train_n_agents,
+             train_binned_n_agents, train_y_adr, train_y_res] = dataset
+            if len(xp_index) < batchsize:
                 perm = np.random.permutation(len(train_samples_list[domain_index][0]))
-                sample_idx = np.concatenate([sample_idx, perm[:batchsize - len(sample_idx)]])
+                xp_index = np.concatenate([xp_index, perm[:batchsize - len(xp_index)]])
 
-            for i in sample_idx:
-                for e_idx in range(element_num):
-                    samples[e_idx].append(dataset[e_idx][i])
+            contexts = [to_gpu(train_contexts[_i]) for _i in xp_index]
+            responses = [to_gpu(train_responses[_i]) for _i in xp_index]
+            agents_ids = [to_gpu(train_agents_ids[_i]) for _i in xp_index]
+            contexts_length = [to_gpu(train_contexts_length[_i]) for _i in xp_index]
+            responses_length = to_gpu(train_responses_length[xp_index])
+            n_agents = to_gpu(train_n_agents[xp_index])
+            binned_n_agents = to_gpu(train_binned_n_agents[xp_index])
+            y_adr = to_gpu(train_y_adr[xp_index])
+            y_res = to_gpu(train_y_res[xp_index])
 
-        for e_idx in [3, 5, 6, 7, 8]:
-            samples[e_idx] = np.array(samples[e_idx], dtype=np.int32)
+            if domain_index >= 1:
+                contexts += samples[0]
+                contexts_length += samples[1]
+                responses += samples[2]
+                responses_length = xp.concatenate([samples[3], responses_length], axis=0)
+                agents_ids += samples[4]
+                n_agents = xp.concatenate([samples[5], n_agents], axis=0)
+                binned_n_agents = xp.concatenate([samples[6], binned_n_agents], axis=0)
+                y_adr = xp.concatenate([samples[7], y_adr], axis=0)
+                y_res = xp.concatenate([samples[8], y_res], axis=0)
+
+            samples = [contexts, contexts_length, responses,
+                       responses_length, agents_ids, n_agents,
+                       binned_n_agents, y_adr, y_res]
         return samples
 
     max_domain_idx = np.argsort([len(d[0]) for d in train_samples_list])[-1]
@@ -435,34 +454,34 @@ def main():
         sum_loss = 0.0
         for i_index, index in enumerate(iteration_list):
 
-            samples = get_samples_batch(train_samples_list, batchsize, index, train_perms)
+            sample = get_samples_batch(train_samples_list, batchsize, index, train_perms)
 
-            [train_contexts, train_contexts_length, train_responses,
-             train_responses_length, train_agents_ids, train_n_agents,
-             train_binned_n_agents, train_y_adr, train_y_res] = samples
+            # [train_contexts, train_contexts_length, train_responses,
+            #  train_responses_length, train_agents_ids, train_n_agents,
+            #  train_binned_n_agents, train_y_adr, train_y_res] = samples
 
-            xp_index = range(len(train_contexts))
-
-            contexts = [to_gpu(train_contexts[_i]) for _i in xp_index]
-            responses = [to_gpu(train_responses[_i]) for _i in xp_index]
-            agents_ids = [to_gpu(train_agents_ids[_i]) for _i in xp_index]
-            # contexts = train_contexts[xp_index]
-            # responses = train_responses[xp_index]
-            # agents_ids = train_agents_ids[xp_index]
-
-            # contexts_length = train_contexts_length[xp_index]
-            contexts_length = [to_gpu(train_contexts_length[_i]) for _i in xp_index]
-            responses_length = to_gpu(train_responses_length[xp_index])
-            n_agents = to_gpu(train_n_agents[xp_index])
-            binned_n_agents_cpu = train_binned_n_agents[xp_index]
-            binned_n_agents = to_gpu(binned_n_agents_cpu)
-            y_adr_cpu = train_y_adr[xp_index]
-            y_adr = to_gpu(y_adr_cpu)
-            y_res_cpu = train_y_res[xp_index]
-            y_res = to_gpu(y_res_cpu)
-
-            sample = [contexts, contexts_length, responses, responses_length,
-                      agents_ids, n_agents, binned_n_agents, y_adr, y_res]
+            # xp_index = range(len(train_contexts))
+            #
+            # contexts = [to_gpu(train_contexts[_i]) for _i in xp_index]
+            # responses = [to_gpu(train_responses[_i]) for _i in xp_index]
+            # agents_ids = [to_gpu(train_agents_ids[_i]) for _i in xp_index]
+            # # contexts = train_contexts[xp_index]
+            # # responses = train_responses[xp_index]
+            # # agents_ids = train_agents_ids[xp_index]
+            #
+            # # contexts_length = train_contexts_length[xp_index]
+            # contexts_length = [to_gpu(train_contexts_length[_i]) for _i in xp_index]
+            # responses_length = to_gpu(train_responses_length[xp_index])
+            # n_agents = to_gpu(train_n_agents[xp_index])
+            # binned_n_agents_cpu = train_binned_n_agents[xp_index]
+            # binned_n_agents = to_gpu(binned_n_agents_cpu)
+            # y_adr_cpu = train_y_adr[xp_index]
+            # y_adr = to_gpu(y_adr_cpu)
+            # y_res_cpu = train_y_res[xp_index]
+            # y_res = to_gpu(y_res_cpu)
+            #
+            # sample = [contexts, contexts_length, responses, responses_length,
+            #           agents_ids, n_agents, binned_n_agents, y_adr, y_res]
 
             dot_r, dot_a, predict_r, predict_a, y_res_pad, y_adr_pad = model(sample)
 
