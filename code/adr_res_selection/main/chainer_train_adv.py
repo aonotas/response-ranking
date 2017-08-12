@@ -306,6 +306,30 @@ def main():
         dev_samples_list.append(dev_samples)
         test_samples_list.append(test_samples)
 
+    # concat all dataset
+    for domain_index, dataset in enumerate(train_samples_list):
+
+        [contexts, contexts_length, responses, responses_length,
+         agents_ids, n_agents, binned_n_agents, y_adr, y_res] = dataset
+
+        if domain_index >= 1:
+            contexts += samples[0]
+            contexts_length += samples[1]
+            responses += samples[2]
+            responses_length = np.concatenate([samples[3], responses_length], axis=0)
+            agents_ids += samples[4]
+            n_agents = np.concatenate([samples[5], n_agents], axis=0)
+            binned_n_agents = np.concatenate([samples[6], binned_n_agents], axis=0)
+            y_adr = np.concatenate([samples[7], y_adr], axis=0)
+            y_res = np.concatenate([samples[8], y_res], axis=0)
+
+        samples = [contexts, contexts_length, responses,
+                   responses_length, agents_ids, n_agents,
+                   binned_n_agents, y_adr, y_res]
+
+    train_samples_concat = samples
+    train_sizes = [len(x[0]) for x in train_samples_list]
+
     n_vocab = vocab_words.size()
     add_n_vocab = 1
 
@@ -393,53 +417,48 @@ def main():
     if args.freeze_wordemb:
         opt.add_hook(DelGradient(['/sentence_encoder/word_embed/W']))
 
-    def set_perms(train_samples_list):
+    max_domain_idx = np.argsort([size for size in train_sizes])[-1]
+
+    n_domain = len(languages_list)
+
+    def set_perms(train_sizes):
         train_perms = []
-        for i, dataset in enumerate(train_samples_list):
-            perm = np.random.permutation(len(dataset[0]))
+        max_length = train_sizes[max_domain_idx]
+        s = 0
+        for i, dataset_size in enumerate(train_sizes):
+            perm = np.random.permutation(dataset_size)
+            if dataset_size < max_length:
+                tmp_perm = np.random.permutation(dataset_size)[:max_length - dataset_size]
+                perm = np.concatenate([perm, tmp_perm])
+            perm += s
+            s += len(perm)
             train_perms.append(perm)
+
         return train_perms
 
     def get_samples_batch(train_samples_list, batchsize, index, train_perms):
 
-        for domain_index, dataset in enumerate(train_samples_list):
-            perm = train_perms[domain_index]
+        xp_index = np.concatenate([train_perms[domain_index][index:index + batchsize]
+                                   for domain_index in range(n_domain)])
 
-            xp_index = perm[index:index + batchsize]
-            [train_contexts, train_contexts_length, train_responses,
-             train_responses_length, train_agents_ids, train_n_agents,
-             train_binned_n_agents, train_y_adr, train_y_res] = dataset
-            if len(xp_index) < batchsize:
-                perm = np.random.permutation(len(train_samples_list[domain_index][0]))
-                xp_index = np.concatenate([xp_index, perm[:batchsize - len(xp_index)]])
+        [train_contexts, train_contexts_length, train_responses,
+         train_responses_length, train_agents_ids, train_n_agents,
+         train_binned_n_agents, train_y_adr, train_y_res] = train_samples_concat
 
-            contexts = [train_contexts[_i] for _i in xp_index]
-            responses = [train_responses[_i] for _i in xp_index]
-            agents_ids = [train_agents_ids[_i] for _i in xp_index]
-            contexts_length = [train_contexts_length[_i] for _i in xp_index]
-            responses_length = train_responses_length[xp_index]
-            n_agents = train_n_agents[xp_index]
-            binned_n_agents = train_binned_n_agents[xp_index]
-            y_adr = train_y_adr[xp_index]
-            y_res = train_y_res[xp_index]
+        contexts = [to_gpu(train_contexts[_i]) for _i in xp_index]
+        responses = [to_gpu(train_responses[_i]) for _i in xp_index]
+        agents_ids = [to_gpu(train_agents_ids[_i]) for _i in xp_index]
+        contexts_length = [to_gpu(train_contexts_length[_i]) for _i in xp_index]
+        responses_length = to_gpu(train_responses_length[xp_index])
+        n_agents = to_gpu(train_n_agents[xp_index])
+        binned_n_agents = to_gpu(train_binned_n_agents[xp_index])
+        y_adr = to_gpu(train_y_adr[xp_index])
+        y_res = to_gpu(train_y_res[xp_index])
 
-            if domain_index >= 1:
-                contexts += samples[0]
-                contexts_length += samples[1]
-                responses += samples[2]
-                responses_length = np.concatenate([samples[3], responses_length], axis=0)
-                agents_ids += samples[4]
-                n_agents = np.concatenate([samples[5], n_agents], axis=0)
-                binned_n_agents = np.concatenate([samples[6], binned_n_agents], axis=0)
-                y_adr = np.concatenate([samples[7], y_adr], axis=0)
-                y_res = np.concatenate([samples[8], y_res], axis=0)
-
-            samples = [contexts, contexts_length, responses,
-                       responses_length, agents_ids, n_agents,
-                       binned_n_agents, y_adr, y_res]
+        samples = [contexts, contexts_length, responses,
+                   responses_length, agents_ids, n_agents,
+                   binned_n_agents, y_adr, y_res]
         return samples
-
-    max_domain_idx = np.argsort([len(d[0]) for d in train_samples_list])[-1]
 
     best_dev_acc_both = 0.
     unchanged = 0
@@ -451,8 +470,8 @@ def main():
         model.cleargrads()
         model.n_prev_sents = args.n_prev_sents
         chainer.config.train = True
-        iteration_list = range(0, len(train_samples_list[max_domain_idx][0]), batchsize)
-        train_perms = set_perms(train_samples_list)
+        iteration_list = range(0, train_sizes[max_domain_idx], batchsize)
+        train_perms = set_perms(train_sizes)
         predict_lists = []
         sum_loss = 0.0
         for i_index, index in enumerate(iteration_list):
@@ -462,19 +481,7 @@ def main():
             [contexts, contexts_length, responses, responses_length,
              agents_ids, n_agents, binned_n_agents, y_adr, y_res] = sample
 
-            xp_index = range(len(contexts))
-            contexts = [to_gpu(contexts[_i]) for _i in xp_index]
-            responses = [to_gpu(responses[_i]) for _i in xp_index]
-            agents_ids = [to_gpu(agents_ids[_i]) for _i in xp_index]
-            contexts_length = [to_gpu(contexts_length[_i]) for _i in xp_index]
-            responses_length = to_gpu(responses_length[xp_index])
-            n_agents = to_gpu(n_agents[xp_index])
-            binned_n_agents = to_gpu(binned_n_agents[xp_index])
-            y_adr = to_gpu(y_adr[xp_index])
-            y_res = to_gpu(y_res[xp_index])
-            samples = [contexts, contexts_length, responses, responses_length,
-                       agents_ids, n_agents, binned_n_agents, y_adr, y_res]
-            dot_r, dot_a, predict_r, predict_a, y_res_pad, y_adr_pad = model(samples)
+            dot_r, dot_a, predict_r, predict_a, y_res_pad, y_adr_pad = model(sample)
 
             loss_alpha = 0.5
             loss_r = F.softmax_cross_entropy(
