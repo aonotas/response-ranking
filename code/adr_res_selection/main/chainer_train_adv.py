@@ -438,7 +438,8 @@ def main():
             perm = np.random.permutation(dataset_size)
             if dataset_size < max_length:
                 remain_size = max_length - dataset_size
-                for remain in range(remain_size // dataset_size + 1):
+                print 'remain_size:', remain_size
+                for remain in range(max_length // dataset_size + 1):
                     tmp_perm = np.random.permutation(dataset_size)[:remain]
                     perm = np.concatenate([perm, tmp_perm])
                 print 'tmp_perm:', len(tmp_perm)
@@ -462,8 +463,9 @@ def main():
 
         xp_index = np.concatenate([train_perms[domain_index][index:index + batchsize]
                                    for domain_index in range(n_domain)])
-        y_domain = xp.concatenate([xp.full((batchsize, ), domain_index, xp.int32)
+        y_domain = xp.concatenate([xp.full((len(train_perms[domain_index][index:index + batchsize]), ), domain_index, xp.int32)
                                    for domain_index in range(n_domain)])
+        print 'y_domain:', y_domain.shape
         contexts = [to_gpu(train_contexts[_i]) for _i in xp_index]
         responses = [to_gpu(train_responses[_i]) for _i in xp_index]
         agents_ids = [to_gpu(train_agents_ids[_i]) for _i in xp_index]
