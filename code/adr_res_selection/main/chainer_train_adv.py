@@ -437,11 +437,16 @@ def main():
             print '--- i:', i, dataset_size
             perm = np.random.permutation(dataset_size)
             if dataset_size < max_length:
-                tmp_perm = np.random.permutation(dataset_size)[max_length - dataset_size:]
+                remain_size = max_length - dataset_size
+                for remain in range(remain_size // dataset_size + 1):
+                    tmp_perm = np.random.permutation(dataset_size)[:remain]
+                    perm = np.concatenate([perm, tmp_perm])
                 print 'tmp_perm:', len(tmp_perm)
                 print 'perm:', len(perm)
+                perm = perm[:max_length]
 
-                perm = np.concatenate([perm, tmp_perm])
+                print ' * perm:', len(perm)
+
             perm += s
             s += len(perm)
             train_perms.append(perm)
