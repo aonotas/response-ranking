@@ -437,7 +437,7 @@ def main():
             print '--- i:', i, dataset_size
             perm = np.random.permutation(dataset_size)
             if dataset_size < max_length:
-                tmp_perm = np.random.permutation(dataset_size)[:max_length - dataset_size]
+                tmp_perm = np.random.permutation(dataset_size)[max_length - dataset_size:]
                 print 'tmp_perm:', len(tmp_perm)
                 print 'perm:', len(perm)
 
