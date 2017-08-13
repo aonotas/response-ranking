@@ -370,9 +370,11 @@ def main():
         model.to_gpu()
 
     acc_history = {}
+    un_change = {}
 
     for i, lang in enumerate(languages_list):
         acc_history[i] = {}
+        un_change[i] = 0
 
     if args.load_param is not None:
         epoch = 0
@@ -436,17 +438,13 @@ def main():
         max_length = train_sizes[max_domain_idx]
         s = 0
         for i, dataset_size in enumerate(train_sizes):
-            print '--- i:', i, dataset_size
             perm = np.random.permutation(dataset_size)
             if args.use_same_trainsize:
                 if dataset_size < max_length:
                     for remain in range(max_length // dataset_size + 1):
                         tmp_perm = np.random.permutation(dataset_size)
                         perm = np.concatenate([perm, tmp_perm])
-                    print 'tmp_perm:', len(tmp_perm)
-                    print 'perm:', len(perm)
                     perm = perm[:max_length]
-                    print ' * perm:', len(perm)
 
             perm += s
             s += len(perm)
@@ -541,7 +539,7 @@ def main():
             dev_acc_both, dev_acc_adr, dev_acc_res = model.predict_all(dev_samples)
 
             if dev_acc_both > best_dev_acc_both:
-                unchanged = 0
+                un_change[i] = 0
                 best_dev_acc_both = dev_acc_both
                 acc_history[i][epoch + 1] = [(best_dev_acc_both, dev_acc_adr, dev_acc_res)]
 
@@ -551,15 +549,15 @@ def main():
 
         for i, test_samples in enumerate(test_samples_list):
             lang = languages_list[i]
-            say('\n\n\r  TEST  ')
+            say('\n\n\r  TEST  ' + lang)
             test_acc_both, test_acc_adr, test_acc_res = model.predict_all(test_samples)
 
-            if unchanged == 0:
+            if un_change[i] == 0:
                 if epoch + 1 in acc_history[i]:
                     acc_history[i][epoch + 1].append((test_acc_both, test_acc_adr, test_acc_res))
                 else:
                     acc_history[i][epoch + 1] = [(test_acc_both, test_acc_adr, test_acc_res)]
-            unchanged += 1
+            un_change[i] += 1
 
             #####################
             # Show best results #
