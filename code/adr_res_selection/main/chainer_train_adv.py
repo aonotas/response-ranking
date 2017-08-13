@@ -527,9 +527,9 @@ def main():
             loss.backward()
             opt.update()
 
-        evaluator.update(binned_n_agents_cpu, 0., 0., to_cpu(
-            predict_a.data), to_cpu(predict_r.data), y_adr_cpu, y_res_cpu)
-        evaluator.show_results()
+        # evaluator.update(binned_n_agents_cpu, 0., 0., to_cpu(
+        #     predict_a.data), to_cpu(predict_r.data), y_adr_cpu, y_res_cpu)
+        # evaluator.show_results()
 
         say('\n loss: %s' % str(sum_loss))
         say('\n domain_loss: %s' % str(domain_sum_loss))
