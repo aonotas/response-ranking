@@ -425,14 +425,22 @@ def main():
 
     max_domain_idx = np.argsort([size for size in train_sizes])[-1]
 
+    print 'train_sizes:', train_sizes
+    print 'max_domain_idx:', max_domain_idx
+    print 'max_length:', train_sizes[max_domain_idx]
+
     def set_perms(train_sizes):
         train_perms = []
         max_length = train_sizes[max_domain_idx]
         s = 0
         for i, dataset_size in enumerate(train_sizes):
+            print '--- i:', i, dataset_size
             perm = np.random.permutation(dataset_size)
             if dataset_size < max_length:
                 tmp_perm = np.random.permutation(dataset_size)[:max_length - dataset_size]
+                print 'tmp_perm:', len(tmp_perm)
+                print 'perm:', len(perm)
+
                 perm = np.concatenate([perm, tmp_perm])
             perm += s
             s += len(perm)
