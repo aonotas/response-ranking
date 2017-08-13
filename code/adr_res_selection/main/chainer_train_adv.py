@@ -218,6 +218,8 @@ def main():
                         type=int, default=0, help='use_small_emb')
     parser.add_argument('--use_domain_adapt', dest='use_domain_adapt',
                         type=int, default=0, help='use_domain_adapt')
+    parser.add_argument('--use_same_trainsize', dest='use_same_trainsize',
+                        type=int, default=1, help='use_same_trainsize')
 
     # en
     #  n_vocab = 176693
@@ -436,17 +438,15 @@ def main():
         for i, dataset_size in enumerate(train_sizes):
             print '--- i:', i, dataset_size
             perm = np.random.permutation(dataset_size)
-            if dataset_size < max_length:
-                remain_size = max_length - dataset_size
-                print 'remain_size:', remain_size
-                for remain in range(max_length // dataset_size + 1):
-                    tmp_perm = np.random.permutation(dataset_size)
-                    perm = np.concatenate([perm, tmp_perm])
-                print 'tmp_perm:', len(tmp_perm)
-                print 'perm:', len(perm)
-                perm = perm[:max_length]
-
-                print ' * perm:', len(perm)
+            if args.use_same_trainsize:
+                if dataset_size < max_length:
+                    for remain in range(max_length // dataset_size + 1):
+                        tmp_perm = np.random.permutation(dataset_size)
+                        perm = np.concatenate([perm, tmp_perm])
+                    print 'tmp_perm:', len(tmp_perm)
+                    print 'perm:', len(perm)
+                    perm = perm[:max_length]
+                    print ' * perm:', len(perm)
 
             perm += s
             s += len(perm)
@@ -465,7 +465,7 @@ def main():
                                    for domain_index in range(n_domain)])
         y_domain = xp.concatenate([xp.full((len(train_perms[domain_index][index:index + batchsize]), ), domain_index, xp.int32)
                                    for domain_index in range(n_domain)])
-        print 'y_domain:', y_domain.shape
+
         contexts = [to_gpu(train_contexts[_i]) for _i in xp_index]
         responses = [to_gpu(train_responses[_i]) for _i in xp_index]
         agents_ids = [to_gpu(train_agents_ids[_i]) for _i in xp_index]
