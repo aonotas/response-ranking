@@ -440,7 +440,7 @@ def main():
                 remain_size = max_length - dataset_size
                 print 'remain_size:', remain_size
                 for remain in range(max_length // dataset_size + 1):
-                    tmp_perm = np.random.permutation(dataset_size)[:remain]
+                    tmp_perm = np.random.permutation(dataset_size)
                     perm = np.concatenate([perm, tmp_perm])
                 print 'tmp_perm:', len(tmp_perm)
                 print 'perm:', len(perm)
