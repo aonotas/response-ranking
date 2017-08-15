@@ -488,8 +488,9 @@ def main():
         if args.use_same_trainsize:
             p = perm_domains
             min_batchsize = len(train_perms[min_domain_idx][index:index + batchsize])
-            print 'min_batchsize:', min_batchsize
+            print ' min_batchsize:', min_batchsize
             print ' domain_xp_list:', [len(train_perms[i][p[i]:p[i] + min_batchsize]) for i in range(n_domain)]
+            print ' perm_domains:', perm_domains
 
             xp_index = np.concatenate([train_perms[i][p[i]:p[i] + min_batchsize]
                                        for i in range(n_domain)])
