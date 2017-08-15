@@ -451,6 +451,10 @@ def main():
             s += len(perm)
             train_perms.append(perm)
 
+        if not args.use_same_trainsize:
+            # concatenate
+            train_perms = np.concatenate(train_perms)
+
         return train_perms
 
     # all train dataset
@@ -458,12 +462,19 @@ def main():
      train_responses_length, train_agents_ids, train_n_agents,
      train_binned_n_agents, train_y_adr, train_y_res] = train_samples_concat
 
-    def get_samples_batch(batchsize, index, train_perms):
+    train_sizes_cumsum = np.cumsum(train_sizes)[..., None].T
 
-        xp_index = np.concatenate([train_perms[domain_index][index:index + batchsize]
-                                   for domain_index in range(n_domain)])
-        y_domain = xp.concatenate([xp.full((len(train_perms[domain_index][index:index + batchsize]), ), domain_index, xp.int32)
-                                   for domain_index in range(n_domain)])
+    def get_samples_batch(batchsize, index, train_perms):
+        if args.use_same_trainsize:
+            xp_index = np.concatenate([train_perms[domain_index][index:index + batchsize]
+                                       for domain_index in range(n_domain)])
+            y_domain = xp.concatenate([xp.full((len(train_perms[domain_index][index:index + batchsize]), ), domain_index, xp.int32)
+                                       for domain_index in range(n_domain)])
+        else:
+            # train_sizes
+            xp_index = train_perms[index:index + batchsize]
+            y_domain = np.argmin(train_sizes_cumsum - xp_index[..., None] - 1 < 0, axis=1)
+            y_domain = to_gpu(y_domain)
 
         contexts = [to_gpu(train_contexts[_i]) for _i in xp_index]
         responses = [to_gpu(train_responses[_i]) for _i in xp_index]
