@@ -484,7 +484,7 @@ def main():
 
     train_sizes_cumsum = np.cumsum(train_sizes)[..., None].T
 
-    def get_samples_batch(batchsize, index, train_perms):
+    def get_samples_batch(batchsize, index, train_perms, perm_domains):
         if args.use_same_trainsize:
             p = perm_domains
             min_batchsize = len(train_perms[min_domain_idx][index:index + batchsize])
@@ -542,7 +542,7 @@ def main():
         domain_sum_loss = 0.0
         for i_index, index in enumerate(iteration_list):
 
-            sample, y_domain = get_samples_batch(batchsize, index, train_perms)
+            sample, y_domain = get_samples_batch(batchsize, index, train_perms, perm_domains)
 
             dot_r, dot_a, predict_r, predict_a, y_res_pad, y_adr_pad = model(
                 sample, y_domain=y_domain)
