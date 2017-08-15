@@ -435,7 +435,7 @@ def main():
     print 'max_domain_idx:', max_domain_idx
     print 'max_length:', train_sizes[max_domain_idx]
 
-    perm_domains = np.zeros((n_domain, ))
+    perm_domains = np.zeros((n_domain, ), dtype=np.int32)
 
     def set_perms(train_sizes, train_perms=[]):
         max_length = train_sizes[max_domain_idx]
