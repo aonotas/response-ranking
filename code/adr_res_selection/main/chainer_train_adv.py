@@ -453,8 +453,11 @@ def main():
                     p_size = 0
 
                 if p_size == 0:
-                    perm = np.concatenate([np.random.permutation(dataset_size),
-                                           np.random.permutation(dataset_size)[:batchsize]])
+                    if dataset_size < max_length:
+                        for remain in range(max_length // dataset_size + 1):
+                            tmp_perm = np.random.permutation(dataset_size)
+                            perm = np.concatenate([perm, tmp_perm])
+                        perm = perm[:max_length]
 
                 else:
                     perm = train_perms[i] - s
