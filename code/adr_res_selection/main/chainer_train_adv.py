@@ -501,7 +501,11 @@ def main():
         model.cleargrads()
         model.n_prev_sents = args.n_prev_sents
         chainer.config.train = True
-        iteration_list = range(0, train_sizes[max_domain_idx], batchsize)
+        if args.use_same_trainsize:
+            iteration_list = range(0, train_sizes[max_domain_idx], batchsize)
+        else:
+            iteration_list = range(0, sum(train_sizes), batchsize)
+
         train_perms = set_perms(train_sizes)
         predict_lists = []
         sum_loss = 0.0
