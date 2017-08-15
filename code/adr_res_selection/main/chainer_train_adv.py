@@ -429,27 +429,47 @@ def main():
         opt.add_hook(DelGradient(['/sentence_encoder/word_embed/W']))
 
     max_domain_idx = np.argsort([size for size in train_sizes])[-1]
+    min_domain_idx = np.argsort([size for size in train_sizes])[0]
 
     print 'train_sizes:', train_sizes
     print 'max_domain_idx:', max_domain_idx
     print 'max_length:', train_sizes[max_domain_idx]
 
-    def set_perms(train_sizes):
-        train_perms = []
+    perm_domains = np.zeros((n_domain, ))
+
+    def set_perms(train_sizes, train_perms=[]):
         max_length = train_sizes[max_domain_idx]
+        min_length = train_sizes[min_domain_idx]
         s = 0
         for i, dataset_size in enumerate(train_sizes):
-            perm = np.random.permutation(dataset_size)
-            if args.use_same_trainsize:
-                if dataset_size < max_length:
-                    for remain in range(max_length // dataset_size + 1):
-                        tmp_perm = np.random.permutation(dataset_size)
-                        perm = np.concatenate([perm, tmp_perm])
-                    perm = perm[:max_length]
 
+            if not args.use_same_trainsize:
+                perm = np.random.permutation(dataset_size)
+            else:
+                t_size = train_sizes[i]
+                p_size = perm_domains[i]
+                if t_size <= p_size:
+                    perm_domains[i] = 0
+                    p_size = 0
+
+                if p_size == 0:
+                    perm = np.concatenate([np.random.permutation(dataset_size),
+                                           np.random.permutation(dataset_size)[:batchsize]])
+
+                else:
+                    perm = train_perms[i]
+
+            # if args.use_same_trainsize:
+            #     if dataset_size < max_length:
+            #         for remain in range(max_length // dataset_size + 1):
+            #             tmp_perm = np.random.permutation(dataset_size)
+            #             perm = np.concatenate([perm, tmp_perm])
+            #         perm = perm[:max_length]
+            print ' i:', i
+            print ' perm:', len(perm)
             perm += s
-            s += len(perm)
-            train_perms.append(perm)
+            s += dataset_size
+            train_perms[i] = perm
 
         if not args.use_same_trainsize:
             # concatenate
@@ -466,10 +486,18 @@ def main():
 
     def get_samples_batch(batchsize, index, train_perms):
         if args.use_same_trainsize:
-            xp_index = np.concatenate([train_perms[domain_index][index:index + batchsize]
+            p = perm_domains
+            min_batchsize = len(train_perms[min_domain_idx][index:index + batchsize])
+            print 'min_batchsize:', min_batchsize
+            print ' domain_xp_list:', [len(train_perms[i][p[i]:p[i] + min_batchsize]) for i in range(n_domain)]
+
+            xp_index = np.concatenate([train_perms[i][p[i]:p[i] + min_batchsize]
+                                       for i in range(n_domain)])
+            y_domain = xp.concatenate([xp.full((len(train_perms[domain_index][p[i]:p[i] + min_batchsize]), ), domain_index, xp.int32)
                                        for domain_index in range(n_domain)])
-            y_domain = xp.concatenate([xp.full((len(train_perms[domain_index][index:index + batchsize]), ), domain_index, xp.int32)
-                                       for domain_index in range(n_domain)])
+
+            perm_domains += min_batchsize
+
         else:
             # train_sizes
             xp_index = train_perms[index:index + batchsize]
@@ -493,6 +521,7 @@ def main():
                    binned_n_agents, y_adr, y_res]
         return samples, y_domain
 
+    train_perms = [[] for i, lang in enumerate(languages_list)]
     for epoch in xrange(args.n_epoch):
         say('\n\n\nEpoch: %d' % (epoch + 1))
         say('\n  TRAIN  ')
@@ -502,11 +531,11 @@ def main():
         model.n_prev_sents = args.n_prev_sents
         chainer.config.train = True
         if args.use_same_trainsize:
-            iteration_list = range(0, train_sizes[max_domain_idx], batchsize)
+            iteration_list = range(0, train_sizes[min_domain_idx], batchsize)
         else:
             iteration_list = range(0, sum(train_sizes), batchsize)
 
-        train_perms = set_perms(train_sizes)
+        train_perms = set_perms(train_sizes, train_perms)
         predict_lists = []
         sum_loss = 0.0
         domain_sum_loss = 0.0
