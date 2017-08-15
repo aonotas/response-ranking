@@ -457,7 +457,7 @@ def main():
                                            np.random.permutation(dataset_size)[:batchsize]])
 
                 else:
-                    perm = train_perms[i]
+                    perm = train_perms[i] - s
 
             # if args.use_same_trainsize:
             #     if dataset_size < max_length:
@@ -494,6 +494,7 @@ def main():
 
             xp_index = np.concatenate([train_perms[i][p[i]:p[i] + min_batchsize]
                                        for i in range(n_domain)])
+            print ' xp_index:', xp_index
             y_domain = xp.concatenate([xp.full((len(train_perms[domain_index][p[i]:p[i] + min_batchsize]), ), domain_index, xp.int32)
                                        for domain_index in range(n_domain)])
 
