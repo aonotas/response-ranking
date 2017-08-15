@@ -474,7 +474,7 @@ def main():
             # train_sizes
             xp_index = train_perms[index:index + batchsize]
             y_domain = np.argmin(train_sizes_cumsum - xp_index[..., None] - 1 < 0, axis=1)
-            y_domain = to_gpu(y_domain)
+            y_domain = to_gpu(y_domain.astype(np.int32))
 
         contexts = [to_gpu(train_contexts[_i]) for _i in xp_index]
         responses = [to_gpu(train_responses[_i]) for _i in xp_index]
