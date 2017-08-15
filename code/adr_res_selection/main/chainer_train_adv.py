@@ -430,11 +430,6 @@ def main():
 
     max_domain_idx = np.argsort([size for size in train_sizes])[-1]
     min_domain_idx = np.argsort([size for size in train_sizes])[0]
-
-    print 'train_sizes:', train_sizes
-    print 'max_domain_idx:', max_domain_idx
-    print 'max_length:', train_sizes[max_domain_idx]
-
     perm_domains = np.zeros((n_domain, ), dtype=np.int32)
 
     def set_perms(train_sizes, train_perms=[]):
@@ -458,14 +453,6 @@ def main():
                 else:
                     perm = train_perms[i] - s
 
-            # if args.use_same_trainsize:
-            #     if dataset_size < max_length:
-            #         for remain in range(max_length // dataset_size + 1):
-            #             tmp_perm = np.random.permutation(dataset_size)
-            #             perm = np.concatenate([perm, tmp_perm])
-            #         perm = perm[:max_length]
-            print ' i:', i
-            print ' perm:', len(perm)
             perm += s
             s += dataset_size
             train_perms[i] = perm
@@ -487,16 +474,11 @@ def main():
         if args.use_same_trainsize:
             p = perm_domains
             min_batchsize = len(train_perms[min_domain_idx][index:index + batchsize])
-            print ' min_batchsize:', min_batchsize
-            print ' domain_xp_list:', [len(train_perms[i][p[i]:p[i] + min_batchsize]) for i in range(n_domain)]
-            print ' perm_domains:', perm_domains
 
             xp_index = np.concatenate([train_perms[i][p[i]:p[i] + min_batchsize]
                                        for i in range(n_domain)])
-            print ' xp_index:', len(xp_index)
             y_domain = xp.concatenate([xp.full((len(train_perms[i][p[i]:p[i] + min_batchsize]), ), i, xp.int32)
                                        for i in range(n_domain)])
-            print ' y_domain:', len(y_domain)
             perm_domains += min_batchsize
 
         else:
@@ -506,7 +488,6 @@ def main():
             y_domain = to_gpu(y_domain.astype(np.int32))
 
         contexts = [to_gpu(train_contexts[_i]) for _i in xp_index]
-        print ' contexts:', len(contexts)
         responses = [to_gpu(train_responses[_i]) for _i in xp_index]
         agents_ids = [to_gpu(train_agents_ids[_i]) for _i in xp_index]
         # contexts_length = [to_gpu(train_contexts_length[_i]) for _i in xp_index]
