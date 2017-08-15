@@ -371,10 +371,11 @@ def main():
 
     acc_history = {}
     un_change = {}
-
+    best_dev_acc_both = {}
     for i, lang in enumerate(languages_list):
         acc_history[i] = {}
         un_change[i] = 0
+        best_dev_acc_both[i] = 0.
 
     if args.load_param is not None:
         epoch = 0
@@ -481,8 +482,6 @@ def main():
                    binned_n_agents, y_adr, y_res]
         return samples, y_domain
 
-    best_dev_acc_both = 0.
-    unchanged = 0
     for epoch in xrange(args.n_epoch):
         say('\n\n\nEpoch: %d' % (epoch + 1))
         say('\n  TRAIN  ')
@@ -538,10 +537,10 @@ def main():
             say('\n\n  DEV  ' + lang)
             dev_acc_both, dev_acc_adr, dev_acc_res = model.predict_all(dev_samples)
 
-            if dev_acc_both > best_dev_acc_both:
+            if dev_acc_both > best_dev_acc_both[i]:
                 un_change[i] = 0
-                best_dev_acc_both = dev_acc_both
-                acc_history[i][epoch + 1] = [(best_dev_acc_both, dev_acc_adr, dev_acc_res)]
+                best_dev_acc_both[i] = dev_acc_both
+                acc_history[i][epoch + 1] = [(best_dev_acc_both[i], dev_acc_adr, dev_acc_res)]
 
                 model_filename = './models/' + argv.output_fn + '_' + \
                     argv.emb_type + '_epoch' + str(epoch) + '.model'
