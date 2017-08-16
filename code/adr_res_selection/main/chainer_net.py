@@ -441,6 +441,8 @@ class MultiLingualConv(chainer.Chain):
             h_domain = ReverseGrad(True)(response_vecs)
             h_domain = self.critic(h_domain)
             y_domain_response = xp.repeat(y_domain, 15, axis=0)
+            print 'h_domain:', h_domain.shape
+            print 'y_domain_response:', y_domain_response.shape
             self.domain_loss += F.softmax_cross_entropy(h_domain, y_domain_response)
 
         agents_ids = self.padding_offset(agents_ids, n_agents_list)
