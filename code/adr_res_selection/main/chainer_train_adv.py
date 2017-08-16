@@ -221,6 +221,8 @@ def main():
     parser.add_argument('--use_same_trainsize', dest='use_same_trainsize',
                         type=int, default=1, help='use_same_trainsize')
 
+    parser.add_argument('--use_shuffle', dest='use_shuffle',
+                        type=int, default=1, help='use_shuffle')
     # en
     #  n_vocab = 176693
     # add_n_vocab = 24841
@@ -463,7 +465,8 @@ def main():
         if not args.use_same_trainsize:
             # concatenate
             train_perms = np.concatenate(train_perms)
-            np.random.shuffle(train_perms)
+            if args.use_shuffle:
+                np.random.shuffle(train_perms)
 
         return train_perms
 
