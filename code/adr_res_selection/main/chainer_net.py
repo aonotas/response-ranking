@@ -422,6 +422,7 @@ class MultiLingualConv(chainer.Chain):
         contexts, contexts_length, responses, responses_length, agents_ids, n_agents, binned_n_agents, y_adr, y_res = samples
         n_agents_list = to_cpu(n_agents).tolist()
         context_vecs = self.sentence_encoder(contexts, contexts_length)
+        print ' context_vecs:', context_vecs.shape
         pad_context_vecs = context_vecs
         batchsize = n_agents.shape[0]
         if self.use_pad_unk:
@@ -429,6 +430,7 @@ class MultiLingualConv(chainer.Chain):
 
         # TODO: use different GRU for responses?
         response_vecs = self.sentence_encoder(responses, responses_length)
+        print ' response_vecs:', response_vecs.shape
 
         agents_ids = self.padding_offset(agents_ids, n_agents_list)
         split_size_cpu = np.arange(self.n_prev_sents, agents_ids.shape[0] * self.n_prev_sents,
