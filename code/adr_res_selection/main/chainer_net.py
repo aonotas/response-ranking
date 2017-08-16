@@ -459,6 +459,16 @@ class MultiLingualConv(chainer.Chain):
         print 'n_agents_list:', n_agents_list
         print 'agent_vecs:', agent_vecs.shape
 
+        if self.use_domain_adapt and y_domain is not None:
+            h_domain = ReverseGrad(True)(agent_vecs)
+            h_domain = self.critic(h_domain)
+            print 'y_domain:', y_domain.shape
+            y_domain_agent = xp.repeat(y_domain, n_agents, axis=0)
+            print 'agent_vecs:', agent_vecs.shape
+            print 'h_domain:', h_domain.shape
+            print 'y_domain_agent:', y_domain_agent.shape
+            self.domain_loss += F.softmax_cross_entropy(h_domain, y_domain_agent)
+
         # predict
         a_h = F.concat([spk_agent_vecs, h_context], axis=1)
 
