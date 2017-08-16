@@ -463,6 +463,7 @@ def main():
         if not args.use_same_trainsize:
             # concatenate
             train_perms = np.concatenate(train_perms)
+            np.random.shuffle(train_perms)
 
         return train_perms
 
