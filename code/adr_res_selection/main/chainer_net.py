@@ -333,7 +333,7 @@ class MultiLingualConv(chainer.Chain):
         )
 
         if use_domain_adapt:
-            critic = Critic(input_dim=hidden_dim * 2,
+            critic = Critic(input_dim=hidden_dim,
                             hidden_dim=hidden_dim, output_dim=n_domain)
             self.add_link('critic', critic)
         self.use_domain_adapt = use_domain_adapt
@@ -452,6 +452,7 @@ class MultiLingualConv(chainer.Chain):
 
         agent_vecs, h_context, spk_agent_vecs = self.conversation_encoder(
             agent_input_vecs, n_agents, n_agents_list)
+        print 'agent_vecs:', agent_vecs.shape
 
         # predict
         a_h = F.concat([spk_agent_vecs, h_context], axis=1)
@@ -460,7 +461,11 @@ class MultiLingualConv(chainer.Chain):
         agent_o = self.layer_agent(a_h)
 
         if self.use_domain_adapt and y_domain is not None:
-            h_domain = ReverseGrad(True)(a_h)
+            h_domain = ReverseGrad(True)(spk_agent_vecs)
+            h_domain = self.critic(h_domain)
+            self.domain_loss += F.softmax_cross_entropy(h_domain, y_domain)
+
+            h_domain = ReverseGrad(True)(h_context)
             h_domain = self.critic(h_domain)
             self.domain_loss += F.softmax_cross_entropy(h_domain, y_domain)
 
