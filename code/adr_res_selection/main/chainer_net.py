@@ -463,7 +463,7 @@ class MultiLingualConv(chainer.Chain):
             h_domain = ReverseGrad(True)(agent_vecs)
             h_domain = self.critic(h_domain)
             print 'y_domain:', y_domain.shape
-            y_domain_agent = xp.repeat(y_domain, n_agents, axis=0)
+            y_domain_agent = xp.repeat(y_domain, n_agents_list, axis=0)
             print 'agent_vecs:', agent_vecs.shape
             print 'h_domain:', h_domain.shape
             print 'y_domain_agent:', y_domain_agent.shape
