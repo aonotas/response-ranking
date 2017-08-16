@@ -440,11 +440,7 @@ class MultiLingualConv(chainer.Chain):
         if self.use_domain_adapt and y_domain is not None:
             h_domain = ReverseGrad(True)(response_vecs)
             h_domain = self.critic(h_domain)
-            print 'y_domain:', y_domain.shape
             y_domain_response = xp.repeat(y_domain, 2, axis=0)
-            print 'response_vecs:', response_vecs.shape
-            print 'h_domain:', h_domain.shape
-            print 'y_domain_response:', y_domain_response.shape
             self.domain_loss += F.softmax_cross_entropy(h_domain, y_domain_response)
 
         agents_ids = self.padding_offset(agents_ids, n_agents_list)
@@ -456,17 +452,11 @@ class MultiLingualConv(chainer.Chain):
 
         agent_vecs, h_context, spk_agent_vecs = self.conversation_encoder(
             agent_input_vecs, n_agents, n_agents_list)
-        print 'n_agents_list:', n_agents_list
-        print 'agent_vecs:', agent_vecs.shape
 
         if self.use_domain_adapt and y_domain is not None:
             h_domain = ReverseGrad(True)(agent_vecs)
             h_domain = self.critic(h_domain)
-            print 'y_domain:', y_domain.shape
             y_domain_agent = xp.repeat(y_domain, n_agents_list, axis=0)
-            print 'agent_vecs:', agent_vecs.shape
-            print 'h_domain:', h_domain.shape
-            print 'y_domain_agent:', y_domain_agent.shape
             self.domain_loss += F.softmax_cross_entropy(h_domain, y_domain_agent)
 
         # predict
