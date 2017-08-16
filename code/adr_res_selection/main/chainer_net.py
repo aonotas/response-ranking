@@ -441,7 +441,7 @@ class MultiLingualConv(chainer.Chain):
             h_domain = ReverseGrad(True)(response_vecs)
             h_domain = self.critic(h_domain)
             print 'y_domain:', y_domain.shape
-            y_domain_response = xp.repeat(y_domain, 15, axis=0)
+            y_domain_response = xp.repeat(y_domain, 2, axis=0)
             print 'response_vecs:', response_vecs.shape
             print 'h_domain:', h_domain.shape
             print 'y_domain_response:', y_domain_response.shape
