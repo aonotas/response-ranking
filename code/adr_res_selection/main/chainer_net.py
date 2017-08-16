@@ -456,6 +456,7 @@ class MultiLingualConv(chainer.Chain):
 
         agent_vecs, h_context, spk_agent_vecs = self.conversation_encoder(
             agent_input_vecs, n_agents, n_agents_list)
+        print 'n_agents_list:', n_agents_list
         print 'agent_vecs:', agent_vecs.shape
 
         # predict
