@@ -433,6 +433,9 @@ def main():
     perm_domains = np.zeros((n_domain, ), dtype=np.int32)
 
     def set_perms(train_sizes, train_perms=[]):
+        if not args.use_same_trainsize:
+            train_perms = [[] for i, lang in enumerate(languages_list)]
+
         max_length = train_sizes[max_domain_idx]
         min_length = train_sizes[min_domain_idx]
         s = 0
