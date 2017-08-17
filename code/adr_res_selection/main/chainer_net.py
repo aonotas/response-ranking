@@ -333,7 +333,7 @@ class MultiLingualConv(chainer.Chain):
         )
 
         if use_domain_adapt:
-            critic = Critic(input_dim=hidden_dim,
+            critic = Critic(input_dim=hidden_dim * 2,
                             hidden_dim=hidden_dim, output_dim=n_domain)
             self.add_link('critic', critic)
 
