@@ -434,11 +434,11 @@ class MultiLingualConv(chainer.Chain):
         contexts, contexts_length, responses, responses_length, agents_ids, n_agents, binned_n_agents, y_adr, y_res = samples
         n_agents_list = to_cpu(n_agents).tolist()
         context_vecs = self.sentence_encoder(contexts, contexts_length)
-        if self.use_domain_adapt and y_domain is not None:
-            h_domain = ReverseGrad(True)(context_vecs)
-            h_domain = self.critic_context(h_domain)
-            y_domain_context = xp.repeat(y_domain, 15, axis=0)
-            self.domain_loss += F.softmax_cross_entropy(h_domain, y_domain_context)
+        # if self.use_domain_adapt and y_domain is not None:
+        #     h_domain = ReverseGrad(True)(context_vecs)
+        #     h_domain = self.critic_context(h_domain)
+        #     y_domain_context = xp.repeat(y_domain, 15, axis=0)
+        #     self.domain_loss += F.softmax_cross_entropy(h_domain, y_domain_context)
 
         pad_context_vecs = context_vecs
         batchsize = n_agents.shape[0]
@@ -448,11 +448,11 @@ class MultiLingualConv(chainer.Chain):
         # TODO: use different GRU for responses?
         response_vecs = self.sentence_encoder(responses, responses_length)
 
-        if self.use_domain_adapt and y_domain is not None:
-            h_domain = ReverseGrad(True)(response_vecs)
-            h_domain = self.critic_response(h_domain)
-            y_domain_response = xp.repeat(y_domain, 2, axis=0)
-            self.domain_loss += F.softmax_cross_entropy(h_domain, y_domain_response)
+        # if self.use_domain_adapt and y_domain is not None:
+        #     h_domain = ReverseGrad(True)(response_vecs)
+        #     h_domain = self.critic_response(h_domain)
+        #     y_domain_response = xp.repeat(y_domain, 2, axis=0)
+        #     self.domain_loss += F.softmax_cross_entropy(h_domain, y_domain_response)
 
         agents_ids = self.padding_offset(agents_ids, n_agents_list)
         split_size_cpu = np.arange(self.n_prev_sents, agents_ids.shape[0] * self.n_prev_sents,
@@ -476,10 +476,10 @@ class MultiLingualConv(chainer.Chain):
         response_o = self.layer_response(a_h)
         agent_o = self.layer_agent(a_h)
 
-        # if self.use_domain_adapt and y_domain is not None:
-        #     h_domain = ReverseGrad(True)(a_h)
-        #     h_domain = self.critic(h_domain)
-        #     self.domain_loss += F.softmax_cross_entropy(h_domain, y_domain)
+        if self.use_domain_adapt and y_domain is not None:
+            h_domain = ReverseGrad(True)(a_h)
+            h_domain = self.critic(h_domain)
+            self.domain_loss += F.softmax_cross_entropy(h_domain, y_domain)
 
         r_shape = (batchsize, self.candidate_size, -1)
         response_vecs = F.reshape(response_vecs, r_shape)  # (batch, candidate_size, 256)
