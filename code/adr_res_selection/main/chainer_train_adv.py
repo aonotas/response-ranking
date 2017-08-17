@@ -223,6 +223,9 @@ def main():
 
     parser.add_argument('--use_shuffle', dest='use_shuffle',
                         type=int, default=1, help='use_shuffle')
+    parser.add_argument('--lambda_v', dest='lambda_v',
+                        type=float, default=0.5, help='lambda_v')
+
     # en
     #  n_vocab = 176693
     # add_n_vocab = 24841
@@ -547,7 +550,8 @@ def main():
             loss = loss_alpha * loss_r + (1 - loss_alpha) * loss_a
 
             if args.use_domain_adapt:
-                domain_loss = 0.5 * model.domain_loss
+                lambda_v = args.lambda_v
+                domain_loss = lambda_v * model.domain_loss
                 loss += domain_loss
                 domain_sum_loss += domain_loss.data
 
