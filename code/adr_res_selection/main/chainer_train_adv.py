@@ -487,14 +487,18 @@ def main():
 
             xp_index = np.concatenate([train_perms[i][p[i]:p[i] + min_batchsize]
                                        for i in range(n_domain)])
-            y_domain = xp.concatenate([xp.full((len(train_perms[i][p[i]:p[i] + min_batchsize]), ), i, xp.int32)
+
+            y_domain = np.concatenate([np.full((len(train_perms[i][p[i]:p[i] + min_batchsize]), ), i, np.int32)
                                        for i in range(n_domain)])
+            y_domain_count = np.bincount(y_domain)
             perm_domains += min_batchsize
+            y_domain = to_gpu(y_domain)
 
         else:
             # train_sizes
             xp_index = train_perms[index:index + batchsize]
             y_domain = np.argmin(train_sizes_cumsum - xp_index[..., None] - 1 < 0, axis=1)
+            y_domain_count = np.bincount(y_domain)
             y_domain = to_gpu(y_domain.astype(np.int32))
 
         contexts = [to_gpu(train_contexts[_i]) for _i in xp_index]
@@ -512,7 +516,7 @@ def main():
         samples = [contexts, contexts_length, responses,
                    responses_length, agents_ids, n_agents,
                    binned_n_agents, y_adr, y_res]
-        return samples, y_domain
+        return samples, y_domain, y_domain_count
 
     train_perms = [[] for i, lang in enumerate(languages_list)]
     for epoch in xrange(args.n_epoch):
@@ -534,10 +538,11 @@ def main():
         domain_sum_loss = 0.0
         for i_index, index in enumerate(iteration_list):
 
-            sample, y_domain = get_samples_batch(batchsize, index, train_perms, perm_domains)
+            sample, y_domain, y_domain_count = get_samples_batch(
+                batchsize, index, train_perms, perm_domains)
 
             dot_r, dot_a, predict_r, predict_a, y_res_pad, y_adr_pad = model(
-                sample, y_domain=y_domain)
+                sample, y_domain=y_domain, y_domain_count=y_domain_count)
 
             #
             [_, _, _, _, _, _, _, y_adr, y_res] = sample
