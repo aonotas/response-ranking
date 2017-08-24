@@ -50,7 +50,7 @@ class SentenceEncoderCNN(chainer.Chain):
     def set_train(self, train):
         self.train = train
 
-    def __call__(self, x_data, lengths, y_domain=None, y_domain_count=None):
+    def __call__(self, x_data, lengths, y_domain=None, domain_embed=None):
 
         xp = self.xp
         batchsize = len(x_data)
@@ -80,13 +80,12 @@ class SentenceEncoderCNN(chainer.Chain):
         # word_embW = F.concat([self.pad_emb.W, self.word_embed.W, self.add_word_embed.W], axis=0)
         word_embs = F.embed_id(x_data, word_embW, ignore_label=-1)
         if y_domain is not None:
-            print 'y_domain:', y_domain.shape
-            print y_domain
-            print 'y_domain_count:', y_domain_count.shape
-            print y_domain_count
-            print 'x_data:', x_data.shape
-            print 'lengths:', lengths
-            print 'word_embs:', word_embs.shape
+            y_domain = self.xp.reshape(y_domain, (y_domain.shape[0], 1))
+            y_domain_input = xp.repeat(y_domain, x_data.shape[0] / y_domain.shape[0], axis=0)
+            y_domain_input = xp.broadcast_to(y_domain_input, x_data.shape)
+            input_domain_vecs = domain_embed(y_domain_input)
+            word_embs = F.concat([word_embs, input_domain_vecs], axis=2)
+            
 
         word_embs = F.reshape(word_embs, (x_data.shape[0], 1, -1, self.dim))
 
@@ -362,6 +361,8 @@ class MultiLingualConv(chainer.Chain):
 
             domain_embed = L.EmbedID(n_domain, domain_dim, ignore_label=-1)
             self.add_link('domain_embed', domain_embed)
+        else:
+            self.domain_embed = None
 
         self.use_domain_adapt = use_domain_adapt
         self.n_domain = n_domain
@@ -450,7 +451,7 @@ class MultiLingualConv(chainer.Chain):
         contexts, contexts_length, responses, responses_length, agents_ids, n_agents, binned_n_agents, y_adr, y_res = samples
         n_agents_list = to_cpu(n_agents).tolist()
         context_vecs = self.sentence_encoder(
-            contexts, contexts_length, y_domain=y_domain, y_domain_count=y_domain_count)
+            contexts, contexts_length, y_domain=y_domain, domain_embed=self.domain_embed)
         if self.use_domain_adapt and y_domain is not None:
             h_domain = ReverseGrad(True)(context_vecs)
             h_domain = self.critic_context(h_domain)
@@ -464,7 +465,7 @@ class MultiLingualConv(chainer.Chain):
 
         # TODO: use different GRU for responses?
         response_vecs = self.sentence_encoder(
-            responses, responses_length, y_domain=y_domain, y_domain_count=y_domain_count)
+            responses, responses_length, y_domain=y_domain, domain_embed=self.domain_embed)
 
         if self.use_domain_adapt and y_domain is not None:
             h_domain = ReverseGrad(True)(response_vecs)
