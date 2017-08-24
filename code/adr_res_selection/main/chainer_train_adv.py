@@ -517,7 +517,7 @@ def main():
                    responses_length, agents_ids, n_agents,
                    binned_n_agents, y_adr, y_res]
         return samples, y_domain, y_domain_count
-
+    dev_acc_both, dev_acc_adr, dev_acc_res = model.predict_all(dev_samples, domain_index=i)
     train_perms = [[] for i, lang in enumerate(languages_list)]
     for epoch in xrange(args.n_epoch):
         say('\n\n\nEpoch: %d' % (epoch + 1))
@@ -578,7 +578,7 @@ def main():
             lang = languages_list[i]
             chainer.config.train = False
             say('\n\n  DEV  ' + lang)
-            dev_acc_both, dev_acc_adr, dev_acc_res = model.predict_all(dev_samples)
+            dev_acc_both, dev_acc_adr, dev_acc_res = model.predict_all(dev_samples, domain_index=i)
 
             if dev_acc_both > best_dev_acc_both[i]:
                 un_change[i] = 0
@@ -592,7 +592,8 @@ def main():
         for i, test_samples in enumerate(test_samples_list):
             lang = languages_list[i]
             say('\n\n\r  TEST  ' + lang)
-            test_acc_both, test_acc_adr, test_acc_res = model.predict_all(test_samples)
+            test_acc_both, test_acc_adr, test_acc_res = model.predict_all(
+                test_samples, domain_index=i)
 
             if un_change[i] == 0:
                 if epoch + 1 in acc_history[i]:
