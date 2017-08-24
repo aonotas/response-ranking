@@ -357,7 +357,7 @@ class MultiLingualConv(chainer.Chain):
             self.add_link('critic_context', critic_context)
             self.add_link('critic_agent', critic_agent)
 
-            domain_embed = L.EmbedID(n_domain, domain_dim, ignore_label=-1),
+            domain_embed = L.EmbedID(n_domain, domain_dim, ignore_label=-1)
             self.add_link('domain_embed', domain_embed)
 
         self.use_domain_adapt = use_domain_adapt
