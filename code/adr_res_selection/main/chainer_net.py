@@ -369,6 +369,7 @@ class MultiLingualConv(chainer.Chain):
         self.use_pad_unk = args.use_pad_unk
         self.n_prev_sents = args.n_prev_sents
         self.candidate_size = args.n_cands
+        self.compute_loss = True
 
     def predict_all(self, samples, domain_index=None):
         batchsize = self.args.batch
@@ -453,7 +454,8 @@ class MultiLingualConv(chainer.Chain):
         n_agents_list = to_cpu(n_agents).tolist()
         context_vecs = self.sentence_encoder(
             contexts, contexts_length, y_domain=y_domain, domain_embed=self.domain_embed)
-        if self.use_domain_adapt and y_domain is not None:
+
+        if self.use_domain_adapt and y_domain is not None and self.compute_loss:
             h_domain = ReverseGrad(True)(context_vecs)
             h_domain = self.critic_context(h_domain)
             y_domain_context = xp.repeat(y_domain, 15, axis=0)
@@ -468,7 +470,7 @@ class MultiLingualConv(chainer.Chain):
         response_vecs = self.sentence_encoder(
             responses, responses_length, y_domain=y_domain, domain_embed=self.domain_embed)
 
-        if self.use_domain_adapt and y_domain is not None:
+        if self.use_domain_adapt and y_domain is not None and self.compute_loss:
             h_domain = ReverseGrad(True)(response_vecs)
             h_domain = self.critic_response(h_domain)
             y_domain_response = xp.repeat(y_domain, 2, axis=0)
@@ -484,7 +486,7 @@ class MultiLingualConv(chainer.Chain):
         agent_vecs, h_context, spk_agent_vecs = self.conversation_encoder(
             agent_input_vecs, n_agents, n_agents_list)
 
-        if self.use_domain_adapt and y_domain is not None:
+        if self.use_domain_adapt and y_domain is not None and self.compute_loss:
             h_domain = ReverseGrad(True)(agent_vecs)
             h_domain = self.critic_agent(h_domain)
             y_domain_agent = xp.repeat(y_domain, n_agents_list, axis=0)
@@ -496,7 +498,7 @@ class MultiLingualConv(chainer.Chain):
         response_o = self.layer_response(a_h)
         agent_o = self.layer_agent(a_h)
 
-        if self.use_domain_adapt and y_domain is not None:
+        if self.use_domain_adapt and y_domain is not None and self.compute_loss:
             h_domain = ReverseGrad(True)(a_h)
             h_domain = self.critic(h_domain)
             self.domain_loss += F.softmax_cross_entropy(h_domain, y_domain)

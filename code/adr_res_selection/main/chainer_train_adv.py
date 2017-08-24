@@ -527,6 +527,7 @@ def main():
         model.cleargrads()
         model.n_prev_sents = args.n_prev_sents
         chainer.config.train = True
+        model.compute_loss = True
         if args.use_same_trainsize:
             iteration_list = range(0, train_sizes[min_domain_idx], batchsize)
         else:
@@ -577,6 +578,7 @@ def main():
         for i, dev_samples in enumerate(dev_samples_list):
             lang = languages_list[i]
             chainer.config.train = False
+            model.compute_loss = False
             say('\n\n  DEV  ' + lang)
             dev_acc_both, dev_acc_adr, dev_acc_res = model.predict_all(dev_samples, domain_index=i)
 
