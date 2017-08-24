@@ -517,7 +517,7 @@ def main():
                    responses_length, agents_ids, n_agents,
                    binned_n_agents, y_adr, y_res]
         return samples, y_domain, y_domain_count
-    dev_acc_both, dev_acc_adr, dev_acc_res = model.predict_all(dev_samples, domain_index=i)
+
     train_perms = [[] for i, lang in enumerate(languages_list)]
     for epoch in xrange(args.n_epoch):
         say('\n\n\nEpoch: %d' % (epoch + 1))
