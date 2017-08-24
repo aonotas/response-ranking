@@ -79,7 +79,7 @@ class SentenceEncoderCNN(chainer.Chain):
             word_embW = F.concat([self.pad_emb.W, self.word_embed.W], axis=0)
         # word_embW = F.concat([self.pad_emb.W, self.word_embed.W, self.add_word_embed.W], axis=0)
         word_embs = F.embed_id(x_data, word_embW, ignore_label=-1)
-        if y_domain is not None:
+        if y_domain is not None and domain_embed is not None:
             y_domain = self.xp.reshape(y_domain, (y_domain.shape[0], 1))
             y_domain_input = xp.repeat(y_domain, x_data.shape[0] / y_domain.shape[0], axis=0)
             y_domain_input = xp.broadcast_to(y_domain_input, x_data.shape)
