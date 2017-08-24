@@ -25,8 +25,8 @@ to_gpu = chainer.cuda.to_gpu
 class SentenceEncoderCNN(chainer.Chain):
 
     def __init__(self, emb_dim=100, window_size=3, hidden_dim=100,
-                 n_vocab=None, use_dropout=0.50, add_n_vocab=0):
-        dim = emb_dim
+                 n_vocab=None, use_dropout=0.50, add_n_vocab=0, domain_dim=0):
+        dim = emb_dim + domain_dim
         self.hidden_dim = hidden_dim
         super(SentenceEncoderCNN, self).__init__(
             pad_emb=L.EmbedID(1, emb_dim, ignore_label=-1),
@@ -50,7 +50,7 @@ class SentenceEncoderCNN(chainer.Chain):
     def set_train(self, train):
         self.train = train
 
-    def __call__(self, x_data, lengths):
+    def __call__(self, x_data, lengths, y_domain=None):
 
         xp = self.xp
         batchsize = len(x_data)
@@ -79,6 +79,12 @@ class SentenceEncoderCNN(chainer.Chain):
             word_embW = F.concat([self.pad_emb.W, self.word_embed.W], axis=0)
         # word_embW = F.concat([self.pad_emb.W, self.word_embed.W, self.add_word_embed.W], axis=0)
         word_embs = F.embed_id(x_data, word_embW, ignore_label=-1)
+        if y_domain is not None:
+            print 'y_domain:', y_domain.shape
+            print 'x_data:', x_data.shape
+            print 'lengths:', lengths
+            print 'word_embs:', word_embs.shape
+
         word_embs = F.reshape(word_embs, (x_data.shape[0], 1, -1, self.dim))
 
         if self.use_dropout:
@@ -303,6 +309,9 @@ class MultiLingualConv(chainer.Chain):
 
     def __init__(self, args, n_vocab, init_emb=None, add_n_vocab=0, use_domain_adapt=0, n_domain=1):
         hidden_dim = args.dim_hidden
+        domain_dim = 0
+        if use_domain_adapt:
+            domain_dim = 256
         if args.sentence_encoder_type == 'gru':
             sentence_encoder_context = SentenceEncoderGRU(
                 n_vocab, args.dim_emb, hidden_dim, args.use_dropout, add_n_vocab=add_n_vocab)
@@ -312,7 +321,8 @@ class MultiLingualConv(chainer.Chain):
 
         elif args.sentence_encoder_type == 'cnn':
             sentence_encoder_context = SentenceEncoderCNN(args.dim_emb, window_size=args.cnn_windows,
-                                                          hidden_dim=hidden_dim, n_vocab=n_vocab, use_dropout=args.use_dropout, add_n_vocab=add_n_vocab)
+                                                          hidden_dim=hidden_dim, n_vocab=n_vocab, use_dropout=args.use_dropout, add_n_vocab=add_n_vocab,
+                                                          domain_dim=domain_dim)
 
             # sentence_encoder_response = SentenceEncoderGRU(
             #     n_vocab, args.dim_emb, hidden_dim, args.use_dropout)
@@ -346,6 +356,9 @@ class MultiLingualConv(chainer.Chain):
             self.add_link('critic_response', critic_response)
             self.add_link('critic_context', critic_context)
             self.add_link('critic_agent', critic_agent)
+
+            domain_embed = L.EmbedID(n_domain, domain_dim, ignore_label=-1),
+            self.add_link('domain_embed', domain_embed)
 
         self.use_domain_adapt = use_domain_adapt
         self.n_domain = n_domain
@@ -433,7 +446,7 @@ class MultiLingualConv(chainer.Chain):
         self.domain_loss = 0.0
         contexts, contexts_length, responses, responses_length, agents_ids, n_agents, binned_n_agents, y_adr, y_res = samples
         n_agents_list = to_cpu(n_agents).tolist()
-        context_vecs = self.sentence_encoder(contexts, contexts_length)
+        context_vecs = self.sentence_encoder(contexts, contexts_length, y_domain=y_domain)
         if self.use_domain_adapt and y_domain is not None:
             h_domain = ReverseGrad(True)(context_vecs)
             h_domain = self.critic_context(h_domain)
@@ -446,7 +459,7 @@ class MultiLingualConv(chainer.Chain):
             pad_context_vecs = F.concat([self.dammy_emb.W, context_vecs], axis=0)
 
         # TODO: use different GRU for responses?
-        response_vecs = self.sentence_encoder(responses, responses_length)
+        response_vecs = self.sentence_encoder(responses, responses_length, y_domain=y_domain)
 
         if self.use_domain_adapt and y_domain is not None:
             h_domain = ReverseGrad(True)(response_vecs)
