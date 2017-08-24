@@ -85,7 +85,6 @@ class SentenceEncoderCNN(chainer.Chain):
             y_domain_input = xp.broadcast_to(y_domain_input, x_data.shape)
             input_domain_vecs = domain_embed(y_domain_input)
             word_embs = F.concat([word_embs, input_domain_vecs], axis=2)
-            
 
         word_embs = F.reshape(word_embs, (x_data.shape[0], 1, -1, self.dim))
 
@@ -371,7 +370,7 @@ class MultiLingualConv(chainer.Chain):
         self.n_prev_sents = args.n_prev_sents
         self.candidate_size = args.n_cands
 
-    def predict_all(self, samples):
+    def predict_all(self, samples, domain_index=None):
         batchsize = self.args.batch
         (dev_contexts, dev_contexts_length, dev_responses, dev_responses_length,
          dev_agents_ids, dev_n_agents, dev_binned_n_agents, dev_y_adr, dev_y_res, max_idx_dev) = samples
@@ -389,6 +388,8 @@ class MultiLingualConv(chainer.Chain):
                 agents_ids = [to_gpu(_i) for _i in agents_ids]
                 contexts_length = [_i for _i in contexts_length]
 
+                y_domain = self.xp.full((len(responses), ), domain_index, self.xp.int32)
+
                 responses_length = dev_responses_length[start:end][index:index + batchsize]
                 n_agents = to_gpu(dev_n_agents[start:end][index:index + batchsize])
                 binned_n_agents_cpu = dev_binned_n_agents[start:end][index:index + batchsize]
@@ -401,7 +402,7 @@ class MultiLingualConv(chainer.Chain):
                 sample = [contexts, contexts_length, responses, responses_length,
                           agents_ids, n_agents, binned_n_agents, y_adr, y_res]
                 self.n_prev_sents = len(contexts_length[0])
-                dot_r, dot_a, predict_r, predict_a, _, _ = self.__call__(sample)
+                dot_r, dot_a, predict_r, predict_a, _, _ = self.__call__(sample, y_domain=y_domain)
 
                 # y_res_cpu = to_cpu(y_res)
                 # y_adr_cpu = to_cpu(y_adr)
