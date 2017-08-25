@@ -291,6 +291,8 @@ class ReverseGrad(function.Function):
 class Critic(chainer.Chain):
 
     def __init__(self, input_dim, hidden_dim=512, output_dim=1, use_wgan=False):
+        if use_wgan:
+            output_dim = 1
         super(Critic, self).__init__(
             domain_layer=L.Linear(input_dim, hidden_dim),
             domain_final=L.Linear(hidden_dim, output_dim),
@@ -308,10 +310,12 @@ class Critic(chainer.Chain):
 
 class MultiLingualConv(chainer.Chain):
 
-    def __init__(self, args, n_vocab, init_emb=None, add_n_vocab=0, use_domain_adapt=0, n_domain=1):
+    def __init__(self, args, n_vocab, init_emb=None, add_n_vocab=0,
+                 use_domain_adapt=0, n_domain=1, use_wgan=0):
         hidden_dim = args.dim_hidden
+        use_domain_input_emb = args.use_domain_input_emb
         domain_dim = 0
-        if use_domain_adapt:
+        if use_domain_input_emb:
             domain_dim = 256
         if args.sentence_encoder_type == 'gru':
             sentence_encoder_context = SentenceEncoderGRU(
@@ -345,19 +349,24 @@ class MultiLingualConv(chainer.Chain):
 
         if use_domain_adapt:
             critic = Critic(input_dim=hidden_dim * 2,
-                            hidden_dim=hidden_dim, output_dim=n_domain)
+                            hidden_dim=hidden_dim, output_dim=n_domain,
+                            use_wgan=use_wgan)
             self.add_link('critic', critic)
 
             critic_response = Critic(input_dim=hidden_dim,
-                                     hidden_dim=hidden_dim, output_dim=n_domain)
+                                     hidden_dim=hidden_dim, output_dim=n_domain,
+                                     use_wgan=use_wgan)
             critic_context = Critic(input_dim=hidden_dim,
-                                    hidden_dim=hidden_dim, output_dim=n_domain)
+                                    hidden_dim=hidden_dim, output_dim=n_domain,
+                                    use_wgan=use_wgan)
             critic_agent = Critic(input_dim=hidden_dim,
-                                  hidden_dim=hidden_dim, output_dim=n_domain)
+                                  hidden_dim=hidden_dim, output_dim=n_domain,
+                                  use_wgan=use_wgan)
             self.add_link('critic_response', critic_response)
             self.add_link('critic_context', critic_context)
             self.add_link('critic_agent', critic_agent)
 
+        if use_domain_input_emb:
             domain_embed = L.EmbedID(n_domain, domain_dim, ignore_label=-1)
             self.add_link('domain_embed', domain_embed)
         else:

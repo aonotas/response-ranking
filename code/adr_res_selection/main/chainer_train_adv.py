@@ -226,6 +226,9 @@ def main():
     parser.add_argument('--lambda_v', dest='lambda_v',
                         type=float, default=0.5, help='lambda_v')
 
+    parser.add_argument('--use_domain_input_emb', dest='use_domain_input_emb',
+                        type=int, default=0, help='use_domain_input_emb')
+
     # en
     #  n_vocab = 176693
     # add_n_vocab = 24841
