@@ -315,7 +315,6 @@ class MLP(chainer.Chain):
             hidden_layer=L.Linear(input_dim, hidden_dim),
             output_layer=L.Linear(hidden_dim, output_dim),
         )
-        self.use_wgan = use_wgan
 
     def __call__(self, x):
         h = self.hidden_layer(x)
