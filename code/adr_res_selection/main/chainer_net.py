@@ -404,7 +404,7 @@ class MultiLingualConv(chainer.Chain):
         self.candidate_size = args.n_cands
         self.compute_loss = True
 
-    def predict_all(self, samples, domain_index=None):
+    def predict_all(self, samples, domain_index=0):
         batchsize = self.args.batch
         (dev_contexts, dev_contexts_length, dev_responses, dev_responses_length,
          dev_agents_ids, dev_n_agents, dev_binned_n_agents, dev_y_adr, dev_y_res, max_idx_dev) = samples
