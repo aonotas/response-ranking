@@ -228,6 +228,12 @@ def main():
 
     parser.add_argument('--use_domain_input_emb', dest='use_domain_input_emb',
                         type=int, default=0, help='use_domain_input_emb')
+    parser.add_argument('--use_wgan', dest='use_wgan',
+                        type=int, default=0, help='use_wgan')
+    parser.add_argument('--use_mlp_layers', dest='use_mlp_layers',
+                        type=int, default=0, help='use_mlp_layers')
+    parser.add_argument('--domain_loss_names', dest='domain_loss_names',
+                        type=str, default='output,agent,response,context', help='domain_loss_names')
 
     # en
     #  n_vocab = 176693

@@ -308,12 +308,30 @@ class Critic(chainer.Chain):
         return h
 
 
+class MLP(chainer.Chain):
+
+    def __init__(self, input_dim, hidden_dim, output_dim):
+        super(MLP, self).__init__(
+            hidden_layer=L.Linear(input_dim, hidden_dim),
+            output_layer=L.Linear(hidden_dim, output_dim),
+        )
+        self.use_wgan = use_wgan
+
+    def __call__(self, x):
+        h = self.hidden_layer(x)
+        h = F.relu(h)
+        h = self.output_layer(h)
+        return h
+
+
 class MultiLingualConv(chainer.Chain):
 
     def __init__(self, args, n_vocab, init_emb=None, add_n_vocab=0,
                  use_domain_adapt=0, n_domain=1, use_wgan=0):
         hidden_dim = args.dim_hidden
         use_domain_input_emb = args.use_domain_input_emb
+        use_wgan = args.use_wgan
+        self.use_mlp_layers = args.use_mlp_layers
         domain_dim = 0
         if use_domain_input_emb:
             domain_dim = 256
@@ -347,12 +365,19 @@ class MultiLingualConv(chainer.Chain):
             layer_response=L.Linear(hidden_dim * 2, hidden_dim, nobias=True),
         )
 
+        if self.use_mlp_layers:
+            self.add_link('mlp_response', MLP(hidden_dim, hidden_dim, hidden_dim))
+            self.add_link('mlp_agent', MLP(hidden_dim, hidden_dim, hidden_dim))
+            self.add_link('mlp_spk_agent', MLP(hidden_dim, hidden_dim, hidden_dim))
+            self.add_link('mlp_context', MLP(hidden_dim, hidden_dim, hidden_dim))
+
+        self.domain_loss_names = args.domain_loss_names.split(',')
+
         if use_domain_adapt:
             critic = Critic(input_dim=hidden_dim * 2,
                             hidden_dim=hidden_dim, output_dim=n_domain,
                             use_wgan=use_wgan)
             self.add_link('critic', critic)
-
             critic_response = Critic(input_dim=hidden_dim,
                                      hidden_dim=hidden_dim, output_dim=n_domain,
                                      use_wgan=use_wgan)
@@ -464,7 +489,7 @@ class MultiLingualConv(chainer.Chain):
         context_vecs = self.sentence_encoder(
             contexts, contexts_length, y_domain=y_domain, domain_embed=self.domain_embed)
 
-        if self.use_domain_adapt and y_domain is not None and self.compute_loss:
+        if 'context' in self.domain_loss_names and self.use_domain_adapt and y_domain is not None and self.compute_loss:
             h_domain = ReverseGrad(True)(context_vecs)
             h_domain = self.critic_context(h_domain)
             y_domain_context = xp.repeat(y_domain, 15, axis=0)
@@ -479,7 +504,10 @@ class MultiLingualConv(chainer.Chain):
         response_vecs = self.sentence_encoder(
             responses, responses_length, y_domain=y_domain, domain_embed=self.domain_embed)
 
-        if self.use_domain_adapt and y_domain is not None and self.compute_loss:
+        if self.use_mlp_layers:
+            response_vecs = self.mlp_response(response_vecs)
+
+        if 'response' in self.domain_loss_names and self.use_domain_adapt and y_domain is not None and self.compute_loss:
             h_domain = ReverseGrad(True)(response_vecs)
             h_domain = self.critic_response(h_domain)
             y_domain_response = xp.repeat(y_domain, 2, axis=0)
@@ -495,7 +523,12 @@ class MultiLingualConv(chainer.Chain):
         agent_vecs, h_context, spk_agent_vecs = self.conversation_encoder(
             agent_input_vecs, n_agents, n_agents_list)
 
-        if self.use_domain_adapt and y_domain is not None and self.compute_loss:
+        if self.use_mlp_layers:
+            agent_vecs = self.mlp_agent(agent_vecs)
+            h_context = self.mlp_agent(h_context)
+            spk_agent_vecs = self.mlp_spk_agent(spk_agent_vecs)
+
+        if 'agent' in self.domain_loss_names and self.use_domain_adapt and y_domain is not None and self.compute_loss:
             h_domain = ReverseGrad(True)(agent_vecs)
             h_domain = self.critic_agent(h_domain)
             y_domain_agent = xp.repeat(y_domain, n_agents_list, axis=0)
@@ -507,7 +540,7 @@ class MultiLingualConv(chainer.Chain):
         response_o = self.layer_response(a_h)
         agent_o = self.layer_agent(a_h)
 
-        if self.use_domain_adapt and y_domain is not None and self.compute_loss:
+        if 'output' in self.domain_loss_names and elf.use_domain_adapt and y_domain is not None and self.compute_loss:
             h_domain = ReverseGrad(True)(a_h)
             h_domain = self.critic(h_domain)
             self.domain_loss += F.softmax_cross_entropy(h_domain, y_domain)
