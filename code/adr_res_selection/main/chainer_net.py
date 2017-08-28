@@ -330,6 +330,11 @@ class MultiLingualConv(chainer.Chain):
         hidden_dim = args.dim_hidden
         use_domain_input_emb = args.use_domain_input_emb
         use_wgan = args.use_wgan
+        self.num_critic = 5
+        self.use_wgan = use_wgan
+        self.use_wgan_for_both = 1
+        self.use_wgan_loss_decay = 1
+
         self.use_mlp_layers = args.use_mlp_layers
         domain_dim = 0
         if use_domain_input_emb:
@@ -390,6 +395,11 @@ class MultiLingualConv(chainer.Chain):
             self.add_link('critic_context', critic_context)
             self.add_link('critic_agent', critic_agent)
 
+            if use_wgan:
+                init_alpha_critic = 0.00005
+                self.critic_opt = optimizers.Adam(alpha=init_alpha_critic)
+                self.critic_opt.setup(critic)
+
         if use_domain_input_emb:
             domain_embed = L.EmbedID(n_domain, domain_dim, ignore_label=-1)
             self.add_link('domain_embed', domain_embed)
@@ -403,6 +413,25 @@ class MultiLingualConv(chainer.Chain):
         self.n_prev_sents = args.n_prev_sents
         self.candidate_size = args.n_cands
         self.compute_loss = True
+
+    def clip_discriminator_weights(self, link):
+        upper = 0.01
+        lower = -0.01
+        for name, param in link.namedparams():
+            if param.data is None:
+                continue
+            if self.use_wgan_loss_decay:
+                # WGAN decay clip
+                xp = self.xp
+                ratio_lower = xp.amin(param.data) / lower
+                ratio_upper = xp.amax(param.data) / upper
+                ratio = max(ratio_lower, ratio_upper)
+                if ratio > 1:
+                    param.data /= ratio
+
+            else:
+                # Wgan clip
+                param.data = self.xp.clip(param.data, lower, upper)
 
     def predict_all(self, samples, domain_index=0):
         batchsize = self.args.batch
@@ -540,9 +569,56 @@ class MultiLingualConv(chainer.Chain):
         agent_o = self.layer_agent(a_h)
 
         if 'output' in self.domain_loss_names and self.use_domain_adapt and y_domain is not None and self.compute_loss:
-            h_domain = ReverseGrad(True)(a_h)
-            h_domain = self.critic(h_domain)
-            self.domain_loss += F.softmax_cross_entropy(h_domain, y_domain)
+            if self.use_wgan:
+                max_domain_idx = 0
+                # sample data
+                split_size = y_domain_count
+                h_domain_list = F.split_axis(a_h, split_size, axis=0)
+                h_source = h_domain_list[max_domain_idx]
+                h_target_list = [h_domain_list[_i]
+                                 for _i in range(self.n_domain)
+                                 if _i != max_domain_idx]
+
+                for k in xrange(self.num_critic):
+                    # clamp parameters to a cube
+                    self.clip_discriminator_weights(self.critic)
+
+                    # h_source.unchain_backward()
+                    h_source_data = Variable(h_source.data)  # unchain
+                    loss_critic = 0.0
+                    for h_target in h_target_list:
+                        # h_target.unchain_backward()
+                        h_target_data = Variable(h_target.data)  # unchain
+                        fw_source = self.critic(h_source_data)
+                        fw_target = self.critic(h_target_data)
+                        # batch_s = fw_source.shape[0]
+                        loss_critic = - F.sum(fw_source - fw_target)
+
+                        # sum_div = self.num_critic * len(h_target_list)
+                        sum_div = self.num_critic
+                        sum_loss_critic += float(loss_critic.data) / sum_div
+
+                        self.critic.cleargrads()
+                        # self.critic_opt.target.cleargrads()
+                        loss_critic.backward()
+                        self.critic_opt.update()
+
+                # generator loss
+                domain_loss = 0.0
+                fw_source = self.critic(h_source)
+                for h_target in h_target_list:
+                    fw_target = self.critic(h_target)
+                    if self.use_wgan_for_both:
+                        domain_loss += F.sum(fw_source - fw_target)
+                    else:
+                        domain_loss += - F.sum(fw_target)
+
+                self.domain_loss = domain_loss
+                self.sum_loss_critic = sum_loss_critic
+            else:
+                h_domain = ReverseGrad(True)(a_h)
+                h_domain = self.critic(h_domain)
+                self.domain_loss += F.softmax_cross_entropy(h_domain, y_domain)
 
         r_shape = (batchsize, self.candidate_size, -1)
         response_vecs = F.reshape(response_vecs, r_shape)  # (batch, candidate_size, 256)
