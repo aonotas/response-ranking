@@ -572,13 +572,13 @@ class MultiLingualConv(chainer.Chain):
             if self.use_wgan:
                 max_domain_idx = 0
                 # sample data
-                split_size = y_domain_count
+                split_size = np.cumsum(y_domain_count)[:-1]
                 h_domain_list = F.split_axis(a_h, split_size, axis=0)
                 h_source = h_domain_list[max_domain_idx]
                 h_target_list = [h_domain_list[_i]
                                  for _i in range(self.n_domain)
                                  if _i != max_domain_idx]
-
+                sum_loss_critic = 0.0
                 for k in xrange(self.num_critic):
                     # clamp parameters to a cube
                     self.clip_discriminator_weights(self.critic)
