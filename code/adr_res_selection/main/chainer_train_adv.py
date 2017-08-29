@@ -454,7 +454,7 @@ def main():
         min_length = train_sizes[min_domain_idx]
         s = 0
         for i, dataset_size in enumerate(train_sizes):
-
+            dataset_size_tmp = dataset_size
             if not args.use_same_trainsize:
                 perm = np.random.permutation(dataset_size)
             else:
@@ -466,12 +466,17 @@ def main():
 
                 if p_size == 0:
                     perm = np.random.permutation(dataset_size)
+                    perm_tmp = np.random.permutation(dataset_size)
+                    rest_size = dataset_size % batchsize
+                    if rest_size > 0:
+                        perm = np.concatenate([perm, perm_tmp[:rest_size]], axis=0)
+                        dataset_size_tmp += rest_size
 
                 else:
                     perm = train_perms[i] - s
 
             perm += s
-            s += dataset_size
+            s += dataset_size_tmp
             train_perms[i] = perm
 
         if not args.use_same_trainsize:
@@ -500,6 +505,7 @@ def main():
             y_domain = np.concatenate([np.full((len(train_perms[i][p[i]:p[i] + min_batchsize]), ), i, np.int32)
                                        for i in range(n_domain)])
             y_domain_count = np.bincount(y_domain)
+
             perm_domains += min_batchsize
             y_domain = to_gpu(y_domain)
 
