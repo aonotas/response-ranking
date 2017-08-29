@@ -471,6 +471,7 @@ def main():
                     if rest_size > 0:
                         perm = np.concatenate([perm, perm_tmp[:rest_size]], axis=0)
                         dataset_size_tmp += rest_size
+                    print 'i:', i, 'dataset_size:', dataset_size, rest_size
 
                 else:
                     perm = train_perms[i] - s
