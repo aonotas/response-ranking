@@ -454,7 +454,6 @@ def main():
         min_length = train_sizes[min_domain_idx]
         s = 0
         for i, dataset_size in enumerate(train_sizes):
-            dataset_size_tmp = dataset_size
             if not args.use_same_trainsize:
                 perm = np.random.permutation(dataset_size)
             else:
@@ -470,14 +469,12 @@ def main():
                     rest_size = batchsize - (dataset_size % batchsize)
                     if rest_size > 0:
                         perm = np.concatenate([perm, perm_tmp[:rest_size]], axis=0)
-                        dataset_size_tmp += rest_size
-                    print 'i:', i, 'dataset_size:', dataset_size, rest_size
 
                 else:
                     perm = train_perms[i] - s
 
             perm += s
-            s += dataset_size_tmp
+            s += dataset_size
             train_perms[i] = perm
 
         if not args.use_same_trainsize:
@@ -499,9 +496,6 @@ def main():
         if args.use_same_trainsize:
             p = perm_domains
             min_batchsize = len(train_perms[min_domain_idx][index:index + batchsize])
-            print 'min_batchsize:', min_batchsize
-            print '[train_perms[i][p[i]:p[i] + min_batchsize]:', [train_perms[i][p[i]:p[i] + min_batchsize]
-                                                                  for i in range(n_domain)]
             xp_index = np.concatenate([train_perms[i][p[i]:p[i] + min_batchsize]
                                        for i in range(n_domain)])
 
@@ -519,7 +513,6 @@ def main():
             y_domain_count = np.bincount(y_domain)
             y_domain = to_gpu(y_domain.astype(np.int32))
 
-        print 'train_contexts:', len(train_contexts)
         contexts = [to_gpu(train_contexts[_i]) for _i in xp_index]
         responses = [to_gpu(train_responses[_i]) for _i in xp_index]
         agents_ids = [to_gpu(train_agents_ids[_i]) for _i in xp_index]
