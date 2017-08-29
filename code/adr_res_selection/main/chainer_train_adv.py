@@ -459,11 +459,11 @@ def main():
             else:
                 t_size = train_sizes[i]
                 p_size = perm_domains[i]
-                if t_size <= p_size:
+                if t_size < p_size * 2:
                     perm_domains[i] = 0
                     p_size = 0
 
-                if t_size <= p_size * 2:
+                if p_size == 0:
                     perm = np.random.permutation(dataset_size)
                     perm_tmp = np.random.permutation(dataset_size)
                     perm = np.concatenate([perm, perm_tmp], axis=0)
