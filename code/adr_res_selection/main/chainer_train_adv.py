@@ -467,7 +467,7 @@ def main():
                 if p_size == 0:
                     perm = np.random.permutation(dataset_size)
                     perm_tmp = np.random.permutation(dataset_size)
-                    rest_size = dataset_size % batchsize
+                    rest_size = batchsize - (dataset_size % batchsize)
                     if rest_size > 0:
                         perm = np.concatenate([perm, perm_tmp[:rest_size]], axis=0)
                         dataset_size_tmp += rest_size
