@@ -463,13 +463,15 @@ def main():
                     perm_domains[i] = 0
                     p_size = 0
 
-                if p_size == 0:
+                if p_size == 0 or args.use_same_trainsize:
                     perm = np.random.permutation(dataset_size)
                     perm_tmp = np.random.permutation(dataset_size)
-                    rest_size = batchsize - (dataset_size % batchsize)
-                    if rest_size > 0:
-                        perm = np.concatenate([perm, perm_tmp[:rest_size]], axis=0)
-
+                    perm = np.concatenate([perm, perm_tmp], axis=0)
+                    # if args.use_same_trainsize:
+                    #     perm_tmp = np.random.permutation(dataset_size)
+                    #     rest_size = batchsize - (dataset_size % batchsize)
+                    #     if rest_size > 0:
+                    #         perm = np.concatenate([perm, perm_tmp[:rest_size]], axis=0)
                 else:
                     perm = train_perms[i] - s
 
