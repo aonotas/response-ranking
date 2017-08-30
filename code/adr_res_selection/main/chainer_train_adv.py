@@ -459,9 +459,9 @@ def main():
             else:
                 t_size = train_sizes[i]
                 p_size = perm_domains[i]
-                if t_size < p_size * 2:
-                    perm_domains[i] = 0
-                    p_size = 0
+                # if t_size < p_size * 2:
+                perm_domains[i] = 0
+                p_size = 0
 
                 if p_size == 0 or args.use_same_trainsize:
                     perm = np.random.permutation(dataset_size)
