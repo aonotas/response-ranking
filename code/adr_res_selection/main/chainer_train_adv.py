@@ -375,10 +375,25 @@ def main():
         model_prev_W = model.sentence_encoder.word_embed.W.data[:]
         s_n_vocab = args.s_n_vocab
         s_add_n_vocab = args.s_add_n_vocab
-        model = MultiLingualConv(args, s_n_vocab, init_emb=None, add_n_vocab=s_add_n_vocab)
-        serializers.load_hdf5(args.load_param, model)
+        pretrained = MultiLingualConv(args, s_n_vocab, init_emb=None, add_n_vocab=s_add_n_vocab)
+        serializers.load_hdf5(args.load_param, pretrained)
 
-        model.sentence_encoder.word_embed.W.data = model_prev_W
+        # replace word_embs
+        pretrained.sentence_encoder.word_embed.W.data = model_prev_W
+
+        def set_params(model_params, pretrained_params):
+            for target, source in zip(model_params.params(), pretrained_params.params()):
+                target.data[:] = source.data[:]
+
+        print 'before:', model.layer_response.W.data[0:10]
+        # set for Multi-task Model params
+        set_params(model.sentence_encoder, pretrained.sentence_encoder)
+        set_params(model.conversation_encoder, pretrained.conversation_encoder)
+        set_params(model.layer_agent, pretrained.layer_agent)
+        set_params(model.layer_response, pretrained.layer_response)
+
+        print 'after:', model.layer_response.W.data[0:10]
+        # model.sentence_encoder.word_embed.W.data = pretrained.sentence_encoder.word_embed.W.data[:]
 
     if args.gpu >= 0:
         model.to_gpu()
@@ -390,32 +405,6 @@ def main():
         acc_history[i] = {}
         un_change[i] = 0
         best_dev_acc_both[i] = 0.
-
-    if args.load_param is not None and len(languages_list) == 1:
-        epoch = 0
-        chainer.config.train = False
-        say('\n\n  Load model and Evaluation (No-Finetune)  ')
-        say('\n\n  DEV  ')
-        dev_acc_both, dev_acc_adr, dev_acc_res = model.predict_all(dev_samples)
-
-        best_dev_acc_both = dev_acc_both
-        acc_history[epoch] = [(best_dev_acc_both, dev_acc_adr, dev_acc_res)]
-
-        say('\n\n\r  TEST  ')
-        test_acc_both, test_acc_adr, test_acc_res = model.predict_all(test_samples)
-        acc_history[epoch].append((test_acc_both, test_acc_adr, test_acc_res))
-
-        #####################
-        # Show best results #
-        #####################
-        say('\n\tBEST ACCURACY HISTORY')
-        for k, v in sorted(acc_history.items()):
-            text = '\n\tEPOCH-{:>3} | DEV  Both:{:>7.2%}  Adr:{:>7.2%}  Res:{:>7.2%}'
-            text = text.format(k, v[0][0], v[0][1], v[0][2])
-            if len(v) == 2:
-                text += ' | TEST  Both:{:>7.2%}  Adr:{:>7.2%}  Res:{:>7.2%}'
-                text = text.format(v[1][0], v[1][1], v[1][2])
-            say(text)
 
     # opt = optimizers.Adam(alpha=0.001, beta1=0.9, beta2=0.999, eps=1e-8)
     opt = optimizers.Adam(alpha=0.001, beta1=0.9, beta2=0.9, eps=1e-12)
