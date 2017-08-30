@@ -351,7 +351,7 @@ def main():
 
     n_vocab = vocab_words.size()
     del train_samples_list
-    add_n_vocab = 1
+    add_n_vocab = 0
 
     # # write vocab files
     if args.save_vocab:
@@ -383,6 +383,7 @@ def main():
 
         def set_params(model_params, pretrained_params):
             for target, source in zip(model_params.params(), pretrained_params.params()):
+                #print target
                 target.data[:] = source.data[:]
 
         print 'before:', model.layer_response.W.data[0:10]
