@@ -391,7 +391,7 @@ def main():
         un_change[i] = 0
         best_dev_acc_both[i] = 0.
 
-    if args.load_param is not None:
+    if args.load_param is not None and len(languages_list) == 1:
         epoch = 0
         chainer.config.train = False
         say('\n\n  Load model and Evaluation (No-Finetune)  ')
