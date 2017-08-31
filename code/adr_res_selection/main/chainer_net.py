@@ -337,7 +337,7 @@ class MultiLingualConv(chainer.Chain):
         use_domain_input_emb = args.use_domain_input_emb
         use_domain_input_emb_sumver = args.use_domain_input_emb_sumver
         use_wgan = args.use_wgan
-        self.num_critic = 5
+        self.num_critic = args.num_critic
         self.use_wgan = use_wgan
         self.use_wgan_loss_decay = 1
         self.use_wgan_for_both = use_wgan_for_both

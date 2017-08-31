@@ -225,6 +225,8 @@ def main():
                         type=int, default=1, help='use_shuffle')
     parser.add_argument('--lambda_v', dest='lambda_v',
                         type=float, default=0.5, help='lambda_v')
+    parser.add_argument('--num_critic', dest='num_critic',
+                        type=int, default=5, help='num_critic')
 
     parser.add_argument('--use_domain_input_emb', dest='use_domain_input_emb',
                         type=int, default=0, help='use_domain_input_emb')
