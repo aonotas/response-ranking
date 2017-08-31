@@ -187,7 +187,7 @@ class SentenceEncoderGRU(chainer.Chain):
             self.add_link('add_word_embed', add_word_embed)
         self.add_n_vocab = add_n_vocab
 
-    def __call__(self, x_data, lengths):
+    def __call__(self, x_data, lengths, y_domain=None, domain_embed=None):
         batchsize = len(x_data)
         xp = self.xp
         hx = None
