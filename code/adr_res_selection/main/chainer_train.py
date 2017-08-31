@@ -183,7 +183,7 @@ def main():
     parser.add_argument('--use_dropout', dest='use_dropout',
                         type=float, default=0.33, help='use_dropout')
     parser.add_argument('--init_alpha', dest='init_alpha',
-                        type=float, default=0.002, help='init_alpha')
+                        type=float, default=0.001, help='init_alpha')
     parser.add_argument('--normalize', dest='normalize',
                         type=int, default=1, help='normalize')
     parser.add_argument('--use_pad_unk', dest='use_pad_unk',
@@ -404,7 +404,7 @@ def main():
             say(text)
 
     # opt = optimizers.Adam(alpha=0.001, beta1=0.9, beta2=0.999, eps=1e-8)
-    opt = optimizers.Adam(alpha=0.001, beta1=0.9, beta2=0.9, eps=1e-12)
+    opt = optimizers.Adam(alpha=args.init_alpha, beta1=0.9, beta2=0.9, eps=1e-12)
     opt.setup(model)
     if args.clip:
         opt.add_hook(chainer.optimizer.GradientClipping(args.clip))
