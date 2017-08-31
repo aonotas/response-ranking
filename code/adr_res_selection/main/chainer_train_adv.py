@@ -240,6 +240,9 @@ def main():
     parser.add_argument('--use_domain_input_emb_sumver', dest='use_domain_input_emb_sumver',
                         type=int, default=0, help='use_domain_input_emb_sumver')
 
+    parser.add_argument('--concat_dev', dest='concat_dev',
+                        type=int, default=1, help='concat_dev')
+
     # en
     #  n_vocab = 176693
     # add_n_vocab = 24841
@@ -318,8 +321,11 @@ def main():
          dev_responses_length, dev_agents_ids, dev_n_agents,
          dev_binned_n_agents, dev_y_adr, dev_y_res, max_idx_dev) = ch_util.pre_process(dev_samples, xp, is_test=True, batch=batchsize, n_prev_sents=args.n_prev_sents)
 
-        dev_samples = [dev_contexts, dev_contexts_length, dev_responses, dev_responses_length,
-                       dev_agents_ids, dev_n_agents, dev_binned_n_agents, dev_y_adr, dev_y_res, max_idx_dev]
+        dev_samples_conv = [dev_contexts, dev_contexts_length, dev_responses, dev_responses_length,
+                            dev_agents_ids, dev_n_agents, dev_binned_n_agents, dev_y_adr, dev_y_res, max_idx_dev]
+
+        if args.concat_dev:
+            dev_samples_conv = dev_samples
 
         say('\nmake test data')
         (test_contexts, test_contexts_length, test_responses,
@@ -330,10 +336,21 @@ def main():
                         test_agents_ids, test_n_agents, test_binned_n_agents, test_y_adr, test_y_res, max_idx_test]
 
         train_samples_list.append(train_samples)
-        dev_samples_list.append(dev_samples)
+        dev_samples_list.append(dev_samples_conv)
         test_samples_list.append(test_samples)
 
     train_sizes = [len(x[0]) for x in train_samples_list]
+    if args.concat_dev:
+        dev_samples_list_concat = []
+        for dev_samples_prev_process in dev_samples_list:
+            (dev_contexts, dev_contexts_length, dev_responses,
+             dev_responses_length, dev_agents_ids, dev_n_agents,
+             dev_binned_n_agents, dev_y_adr, dev_y_res, max_idx_dev) = ch_util.pre_process(dev_samples_prev_process, xp, is_test=True, batch=batchsize, n_prev_sents=args.n_prev_sents)
+
+            dev_samples_conv = [dev_contexts, dev_contexts_length, dev_responses, dev_responses_length,
+                                dev_agents_ids, dev_n_agents, dev_binned_n_agents, dev_y_adr, dev_y_res, max_idx_dev]
+            dev_samples_list_concat.append(dev_samples_conv)
+            dev_samples_list = dev_samples_list_concat
 
     # concat all dataset
     for domain_index, dataset in enumerate(train_samples_list):
@@ -589,6 +606,9 @@ def main():
             lang = languages_list[i]
             chainer.config.train = False
             model.compute_loss = False
+            if args.concat_dev:
+                lang = 'All Concat'
+
             say('\n\n  DEV  ' + lang)
             dev_acc_both, dev_acc_adr, dev_acc_res = model.predict_all(dev_samples, domain_index=i)
 
