@@ -214,7 +214,6 @@ def main():
     parser.add_argument('--s_add_n_vocab', dest='s_add_n_vocab', type=int, default=0, help='test')
     parser.add_argument('--use_small_emb', dest='use_small_emb',
                         type=int, default=0, help='use_small_emb')
-
     parser.add_argument('--use_domain_adapt', dest='use_domain_adapt',
                         type=int, default=0, help='use_domain_adapt')
     parser.add_argument('--use_same_trainsize', dest='use_same_trainsize',
@@ -233,6 +232,8 @@ def main():
                         type=int, default=0, help='use_mlp_layers')
     parser.add_argument('--domain_loss_names', dest='domain_loss_names',
                         type=str, default='output,agent,response,context', help='domain_loss_names')
+    parser.add_argument('--use_domain_input_emb_sumver', dest='use_domain_input_emb_sumver',
+                        type=int, default=0, help='use_domain_input_emb_sumver')
 
     # en
     #  n_vocab = 176693
