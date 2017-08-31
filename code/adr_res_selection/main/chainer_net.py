@@ -606,16 +606,16 @@ class MultiLingualConv(chainer.Chain):
                         fw_source = self.critic(h_source_data)
                         fw_target = self.critic(h_target_data)
                         # batch_s = fw_source.shape[0]
-                        loss_critic = - F.sum(fw_source - fw_target)
+                        loss_critic += - F.sum(fw_source - fw_target)
 
                         # sum_div = self.num_critic * len(h_target_list)
                         sum_div = self.num_critic
                         sum_loss_critic += float(loss_critic.data) / sum_div
 
-                        self.critic.cleargrads()
-                        # self.critic_opt.target.cleargrads()
-                        loss_critic.backward()
-                        self.critic_opt.update()
+                    self.critic.cleargrads()
+                    # self.critic_opt.target.cleargrads()
+                    loss_critic.backward()
+                    self.critic_opt.update()
 
                 # generator loss
                 domain_loss = 0.0
