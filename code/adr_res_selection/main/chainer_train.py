@@ -403,6 +403,9 @@ def main():
                 text = text.format(v[1][0], v[1][1], v[1][2])
             say(text)
 
+        if args.test:
+            return True
+
     # opt = optimizers.Adam(alpha=0.001, beta1=0.9, beta2=0.999, eps=1e-8)
     opt = optimizers.Adam(alpha=args.init_alpha, beta1=0.9, beta2=0.9, eps=1e-12)
     opt.setup(model)
