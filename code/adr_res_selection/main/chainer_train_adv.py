@@ -234,6 +234,8 @@ def main():
                         type=int, default=0, help='use_mlp_layers')
     parser.add_argument('--domain_loss_names', dest='domain_loss_names',
                         type=str, default='output,agent,response,context', help='domain_loss_names')
+    parser.add_argument('--use_domain_input_emb_sumver', dest='use_domain_input_emb_sumver',
+                        type=int, default=0, help='use_domain_input_emb_sumver')
 
     # en
     #  n_vocab = 176693
@@ -383,7 +385,7 @@ def main():
 
         def set_params(model_params, pretrained_params):
             for target, source in zip(model_params.params(), pretrained_params.params()):
-                #print target
+                # print target
                 target.data[:] = source.data[:]
 
         print 'before:', model.layer_response.W.data[0:10]

@@ -25,7 +25,8 @@ to_gpu = chainer.cuda.to_gpu
 class SentenceEncoderCNN(chainer.Chain):
 
     def __init__(self, emb_dim=100, window_size=3, hidden_dim=100,
-                 n_vocab=None, use_dropout=0.50, add_n_vocab=0, domain_dim=0):
+                 n_vocab=None, use_dropout=0.50, add_n_vocab=0, domain_dim=0,
+                 is_sum=0):
         dim = emb_dim + domain_dim
         self.hidden_dim = hidden_dim
         super(SentenceEncoderCNN, self).__init__(
@@ -35,6 +36,7 @@ class SentenceEncoderCNN(chainer.Chain):
                                  ksize=(window_size, dim),
                                  stride=(1, dim), pad=0)
         )
+        self.is_sum = is_sum
         self.emb_dim = emb_dim
         self.window_size = window_size
         self.dim = dim
@@ -84,7 +86,11 @@ class SentenceEncoderCNN(chainer.Chain):
             y_domain_input = xp.repeat(y_domain, x_data.shape[0] / y_domain.shape[0], axis=0)
             y_domain_input = xp.broadcast_to(y_domain_input, x_data.shape)
             input_domain_vecs = domain_embed(y_domain_input)
-            word_embs = F.concat([word_embs, input_domain_vecs], axis=2)
+
+            if self.is_sum:
+                word_embs = word_embs + input_domain_vecs
+            else:
+                word_embs = F.concat([word_embs, input_domain_vecs], axis=2)
 
         word_embs = F.reshape(word_embs, (x_data.shape[0], 1, -1, self.dim))
 
@@ -329,6 +335,7 @@ class MultiLingualConv(chainer.Chain):
                  use_domain_adapt=0, n_domain=1, use_wgan=0):
         hidden_dim = args.dim_hidden
         use_domain_input_emb = args.use_domain_input_emb
+        use_domain_input_emb_sumver = args.use_domain_input_emb_sumver
         use_wgan = args.use_wgan
         self.num_critic = 5
         self.use_wgan = use_wgan
@@ -337,8 +344,15 @@ class MultiLingualConv(chainer.Chain):
 
         self.use_mlp_layers = args.use_mlp_layers
         domain_dim = 0
+        concat_domain_dim = 0
+
         if use_domain_input_emb:
             domain_dim = 256
+            concat_domain_dim = 256
+        elif use_domain_input_emb_sumver:
+            domain_dim = args.dim_emb
+            concat_domain_dim = 0
+
         if args.sentence_encoder_type == 'gru':
             sentence_encoder_context = SentenceEncoderGRU(
                 n_vocab, args.dim_emb, hidden_dim, args.use_dropout, add_n_vocab=add_n_vocab)
@@ -349,7 +363,7 @@ class MultiLingualConv(chainer.Chain):
         elif args.sentence_encoder_type == 'cnn':
             sentence_encoder_context = SentenceEncoderCNN(args.dim_emb, window_size=args.cnn_windows,
                                                           hidden_dim=hidden_dim, n_vocab=n_vocab, use_dropout=args.use_dropout, add_n_vocab=add_n_vocab,
-                                                          domain_dim=domain_dim)
+                                                          domain_dim=concat_domain_dim, is_sum=args.use_domain_input_emb_sumver)
 
             # sentence_encoder_response = SentenceEncoderGRU(
             #     n_vocab, args.dim_emb, hidden_dim, args.use_dropout)
