@@ -340,6 +340,7 @@ class MultiLingualConv(chainer.Chain):
         self.num_critic = 5
         self.use_wgan = use_wgan
         self.use_wgan_loss_decay = 1
+        self.use_wgan_for_both = use_wgan_for_both
 
         self.use_mlp_layers = args.use_mlp_layers
         domain_dim = 0
