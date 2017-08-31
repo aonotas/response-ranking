@@ -343,13 +343,13 @@ def main():
 
     train_sizes = [len(x[0]) for x in train_samples_list]
     if args.concat_dev:
-        dev_samples_list_sum = []
-        for dev_samples_prev_process[:args.concat_dev_limit] in dev_samples_list:
-            dev_samples_list_sum += dev_samples_prev_process[:args.concat_dev_limit]
+        dev_samples = []
+        for dev_prev_process in dev_samples_list:
+            dev_samples += dev_prev_process[:args.concat_dev_limit]
 
         (dev_contexts, dev_contexts_length, dev_responses,
          dev_responses_length, dev_agents_ids, dev_n_agents,
-         dev_binned_n_agents, dev_y_adr, dev_y_res, max_idx_dev) = ch_util.pre_process(dev_samples_list_sum, xp, is_test=True, batch=batchsize, n_prev_sents=args.n_prev_sents)
+         dev_binned_n_agents, dev_y_adr, dev_y_res, max_idx_dev) = ch_util.pre_process(dev_samples, xp, is_test=True, batch=batchsize, n_prev_sents=args.n_prev_sents)
 
         dev_samples_list_concat = [[dev_contexts, dev_contexts_length, dev_responses, dev_responses_length,
                                     dev_agents_ids, dev_n_agents, dev_binned_n_agents, dev_y_adr, dev_y_res, max_idx_dev]]
