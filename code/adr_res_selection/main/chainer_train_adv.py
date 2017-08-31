@@ -605,24 +605,45 @@ def main():
         say('\n loss: %s' % str(sum_loss))
         say('\n domain_loss: %s' % str(domain_sum_loss))
 
-        for i, dev_samples in enumerate(dev_samples_list):
-            lang = languages_list[i]
+        if args.concat_dev:
+            dev_samples = dev_samples_list[0]
+            # lang = languages_list[i]
             chainer.config.train = False
             model.compute_loss = False
-            if args.concat_dev:
-                lang = 'All Concat'
+            lang = 'All Concat'
 
             say('\n\n  DEV  ' + lang)
             dev_acc_both, dev_acc_adr, dev_acc_res = model.predict_all(dev_samples, domain_index=i)
+            for i, _ in enumerate(languages_list):
+                if dev_acc_both > best_dev_acc_both[i]:
+                    un_change[i] = 0
+                    best_dev_acc_both[i] = dev_acc_both
+                    acc_history[i][epoch + 1] = [(best_dev_acc_both[i], dev_acc_adr, dev_acc_res)]
 
-            if dev_acc_both > best_dev_acc_both[i]:
-                un_change[i] = 0
-                best_dev_acc_both[i] = dev_acc_both
-                acc_history[i][epoch + 1] = [(best_dev_acc_both[i], dev_acc_adr, dev_acc_res)]
+                    if i == 0:
+                        model_filename = './models/' + argv.output_fn + '_' + \
+                            argv.emb_type + '_epoch' + str(epoch) + '.model'
+                        serializers.save_hdf5(model_filename + '.model', model)
 
-                model_filename = './models/' + argv.output_fn + '_' + \
-                    argv.emb_type + '_epoch' + str(epoch) + '.model'
-                serializers.save_hdf5(model_filename + '.model', model)
+        else:
+            for i, dev_samples in enumerate(dev_samples_list):
+                lang = languages_list[i]
+                chainer.config.train = False
+                model.compute_loss = False
+                # lang = 'All Concat'
+
+                say('\n\n  DEV  ' + lang)
+                dev_acc_both, dev_acc_adr, dev_acc_res = model.predict_all(
+                    dev_samples, domain_index=i)
+
+                if dev_acc_both > best_dev_acc_both[i]:
+                    un_change[i] = 0
+                    best_dev_acc_both[i] = dev_acc_both
+                    acc_history[i][epoch + 1] = [(best_dev_acc_both[i], dev_acc_adr, dev_acc_res)]
+
+                    model_filename = './models/' + argv.output_fn + '_' + \
+                        argv.emb_type + '_epoch' + str(epoch) + '.model'
+                    serializers.save_hdf5(model_filename + '.model', model)
 
         for i, test_samples in enumerate(test_samples_list):
             lang = languages_list[i]
