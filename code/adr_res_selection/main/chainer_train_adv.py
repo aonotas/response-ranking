@@ -242,6 +242,8 @@ def main():
 
     parser.add_argument('--concat_dev', dest='concat_dev',
                         type=int, default=1, help='concat_dev')
+    parser.add_argument('--concat_dev_limit', dest='concat_dev_limit',
+                        type=int, default=2500, help='concat_dev_limit')
 
     # en
     #  n_vocab = 176693
@@ -341,18 +343,19 @@ def main():
 
     train_sizes = [len(x[0]) for x in train_samples_list]
     if args.concat_dev:
-        dev_samples_list_concat = []
-        for dev_samples_prev_process in dev_samples_list:
-            (dev_contexts, dev_contexts_length, dev_responses,
-             dev_responses_length, dev_agents_ids, dev_n_agents,
-             dev_binned_n_agents, dev_y_adr, dev_y_res, max_idx_dev) = ch_util.pre_process(dev_samples_prev_process, xp, is_test=True, batch=batchsize, n_prev_sents=args.n_prev_sents)
+        dev_samples_list_sum = []
+        for dev_samples_prev_process[:args.concat_dev_limit] in dev_samples_list:
+            dev_samples_list_sum += dev_samples_prev_process[:args.concat_dev_limit]
 
-            dev_samples_conv = [dev_contexts, dev_contexts_length, dev_responses, dev_responses_length,
-                                dev_agents_ids, dev_n_agents, dev_binned_n_agents, dev_y_adr, dev_y_res, max_idx_dev]
-            dev_samples_list_concat.append(dev_samples_conv)
-            dev_samples_list = dev_samples_list_concat
+        (dev_contexts, dev_contexts_length, dev_responses,
+         dev_responses_length, dev_agents_ids, dev_n_agents,
+         dev_binned_n_agents, dev_y_adr, dev_y_res, max_idx_dev) = ch_util.pre_process(dev_samples_list_sum, xp, is_test=True, batch=batchsize, n_prev_sents=args.n_prev_sents)
 
-    # concat all dataset
+        dev_samples_list_concat = [[dev_contexts, dev_contexts_length, dev_responses, dev_responses_length,
+                                    dev_agents_ids, dev_n_agents, dev_binned_n_agents, dev_y_adr, dev_y_res, max_idx_dev]]
+        dev_samples_list = dev_samples_list_concat
+
+# concat all dataset
     for domain_index, dataset in enumerate(train_samples_list):
         [contexts, contexts_length, responses, responses_length,
          agents_ids, n_agents, binned_n_agents, y_adr, y_res] = dataset[:]
