@@ -230,6 +230,9 @@ def main():
                         type=int, default=0, help='use_domain_input_emb')
     parser.add_argument('--use_wgan', dest='use_wgan',
                         type=int, default=0, help='use_wgan')
+    parser.add_argument('--use_wgan_for_both', dest='use_wgan_for_both',
+                        type=int, default=1, help='use_wgan_for_both')
+
     parser.add_argument('--use_mlp_layers', dest='use_mlp_layers',
                         type=int, default=0, help='use_mlp_layers')
     parser.add_argument('--domain_loss_names', dest='domain_loss_names',
@@ -370,7 +373,8 @@ def main():
 
     n_domain = len(languages_list)
     model = MultiLingualConv(args, n_vocab, init_emb=init_emb,
-                             add_n_vocab=add_n_vocab, use_domain_adapt=args.use_domain_adapt, n_domain=n_domain)
+                             add_n_vocab=add_n_vocab, use_domain_adapt=args.use_domain_adapt, n_domain=n_domain,
+                             use_wgan_for_both=args.use_wgan_for_both)
 
     # TODO: load Trained model
     if args.load_param is not None:
