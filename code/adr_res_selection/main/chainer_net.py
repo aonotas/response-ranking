@@ -392,20 +392,34 @@ class MultiLingualConv(chainer.Chain):
         self.domain_loss_names = args.domain_loss_names.split(',')
 
         self.critic_names = []
+        self.opt_list = []
         if use_domain_adapt:
             critic = Critic(input_dim=hidden_dim * 2,
                             hidden_dim=hidden_dim, output_dim=n_domain,
                             use_wgan=use_wgan)
             self.add_link('critic', critic)
 
+            if use_wgan:
+                init_alpha_critic = 0.00005
+                critic_opt = optimizers.Adam(alpha=init_alpha_critic)
+                self.critic_opt = critic_opt
+                self.critic_opt.setup(critic)
+                self.opt_list = [critic_opt]
+
             self.critic_names = ['critic']
-            for i in range(1, n_domain):
-                critic = Critic(input_dim=hidden_dim * 2,
-                                hidden_dim=hidden_dim, output_dim=n_domain,
-                                use_wgan=use_wgan)
-                name = 'critic_' + str(i)
-                self.add_link(name, critic)
-                self.critic_names.append(name)
+            if use_wgan:
+                for i in range(1, n_domain):
+                    critic = Critic(input_dim=hidden_dim * 2,
+                                    hidden_dim=hidden_dim, output_dim=n_domain,
+                                    use_wgan=use_wgan)
+                    name = 'critic_' + str(i)
+                    self.add_link(name, critic)
+                    self.critic_names.append(name)
+
+                    init_alpha_critic = 0.00005
+                    critic_opt = optimizers.Adam(alpha=init_alpha_critic)
+                    critic_opt.setup(critic)
+                    self.opt_list.append(critic_opt)
 
             critic_response = Critic(input_dim=hidden_dim,
                                      hidden_dim=hidden_dim, output_dim=n_domain,
@@ -419,11 +433,6 @@ class MultiLingualConv(chainer.Chain):
             self.add_link('critic_response', critic_response)
             self.add_link('critic_context', critic_context)
             self.add_link('critic_agent', critic_agent)
-
-            if use_wgan:
-                init_alpha_critic = 0.00005
-                self.critic_opt = optimizers.Adam(alpha=init_alpha_critic)
-                self.critic_opt.setup(critic)
 
         if use_domain_input_emb:
             domain_embed = L.EmbedID(n_domain, domain_dim, ignore_label=-1)
@@ -613,7 +622,7 @@ class MultiLingualConv(chainer.Chain):
                     # h_source.unchain_backward()
                     h_source_data = Variable(h_source.data)  # unchain
                     loss_critic = 0.0
-                    for h_target, critic_name in zip(h_target_list, self.critic_names):
+                    for h_target, critic_name, critic_opt in zip(h_target_list, self.critic_names, self.opt_list):
                         # h_target.unchain_backward()
                         critic_link = self.get_layer(critic_name)
                         self.clip_discriminator_weights(critic_link)
@@ -630,7 +639,7 @@ class MultiLingualConv(chainer.Chain):
                         critic_link.cleargrads()
                         # self.critic_opt.target.cleargrads()
                         loss_critic.backward()
-                        self.critic_opt.update()
+                        critic_opt.update()
 
                 # generator loss
                 domain_loss = 0.0
