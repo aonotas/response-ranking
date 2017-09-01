@@ -618,8 +618,8 @@ class MultiLingualConv(chainer.Chain):
                         critic_link = self.get_layer(critic_name)
                         self.clip_discriminator_weights(critic_link)
                         h_target_data = Variable(h_target.data)  # unchain
-                        fw_source = self.critic_link(h_source_data)
-                        fw_target = self.critic_link(h_target_data)
+                        fw_source = critic_link(h_source_data)
+                        fw_target = critic_link(h_target_data)
                         # batch_s = fw_source.shape[0]
                         loss_critic += - F.sum(fw_source - fw_target)
 
