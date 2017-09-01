@@ -398,7 +398,7 @@ class MultiLingualConv(chainer.Chain):
                             use_wgan=use_wgan)
             self.add_link('critic', critic)
 
-            self.critic_names = [] = ['critic']
+            self.critic_names = ['critic']
             for i in range(1, n_domain):
                 critic = Critic(input_dim=hidden_dim * 2,
                                 hidden_dim=hidden_dim, output_dim=n_domain,
