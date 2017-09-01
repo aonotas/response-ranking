@@ -235,6 +235,12 @@ def main():
     parser.add_argument('--use_domain_input_emb_sumver', dest='use_domain_input_emb_sumver',
                         type=int, default=0, help='use_domain_input_emb_sumver')
 
+    parser.add_argument('--concat_dev', dest='concat_dev',
+                        type=int, default=1, help='concat_dev')
+    parser.add_argument('--concat_dev_limit', dest='concat_dev_limit',
+                        type=int, default=2500, help='concat_dev_limit')
+    parser.add_argument('--num_critic', dest='num_critic',
+                        type=int, default=5, help='num_critic')
     # en
     #  n_vocab = 176693
     # add_n_vocab = 24841
