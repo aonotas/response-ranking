@@ -391,11 +391,22 @@ class MultiLingualConv(chainer.Chain):
 
         self.domain_loss_names = args.domain_loss_names.split(',')
 
+        self.critic_names = []
         if use_domain_adapt:
             critic = Critic(input_dim=hidden_dim * 2,
                             hidden_dim=hidden_dim, output_dim=n_domain,
                             use_wgan=use_wgan)
             self.add_link('critic', critic)
+
+            self.critic_names = [] = ['critic']
+            for i in range(1, n_domain):
+                critic = Critic(input_dim=hidden_dim * 2,
+                                hidden_dim=hidden_dim, output_dim=n_domain,
+                                use_wgan=use_wgan)
+                name = 'critic_' + str(i)
+                self.add_link(name, critic)
+                self.critic_names.append(name)
+
             critic_response = Critic(input_dim=hidden_dim,
                                      hidden_dim=hidden_dim, output_dim=n_domain,
                                      use_wgan=use_wgan)
@@ -427,6 +438,9 @@ class MultiLingualConv(chainer.Chain):
         self.n_prev_sents = args.n_prev_sents
         self.candidate_size = args.n_cands
         self.compute_loss = True
+
+    def get_layer(self, name):
+        return self.__getitem__(name)
 
     def clip_discriminator_weights(self, link):
         upper = 0.01
@@ -595,16 +609,17 @@ class MultiLingualConv(chainer.Chain):
                 sum_loss_critic = 0.0
                 for k in xrange(self.num_critic):
                     # clamp parameters to a cube
-                    self.clip_discriminator_weights(self.critic)
 
                     # h_source.unchain_backward()
                     h_source_data = Variable(h_source.data)  # unchain
                     loss_critic = 0.0
-                    for h_target in h_target_list:
+                    for h_target, critic_name in zip(h_target_list, self.critic_names):
                         # h_target.unchain_backward()
+                        critic_link = self.get_layer(critic_name)
+                        self.clip_discriminator_weights(critic_link)
                         h_target_data = Variable(h_target.data)  # unchain
-                        fw_source = self.critic(h_source_data)
-                        fw_target = self.critic(h_target_data)
+                        fw_source = self.critic_link(h_source_data)
+                        fw_target = self.critic_link(h_target_data)
                         # batch_s = fw_source.shape[0]
                         loss_critic += - F.sum(fw_source - fw_target)
 
@@ -612,16 +627,19 @@ class MultiLingualConv(chainer.Chain):
                         sum_div = self.num_critic
                         sum_loss_critic += float(loss_critic.data) / sum_div
 
-                    self.critic.cleargrads()
-                    # self.critic_opt.target.cleargrads()
-                    loss_critic.backward()
-                    self.critic_opt.update()
+                        critic_link.cleargrads()
+                        # self.critic_opt.target.cleargrads()
+                        loss_critic.backward()
+                        self.critic_opt.update()
 
                 # generator loss
                 domain_loss = 0.0
-                fw_source = self.critic(h_source)
-                for h_target in h_target_list:
-                    fw_target = self.critic(h_target)
+
+                for h_target, critic_name in zip(h_target_list, self.critic_names):
+
+                    critic_link = self.get_layer(critic_name)
+                    fw_source = critic_link(h_source)
+                    fw_target = critic_link(h_target)
                     if self.use_wgan_for_both:
                         domain_loss += F.sum(fw_source - fw_target)
                     else:
