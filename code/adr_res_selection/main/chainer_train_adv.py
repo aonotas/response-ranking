@@ -245,7 +245,7 @@ def main():
     parser.add_argument('--concat_dev', dest='concat_dev',
                         type=int, default=1, help='concat_dev')
     parser.add_argument('--concat_dev_limit', dest='concat_dev_limit',
-                        type=int, default=2500, help='concat_dev_limit')
+                        type=int, default=0, help='concat_dev_limit')
 
     # en
     #  n_vocab = 176693
@@ -346,8 +346,12 @@ def main():
     train_sizes = [len(x[0]) for x in train_samples_list]
     if args.concat_dev:
         dev_samples = []
+        min_dev_sample_num = min([len(_) for _ in dev_samples_list])
+        limit_size = args.concat_dev_limit
+        if args.concat_dev_limit == 0:
+            limit_size = min_dev_sample_num
         for dev_prev_process in dev_samples_list:
-            dev_samples += dev_prev_process[:args.concat_dev_limit]
+            dev_samples += dev_prev_process[:limit_size]
 
         (dev_contexts, dev_contexts_length, dev_responses,
          dev_responses_length, dev_agents_ids, dev_n_agents,
