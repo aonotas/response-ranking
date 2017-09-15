@@ -643,6 +643,7 @@ class MultiLingualConv(chainer.Chain):
 
                 sum_loss_critic = 0.0
                 for k in xrange(self.num_critic):
+                    loss_critic = 0.0
                     for tup, critic_name, critic_opt in zip(self.wgan_comb_names, self.critic_names, self.opt_list):
                         if len(tup) == 2:
                             source_idx, target_idx = tup
