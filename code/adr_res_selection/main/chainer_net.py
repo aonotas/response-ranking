@@ -14,6 +14,8 @@ import numpy as np
 
 # SentenceEncoderSum
 
+import itertools
+
 
 def extract_last_vector():
     pass
@@ -409,7 +411,34 @@ class MultiLingualConv(chainer.Chain):
 
             self.critic_names = ['critic']
             if use_wgan:
-                for i in range(1, n_domain):
+
+                if args.use_wgan_comb == 'comb':
+                    # [(0, 1), (0, 2), (1, 2)]
+                    wgan_comb_names = list(itertools.combinations(range(n_domain), 2))
+                    self.wgan_comb_names = wgan_comb_names
+                elif args.use_wgan_comb == 'multi_one':
+                    # multi-souce, one-target
+                    # [(0, 2), (1, 2)]
+                    target_idx = n_domain - 1
+                    wgan_comb_names = [(_, target_idx) for _ in range(0, target_idx)]
+                    self.wgan_comb_names = wgan_comb_names
+                elif args.use_wgan_comb == 'one_multi':
+                    # one-source, multi-target,
+                    # [(0, 1), (0, 2)]
+                    wgan_comb_names = [(0, _) for _ in range(1, n_domain)]
+                    self.wgan_comb_names = wgan_comb_names
+                elif args.use_wgan_comb == 'concat':
+                    # multi-concat-source, one-target,
+                    # [(0, 1, 2)]
+                    wgan_comb_names = [range(n_domain)]
+                    self.wgan_comb_names = wgan_comb_names
+
+                print 'args.use_wgan_comb:', args.use_wgan_comb
+                print 'wgan_comb_names:', wgan_comb_names
+                wgan_combs_iter = wgan_comb_names[1:]
+
+                for tup in wgan_combs_iter:
+                    i = tup[0] if isinstance(tup, tuple) else tup
                     critic = Critic(input_dim=hidden_dim * 2,
                                     hidden_dim=hidden_dim, output_dim=n_domain,
                                     use_wgan=use_wgan)
@@ -609,45 +638,45 @@ class MultiLingualConv(chainer.Chain):
         if 'output' in self.domain_loss_names and self.use_domain_adapt and y_domain is not None and self.compute_loss:
             if self.use_wgan:
                 # source_domain_idx = 0
-                source_domain_idx = self.wgan_souce_idx
+                # source_domain_idx = self.wgan_souce_idx
                 # sample data
                 split_size = np.cumsum(y_domain_count)[:-1]
                 h_domain_list = F.split_axis(a_h, split_size, axis=0)
-                h_source = h_domain_list[source_domain_idx]
-                h_target_list = [h_domain_list[_i]
-                                 for _i in range(self.n_domain)
-                                 if _i != source_domain_idx]
+
                 sum_loss_critic = 0.0
                 for k in xrange(self.num_critic):
-                    # clamp parameters to a cube
+                    for tup, critic_name, critic_opt in zip(self.wgan_comb_names, self.critic_names, self.opt_list):
+                        if len(tup) == 2:
+                            source_idx, target_idx = tup
+                            h_source = h_domain_list[source_idx]
+                        else:
+                            h_source = F.concatenate([h_domain_list[_idx]
+                                                      for _idx in tup[:-1]], axis=1)
 
-                    # h_source.unchain_backward()
-                    h_source_data = Variable(h_source.data)  # unchain
-                    loss_critic = 0.0
-                    for h_target, critic_name, critic_opt in zip(h_target_list, self.critic_names, self.opt_list):
-                        # h_target.unchain_backward()
+                        h_target = h_domain_list[target_idx]
+                        h_source_data = Variable(h_source.data)  # unchain
+                        h_target_data = Variable(h_target.data)  # unchain
                         critic_link = self.get_layer(critic_name)
                         self.clip_discriminator_weights(critic_link)
-                        h_target_data = Variable(h_target.data)  # unchain
+
                         fw_source = critic_link(h_source_data)
                         fw_target = critic_link(h_target_data)
-                        # batch_s = fw_source.shape[0]
                         loss_critic += - F.sum(fw_source - fw_target)
-
-                        # sum_div = self.num_critic * len(h_target_list)
                         sum_div = self.num_critic
                         sum_loss_critic += float(loss_critic.data) / sum_div
-
                         critic_link.cleargrads()
-                        # self.critic_opt.target.cleargrads()
                         loss_critic.backward()
                         critic_opt.update()
 
                 # generator loss
                 domain_loss = 0.0
-
-                for h_target, critic_name in zip(h_target_list, self.critic_names):
-
+                for tup, critic_name in zip(self.wgan_comb_names, self.critic_names):
+                    if len(tup) == 2:
+                        source_idx, target_idx = tup
+                        h_source = h_domain_list[source_idx]
+                    else:
+                        h_source = F.concatenate([h_domain_list[_idx] for _idx in tup[:-1]], axis=1)
+                    h_target = h_domain_list[target_idx]
                     critic_link = self.get_layer(critic_name)
                     fw_source = critic_link(h_source)
                     fw_target = critic_link(h_target)
