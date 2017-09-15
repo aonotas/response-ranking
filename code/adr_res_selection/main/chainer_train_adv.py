@@ -251,6 +251,9 @@ def main():
                         type=int, default=0, help='pretrain_critic')
     parser.add_argument('--wgan_souce_idx', dest='wgan_souce_idx',
                         type=int, default=0, help='wgan_souce_idx')
+    parser.add_argument('--s_n_domain', dest='s_n_domain',
+                        type=int, default=-1, help='s_n_domain')
+
     # en
     #  n_vocab = 176693
     # add_n_vocab = 24841
@@ -412,8 +415,9 @@ def main():
         s_n_vocab = args.s_n_vocab
         s_add_n_vocab = args.s_add_n_vocab
         if args.pretrain_critic:
+            s_n_domain = args.s_n_domain
             pretrained = MultiLingualConv(args, s_n_vocab, init_emb=None, add_n_vocab=s_add_n_vocab,
-                                          use_domain_adapt=args.use_domain_adapt, n_domain=n_domain,
+                                          use_domain_adapt=args.use_domain_adapt, n_domain=s_n_domain,
                                           use_wgan_for_both=args.use_wgan_for_both)
         else:
             pretrained = MultiLingualConv(args, s_n_vocab, init_emb=None, add_n_vocab=s_add_n_vocab)
