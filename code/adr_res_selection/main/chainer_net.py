@@ -649,8 +649,7 @@ class MultiLingualConv(chainer.Chain):
                             source_idx, target_idx = tup
                             h_source = h_domain_list[source_idx]
                         else:
-                            h_source = F.concatenate([h_domain_list[_idx]
-                                                      for _idx in tup[:-1]], axis=1)
+                            h_source = F.concat([h_domain_list[_idx] for _idx in tup[:-1]], axis=0)
 
                         h_target = h_domain_list[target_idx]
                         h_source_data = Variable(h_source.data)  # unchain
@@ -674,7 +673,7 @@ class MultiLingualConv(chainer.Chain):
                         source_idx, target_idx = tup
                         h_source = h_domain_list[source_idx]
                     else:
-                        h_source = F.concatenate([h_domain_list[_idx] for _idx in tup[:-1]], axis=1)
+                        h_source = F.concat([h_domain_list[_idx] for _idx in tup[:-1]], axis=0)
                     h_target = h_domain_list[target_idx]
                     critic_link = self.get_layer(critic_name)
                     fw_source = critic_link(h_source)
