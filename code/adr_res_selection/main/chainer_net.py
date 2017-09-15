@@ -341,6 +341,7 @@ class MultiLingualConv(chainer.Chain):
         self.use_wgan = use_wgan
         self.use_wgan_loss_decay = 1
         self.use_wgan_for_both = use_wgan_for_both
+        self.wgan_souce_idx = args.wgan_souce_idx
 
         self.use_mlp_layers = args.use_mlp_layers
         domain_dim = 0
@@ -607,14 +608,15 @@ class MultiLingualConv(chainer.Chain):
 
         if 'output' in self.domain_loss_names and self.use_domain_adapt and y_domain is not None and self.compute_loss:
             if self.use_wgan:
-                max_domain_idx = 0
+                # source_domain_idx = 0
+                source_domain_idx = self.wgan_souce_idx
                 # sample data
                 split_size = np.cumsum(y_domain_count)[:-1]
                 h_domain_list = F.split_axis(a_h, split_size, axis=0)
-                h_source = h_domain_list[max_domain_idx]
+                h_source = h_domain_list[source_domain_idx]
                 h_target_list = [h_domain_list[_i]
                                  for _i in range(self.n_domain)
-                                 if _i != max_domain_idx]
+                                 if _i != source_domain_idx]
                 sum_loss_critic = 0.0
                 for k in xrange(self.num_critic):
                     # clamp parameters to a cube

@@ -247,6 +247,10 @@ def main():
     parser.add_argument('--concat_dev_limit', dest='concat_dev_limit',
                         type=int, default=0, help='concat_dev_limit')
 
+    parser.add_argument('--pretrain_critic', dest='pretrain_critic',
+                        type=int, default=0, help='pretrain_critic')
+    parser.add_argument('--wgan_souce_idx', dest='wgan_souce_idx',
+                        type=int, default=0, help='wgan_souce_idx')
     # en
     #  n_vocab = 176693
     # add_n_vocab = 24841
@@ -407,7 +411,12 @@ def main():
         model_prev_W = model.sentence_encoder.word_embed.W.data[:]
         s_n_vocab = args.s_n_vocab
         s_add_n_vocab = args.s_add_n_vocab
-        pretrained = MultiLingualConv(args, s_n_vocab, init_emb=None, add_n_vocab=s_add_n_vocab)
+        if args.pretrain_critic:
+            pretrained = MultiLingualConv(args, s_n_vocab, init_emb=None, add_n_vocab=s_add_n_vocab,
+                                          use_domain_adapt=args.use_domain_adapt, n_domain=n_domain,
+                                          use_wgan_for_both=args.use_wgan_for_both)
+        else:
+            pretrained = MultiLingualConv(args, s_n_vocab, init_emb=None, add_n_vocab=s_add_n_vocab)
         serializers.load_hdf5(args.load_param, pretrained)
 
         # replace word_embs
@@ -424,6 +433,11 @@ def main():
         set_params(model.conversation_encoder, pretrained.conversation_encoder)
         set_params(model.layer_agent, pretrained.layer_agent)
         set_params(model.layer_response, pretrained.layer_response)
+
+        if args.pretrain_critic:
+            for name in pretrained.critic_names:
+                pre_layer = pretrained.get_layer(name)
+                set_params(model.get_layer(name), pre_layer)
 
         print 'after:', model.layer_response.W.data[0:10]
         # model.sentence_encoder.word_embed.W.data = pretrained.sentence_encoder.word_embed.W.data[:]
