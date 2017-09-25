@@ -253,6 +253,8 @@ def main():
                         type=int, default=-1, help='s_n_domain')
     parser.add_argument('--use_wgan_comb', dest='use_wgan_comb',
                         type=str, default='comb', help='use_wgan_comb = [comb, multi_one, one_multi, concat]')
+    parser.add_argument('--skip_test', dest='skip_test',
+                        type=int, default=0, help='skip_test')
 
     # en
     #  n_vocab = 176693
@@ -670,6 +672,8 @@ def main():
                     serializers.save_hdf5(model_filename + '.model', model)
 
         for i, test_samples in enumerate(test_samples_list):
+            if args.skip_test:
+                continue
             lang = languages_list[i]
             say('\n\n\r  TEST  ' + lang)
             test_acc_both, test_acc_adr, test_acc_res = model.predict_all(
