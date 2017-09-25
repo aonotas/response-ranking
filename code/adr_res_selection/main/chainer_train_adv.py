@@ -672,7 +672,7 @@ def main():
                     serializers.save_hdf5(model_filename + '.model', model)
 
         for i, test_samples in enumerate(test_samples_list):
-            if args.skip_test:
+            if args.skip_test and i == 0:
                 continue
             lang = languages_list[i]
             say('\n\n\r  TEST  ' + lang)
