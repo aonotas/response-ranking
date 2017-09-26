@@ -426,6 +426,11 @@ class MultiLingualConv(chainer.Chain):
                     # [(0, 1), (0, 2)]
                     wgan_comb_names = [(0, _) for _ in range(1, n_domain)]
                     self.wgan_comb_names = wgan_comb_names
+                elif args.use_wgan_comb == 'target_only':
+                    # one-source, one-target,
+                    # [(0, 2)]
+                    wgan_comb_names = [(0, n_domain - 1)]
+                    self.wgan_comb_names = wgan_comb_names
                 elif args.use_wgan_comb == 'concat':
                     # multi-concat-source, one-target,
                     # [(0, 1, 2)]

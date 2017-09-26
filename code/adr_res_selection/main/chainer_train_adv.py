@@ -370,7 +370,7 @@ def main():
                                     dev_agents_ids, dev_n_agents, dev_binned_n_agents, dev_y_adr, dev_y_res, max_idx_dev]]
         dev_samples_list = dev_samples_list_concat
 
-# concat all dataset
+    # concat all dataset
     for domain_index, dataset in enumerate(train_samples_list):
         [contexts, contexts_length, responses, responses_length,
          agents_ids, n_agents, binned_n_agents, y_adr, y_res] = dataset[:]
@@ -672,7 +672,7 @@ def main():
                     serializers.save_hdf5(model_filename + '.model', model)
 
         for i, test_samples in enumerate(test_samples_list):
-            if args.skip_test and i == 0:
+            if args.skip_test and i == 0 and epoch + 1 not in acc_history[i]:
                 continue
             lang = languages_list[i]
             say('\n\n\r  TEST  ' + lang)
