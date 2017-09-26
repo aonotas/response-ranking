@@ -252,7 +252,7 @@ def main():
     parser.add_argument('--s_n_domain', dest='s_n_domain',
                         type=int, default=-1, help='s_n_domain')
     parser.add_argument('--use_wgan_comb', dest='use_wgan_comb',
-                        type=str, default='comb', help='use_wgan_comb = [comb, multi_one, one_multi, concat]')
+                        type=str, default='comb', help='use_wgan_comb = [comb, multi_one, one_multi, concat, target_only]')
     parser.add_argument('--skip_test', dest='skip_test',
                         type=int, default=0, help='skip_test')
 
