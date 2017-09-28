@@ -543,7 +543,7 @@ def main():
             p = perm_domains
             # flag = args.mini_label != -1
             bf_flag = args.mini_source_label == -1
-            keep_domain_idx = i_index % args.mini_label
+            keep_domain_idx = i_index % args.mini_source_label
 
             min_batchsize = len(train_perms[min_domain_idx][index:index + batchsize])
             xp_index = np.concatenate([train_perms[i][p[i]:p[i] + min_batchsize]
