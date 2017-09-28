@@ -657,7 +657,7 @@ class MultiLingualConv(chainer.Chain):
                             target_idx = tup[-1]
                             h_source = F.concat([h_domain_list[_idx] for _idx in tup[:-1]], axis=0)
 
-                        bf_flag = self.args.mini_source_label == -1
+                        bf_flag = self.args.mini_source_label != -1
                         keep_domain_idx = self.i_index % self.args.mini_source_label
                         if bf_flag:
                             target_idx = target_idx - (keep_domain_idx - 1)
