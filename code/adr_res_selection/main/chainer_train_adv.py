@@ -600,7 +600,7 @@ def main():
         sum_loss = 0.0
         domain_sum_loss = 0.0
         for i_index, index in enumerate(iteration_list):
-
+            model.i_index = i_index
             sample, y_domain, y_domain_count = get_samples_batch(
                 batchsize, index, train_perms, perm_domains, i_index)
 
