@@ -547,10 +547,10 @@ def main():
 
             min_batchsize = len(train_perms[min_domain_idx][index:index + batchsize])
             xp_index = np.concatenate([train_perms[i][p[i]:p[i] + min_batchsize]
-                                       for i in range(n_domain) if i == keep_domain_idx or bf_flag])
+                                       for i in range(n_domain) if i == keep_domain_idx or i == n_domain - 1 or bf_flag])
 
             y_domain = np.concatenate([np.full((len(train_perms[i][p[i]:p[i] + min_batchsize]), ), i, np.int32)
-                                       for i in range(n_domain) if i == keep_domain_idx or bf_flag])
+                                       for i in range(n_domain) if i == keep_domain_idx or i == n_domain - 1 or bf_flag])
             y_domain_count = np.bincount(y_domain)
 
             perm_domains += min_batchsize
