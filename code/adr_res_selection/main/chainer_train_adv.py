@@ -255,6 +255,8 @@ def main():
                         type=str, default='comb', help='use_wgan_comb = [comb, multi_one, one_multi, concat, target_only]')
     parser.add_argument('--skip_test', dest='skip_test',
                         type=int, default=0, help='skip_test')
+    parser.add_argument('--mini_source_label', dest='mini_source_label',
+                        type=int, default=-1, help='mini_source_label')
 
     # en
     #  n_vocab = 176693
@@ -536,15 +538,19 @@ def main():
 
     train_sizes_cumsum = np.cumsum(train_sizes)[..., None].T
 
-    def get_samples_batch(batchsize, index, train_perms, perm_domains):
+    def get_samples_batch(batchsize, index, train_perms, perm_domains, i_index):
         if args.use_same_trainsize:
             p = perm_domains
+            # flag = args.mini_label != -1
+            bf_flag = args.mini_source_label == -1
+            keep_domain_idx = i_index % args.mini_label
+
             min_batchsize = len(train_perms[min_domain_idx][index:index + batchsize])
             xp_index = np.concatenate([train_perms[i][p[i]:p[i] + min_batchsize]
-                                       for i in range(n_domain)])
+                                       for i in range(n_domain) if i == keep_domain_idx or bf_flag])
 
             y_domain = np.concatenate([np.full((len(train_perms[i][p[i]:p[i] + min_batchsize]), ), i, np.int32)
-                                       for i in range(n_domain)])
+                                       for i in range(n_domain) if i == keep_domain_idx or bf_flag])
             y_domain_count = np.bincount(y_domain)
 
             perm_domains += min_batchsize
@@ -596,7 +602,7 @@ def main():
         for i_index, index in enumerate(iteration_list):
 
             sample, y_domain, y_domain_count = get_samples_batch(
-                batchsize, index, train_perms, perm_domains)
+                batchsize, index, train_perms, perm_domains, i_index)
 
             dot_r, dot_a, predict_r, predict_a, y_res_pad, y_adr_pad = model(
                 sample, y_domain=y_domain, y_domain_count=y_domain_count)
