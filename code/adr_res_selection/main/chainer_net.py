@@ -660,7 +660,7 @@ class MultiLingualConv(chainer.Chain):
                         bf_flag = self.args.mini_source_label != -1
                         keep_domain_idx = self.i_index % self.args.mini_source_label
                         if bf_flag:
-                            target_idx = target_idx - (keep_domain_idx - 1)
+                            target_idx = target_idx - (self.args.mini_source_label - 1)
                             if source_idx != keep_domain_idx:
                                 continue
 
