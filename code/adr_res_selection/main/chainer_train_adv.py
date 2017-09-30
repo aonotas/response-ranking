@@ -234,6 +234,8 @@ def main():
                         type=int, default=0, help='use_wgan')
     parser.add_argument('--use_wgan_for_both', dest='use_wgan_for_both',
                         type=int, default=1, help='use_wgan_for_both')
+    parser.add_argument('--wgan_sep', dest='wgan_sep',
+                        type=int, default=0, help='wgan_sep')
 
     parser.add_argument('--use_mlp_layers', dest='use_mlp_layers',
                         type=int, default=0, help='use_mlp_layers')
