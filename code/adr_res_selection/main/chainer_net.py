@@ -683,9 +683,22 @@ class MultiLingualConv(chainer.Chain):
                         bf_flag = self.args.mini_source_label != -1
                         keep_domain_idx = self.i_index % self.args.mini_source_label
                         if bf_flag:
+<< << << < HEAD
                             # target_idx = target_idx - (self.args.mini_source_label - 1)
                             if source_idx != keep_domain_idx or y_domain_count[target_idx] == 0:
+== == == =
+                            # target_idx = target_idx - (self.args.mini_source_label - 1)
+                            if source_idx != keep_domain_idx or y_domain_count[target_idx] == 0:
+>>>>>> > 7f0febba8d6a0cbacadc75e561cefaea131da79b
                                 continue
+                        # print 'self.wgan_comb_names:', self.wgan_comb_names
+                        # print 'h_domain_list:', len(h_domain_list)
+                        # print 'keep_domain_idx:', keep_domain_idx
+                        # print 'source_idx:', source_idx
+                        # print 'target_idx:', target_idx
+                        # print 'y_domain_count:', y_domain_count
+                        # print 'split_size:', split_size
+                        # print '------------------'
 
                         h_target = h_domain_list[target_idx]
                         h_source_data = Variable(h_source.data)  # unchain
@@ -732,6 +745,9 @@ class MultiLingualConv(chainer.Chain):
                         if self.wgan_sep:
                             h_source_double = F.concat([h_domain_list_double[_idx]
                                                         for _idx in tup[:-1]], axis=0)
+                    if bf_flag:
+                        if source_idx != keep_domain_idx  or y_domain_count[target_idx] == 0:
+                           continue
                     h_target = h_domain_list[target_idx]
                     critic_link = self.get_layer(critic_name)
                     fw_source = critic_link(h_source)
