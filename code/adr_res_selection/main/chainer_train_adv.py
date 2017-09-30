@@ -601,6 +601,8 @@ def main():
         predict_lists = []
         sum_loss = 0.0
         domain_sum_loss = 0.0
+        domain_sum_loss_one = 0.0
+        domain_sum_loss_sep = 0.0
         for i_index, index in enumerate(iteration_list):
             model.i_index = i_index
             sample, y_domain, y_domain_count = get_samples_batch(
@@ -624,6 +626,9 @@ def main():
                 domain_loss = lambda_v * model.domain_loss
                 loss += domain_loss
                 domain_sum_loss += domain_loss.data
+                if args.wgan_sep:
+                    domain_sum_loss_one += lambda_v * model.domain_loss_one
+                    domain_sum_loss_sep += lambda_v * model.domain_loss_sep
 
             sum_loss += loss.data
 
@@ -638,6 +643,9 @@ def main():
 
         say('\n loss: %s' % str(sum_loss))
         say('\n domain_loss: %s' % str(domain_sum_loss))
+        if args.wgan_sep:
+            say('\n domain_loss_one: %s' % str(domain_sum_loss_one))
+            say('\n domain_loss_sep: %s' % str(domain_sum_loss_sep))
 
         if args.concat_dev:
             dev_samples = dev_samples_list[0]

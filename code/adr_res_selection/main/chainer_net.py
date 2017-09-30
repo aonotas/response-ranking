@@ -683,13 +683,8 @@ class MultiLingualConv(chainer.Chain):
                         bf_flag = self.args.mini_source_label != -1
                         keep_domain_idx = self.i_index % self.args.mini_source_label
                         if bf_flag:
-<< << << < HEAD
                             # target_idx = target_idx - (self.args.mini_source_label - 1)
                             if source_idx != keep_domain_idx or y_domain_count[target_idx] == 0:
-== == == =
-                            # target_idx = target_idx - (self.args.mini_source_label - 1)
-                            if source_idx != keep_domain_idx or y_domain_count[target_idx] == 0:
->>>>>> > 7f0febba8d6a0cbacadc75e561cefaea131da79b
                                 continue
                         # print 'self.wgan_comb_names:', self.wgan_comb_names
                         # print 'h_domain_list:', len(h_domain_list)
@@ -733,6 +728,7 @@ class MultiLingualConv(chainer.Chain):
 
                 # generator loss
                 domain_loss = 0.0
+                domain_loss_sep = 0.0
                 for tup, critic_name in zip(self.wgan_comb_names, self.critic_names):
                     if len(tup) == 2:
                         source_idx, target_idx = tup
@@ -746,8 +742,8 @@ class MultiLingualConv(chainer.Chain):
                             h_source_double = F.concat([h_domain_list_double[_idx]
                                                         for _idx in tup[:-1]], axis=0)
                     if bf_flag:
-                        if source_idx != keep_domain_idx  or y_domain_count[target_idx] == 0:
-                           continue
+                        if source_idx != keep_domain_idx or y_domain_count[target_idx] == 0:
+                            continue
                     h_target = h_domain_list[target_idx]
                     critic_link = self.get_layer(critic_name)
                     fw_source = critic_link(h_source)
@@ -763,11 +759,14 @@ class MultiLingualConv(chainer.Chain):
                         fw_source = critic_link(h_source_double)
                         fw_target = critic_link(h_target)
                         if self.use_wgan_for_both:
-                            domain_loss += F.sum(fw_source - fw_target)
+                            domain_loss_sep += F.sum(fw_source - fw_target)
                         else:
-                            domain_loss += - F.sum(fw_target)
+                            domain_loss_sep += - F.sum(fw_target)
 
-                self.domain_loss = domain_loss
+                self.domain_loss_one = domain_loss
+                self.domain_loss_sep = domain_loss_sep
+                self.domain_loss = domain_loss + domain_loss_sep
+
                 self.sum_loss_critic = sum_loss_critic
             else:
                 h_domain = ReverseGrad(True)(a_h)
