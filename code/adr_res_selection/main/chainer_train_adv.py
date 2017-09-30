@@ -627,8 +627,8 @@ def main():
                 loss += domain_loss
                 domain_sum_loss += domain_loss.data
                 if args.wgan_sep:
-                    domain_sum_loss_one += lambda_v * model.domain_loss_one
-                    domain_sum_loss_sep += lambda_v * model.domain_loss_sep
+                    domain_sum_loss_one += lambda_v * model.domain_loss_one.data
+                    domain_sum_loss_sep += lambda_v * model.domain_loss_sep.data
 
             sum_loss += loss.data
 
