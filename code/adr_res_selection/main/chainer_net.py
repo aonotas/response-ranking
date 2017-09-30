@@ -405,18 +405,21 @@ class MultiLingualConv(chainer.Chain):
                             output_dim=n_domain, use_wgan=use_wgan)
             self.add_link('critic', critic)
             self.critic_names = ['critic']
-            if self.wgan_sep:
-                critic = Critic(input_dim=critic_input_dim, hidden_dim=hidden_dim,
-                                output_dim=n_domain, use_wgan=use_wgan)
-                self.add_link('double_critic', critic)
-                self.critic_names.append('double_critic')
-
             if use_wgan:
                 init_alpha_critic = 0.00005
                 critic_opt = optimizers.Adam(alpha=init_alpha_critic)
                 self.critic_opt = critic_opt
                 self.critic_opt.setup(critic)
                 self.opt_list = [critic_opt]
+                self.opt_list_sep = []
+            if self.wgan_sep:
+                critic = Critic(input_dim=critic_input_dim, hidden_dim=hidden_dim,
+                                output_dim=n_domain, use_wgan=use_wgan)
+                self.add_link('double_critic', critic)
+                self.critic_names.append('double_critic')
+                critic_opt = optimizers.Adam(alpha=init_alpha_critic)
+                critic_opt.setup(critic)
+                self.opt_list_sep.append(critic_opt)
 
             if use_wgan:
 
@@ -463,6 +466,10 @@ class MultiLingualConv(chainer.Chain):
                                         output_dim=n_domain, use_wgan=use_wgan)
                         self.add_link('double_' + name, critic)
                         self.critic_names.append('double_' + name)
+
+                        critic_opt = optimizers.Adam(alpha=init_alpha_critic)
+                        critic_opt.setup(critic)
+                        self.opt_list_sep.append(critic_opt)
 
                     init_alpha_critic = 0.00005
                     critic_opt = optimizers.Adam(alpha=init_alpha_critic)
@@ -667,7 +674,7 @@ class MultiLingualConv(chainer.Chain):
                 sum_loss_critic = 0.0
                 for k in xrange(self.num_critic):
                     loss_critic = 0.0
-                    for tup, critic_name, critic_opt in zip(self.wgan_comb_names, self.critic_names, self.opt_list):
+                    for wi, (tup, critic_name, critic_opt) in enumerate(zip(self.wgan_comb_names, self.critic_names, self.opt_list)):
                         if len(tup) == 2:
                             source_idx, target_idx = tup
                             h_source = h_domain_list[source_idx]
@@ -677,23 +684,14 @@ class MultiLingualConv(chainer.Chain):
                             target_idx = tup[-1]
                             h_source = F.concat([h_domain_list[_idx] for _idx in tup[:-1]], axis=0)
                             if self.wgan_sep:
-                                h_source_double = F.concat(
-                                    [h_domain_list_double[_idx] for _idx in tup[:-1]], axis=0)
+                                h_source_double = F.concat([h_domain_list_double[_idx]
+                                                            for _idx in tup[:-1]], axis=0)
 
                         bf_flag = self.args.mini_source_label != -1
                         keep_domain_idx = self.i_index % self.args.mini_source_label
                         if bf_flag:
-                            # target_idx = target_idx - (self.args.mini_source_label - 1)
                             if source_idx != keep_domain_idx or y_domain_count[target_idx] == 0:
                                 continue
-                        # print 'self.wgan_comb_names:', self.wgan_comb_names
-                        # print 'h_domain_list:', len(h_domain_list)
-                        # print 'keep_domain_idx:', keep_domain_idx
-                        # print 'source_idx:', source_idx
-                        # print 'target_idx:', target_idx
-                        # print 'y_domain_count:', y_domain_count
-                        # print 'split_size:', split_size
-                        # print '------------------'
 
                         h_target = h_domain_list[target_idx]
                         h_source_data = Variable(h_source.data)  # unchain
@@ -724,7 +722,8 @@ class MultiLingualConv(chainer.Chain):
                             sum_loss_critic += float(loss_critic.data) / sum_div
                             critic_link.cleargrads()
                             loss_critic.backward()
-                            critic_opt.update()
+                            critic_opt_sep = opt_list_sep[wi]
+                            critic_opt_sep.update()
 
                 # generator loss
                 domain_loss = 0.0
