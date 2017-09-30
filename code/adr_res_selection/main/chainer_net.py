@@ -722,7 +722,7 @@ class MultiLingualConv(chainer.Chain):
                             sum_loss_critic += float(loss_critic.data) / sum_div
                             critic_link.cleargrads()
                             loss_critic.backward()
-                            critic_opt_sep = opt_list_sep[wi]
+                            critic_opt_sep = self.opt_list_sep[wi]
                             critic_opt_sep.update()
 
                 # generator loss
