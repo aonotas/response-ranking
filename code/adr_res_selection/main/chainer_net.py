@@ -714,7 +714,7 @@ class MultiLingualConv(chainer.Chain):
                             h_target = h_domain_list_double[target_idx]
                             h_source_data = Variable(h_source_double.data)  # unchain
                             h_target_data = Variable(h_target.data)  # unchain
-                            critic_link = self.get_layer('double' + critic_name)
+                            critic_link = self.get_layer('double_' + critic_name)
                             self.clip_discriminator_weights(critic_link)
 
                             fw_source = critic_link(h_source_data)
@@ -755,7 +755,7 @@ class MultiLingualConv(chainer.Chain):
 
                     if self.wgan_sep:
                         h_target = h_domain_list_double[target_idx]
-                        critic_link = self.get_layer(critic_name)
+                        critic_link = self.get_layer('double_' + critic_name)
                         fw_source = critic_link(h_source_double)
                         fw_target = critic_link(h_target)
                         if self.use_wgan_for_both:
