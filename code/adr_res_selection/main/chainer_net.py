@@ -388,7 +388,7 @@ class MultiLingualConv(chainer.Chain):
         if self.use_mlp_layers:
             # self.add_link('mlp_response', MLP(hidden_dim, hidden_dim, hidden_dim))
             # self.add_link('mlp_agent', MLP(hidden_dim, hidden_dim, hidden_dim))
-            # self.add_link('mlp_spk_agent', MLP(hidden_dim, hidden_dim, hidden_dim))
+            self.add_link('mlp_spk_agent', MLP(hidden_dim, hidden_dim, hidden_dim))
             self.add_link('mlp_context', MLP(hidden_dim, hidden_dim, hidden_dim))
 
         self.domain_loss_names = args.domain_loss_names.split(',')
@@ -645,8 +645,8 @@ class MultiLingualConv(chainer.Chain):
 
         if self.use_mlp_layers:
             # agent_vecs = self.mlp_agent(agent_vecs)
-            h_context = self.mlp_agent(h_context)
-            # spk_agent_vecs = self.mlp_spk_agent(spk_agent_vecs)
+            h_context = self.mlp_context(h_context)
+            spk_agent_vecs = self.mlp_spk_agent(spk_agent_vecs)
 
         if 'agent' in self.domain_loss_names and self.use_domain_adapt and y_domain is not None and self.compute_loss:
             h_domain = ReverseGrad(True)(agent_vecs)
