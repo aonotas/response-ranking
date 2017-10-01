@@ -413,7 +413,7 @@ def main():
     n_domain = len(languages_list)
     model = MultiLingualConv(args, n_vocab, init_emb=init_emb,
                              add_n_vocab=add_n_vocab, use_domain_adapt=args.use_domain_adapt, n_domain=n_domain,
-                             use_wgan_for_both=args.use_wgan_for_both)
+                             use_wgan_for_both=args.use_wgan_for_both, use_mlp_layers=args.use_mlp_layers)
 
     # TODO: load Trained model
     if args.load_param is not None:
@@ -426,7 +426,8 @@ def main():
                                           use_domain_adapt=args.use_domain_adapt, n_domain=s_n_domain,
                                           use_wgan_for_both=args.use_wgan_for_both)
         else:
-            pretrained = MultiLingualConv(args, s_n_vocab, init_emb=None, add_n_vocab=s_add_n_vocab)
+            pretrained = MultiLingualConv(args, s_n_vocab, init_emb=None,
+                                          add_n_vocab=s_add_n_vocab, use_mlp_layers=0)
         serializers.load_hdf5(args.load_param, pretrained)
 
         # replace word_embs

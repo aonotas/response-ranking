@@ -334,7 +334,7 @@ class MLP(chainer.Chain):
 class MultiLingualConv(chainer.Chain):
 
     def __init__(self, args, n_vocab, init_emb=None, add_n_vocab=0,
-                 use_domain_adapt=0, n_domain=1, use_wgan=0, use_wgan_for_both=1):
+                 use_domain_adapt=0, n_domain=1, use_wgan=0, use_wgan_for_both=1, use_mlp_layers=0):
         hidden_dim = args.dim_hidden
         use_domain_input_emb = args.use_domain_input_emb
         use_domain_input_emb_sumver = args.use_domain_input_emb_sumver
@@ -344,7 +344,7 @@ class MultiLingualConv(chainer.Chain):
         self.use_wgan_loss_decay = 1
         self.use_wgan_for_both = use_wgan_for_both
 
-        self.use_mlp_layers = args.use_mlp_layers
+        self.use_mlp_layers = use_mlp_layers
         domain_dim = 0
         concat_domain_dim = 0
 
