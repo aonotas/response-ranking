@@ -413,7 +413,8 @@ def main():
     n_domain = len(languages_list)
     model = MultiLingualConv(args, n_vocab, init_emb=init_emb,
                              add_n_vocab=add_n_vocab, use_domain_adapt=args.use_domain_adapt, n_domain=n_domain,
-                             use_wgan_for_both=args.use_wgan_for_both, wgan_sep=args.wgan_sep, use_mlp_layers=args.use_mlp_layers)
+                             use_wgan=args.use_wgan, use_wgan_for_both=args.use_wgan_for_both,
+                             wgan_sep=args.wgan_sep, use_mlp_layers=args.use_mlp_layers)
 
     # TODO: load Trained model
     if args.load_param is not None:
@@ -424,6 +425,7 @@ def main():
             s_n_domain = args.s_n_domain
             pretrained = MultiLingualConv(args, s_n_vocab, init_emb=None, add_n_vocab=s_add_n_vocab,
                                           use_domain_adapt=args.use_domain_adapt, n_domain=s_n_domain,
+                                          use_wgan=args.use_wgan,
                                           use_wgan_for_both=args.use_wgan_for_both,
                                           wgan_sep=args.wgan_sep, use_mlp_layers=args.use_mlp_layers)
         else:
