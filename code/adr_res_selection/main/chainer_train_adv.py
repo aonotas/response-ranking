@@ -429,7 +429,7 @@ def main():
         else:
             pretrained = MultiLingualConv(args, s_n_vocab, init_emb=None,
                                           add_n_vocab=s_add_n_vocab,
-                                          wgan_sep=args.wgan_sep, use_mlp_layers=args.use_mlp_layers)
+                                          wgan_sep=0, use_mlp_layers=args.use_mlp_layers)
         serializers.load_hdf5(args.load_param, pretrained)
 
         # replace word_embs
