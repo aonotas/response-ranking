@@ -366,7 +366,8 @@ def main():
 
     from chainer_net import MultiLingualConv
 
-    model = MultiLingualConv(args, n_vocab, init_emb=init_emb, add_n_vocab=add_n_vocab)
+    model = MultiLingualConv(args, n_vocab, init_emb=init_emb,
+                             add_n_vocab=add_n_vocab, use_mlp_layers=args.use_mlp_layers)
 
     # TODO: load Trained model
     if args.load_param is not None:
