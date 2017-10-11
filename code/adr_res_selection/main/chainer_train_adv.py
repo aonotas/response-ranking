@@ -307,12 +307,15 @@ def main():
         ##########################
         # Set initial embeddings #
         ##########################
-        init_emb_file = '/cl/work/motoki-s/multi_ling_conversation/ouchi/dialog-emnlp2016/DATA-multi/embeddings/' + lang + '_512.txt'
+        lang_emb = lang
+        if 'trans-' in lang:
+            lang_emb = lang.replace('trans-', '')
+        init_emb_file = '/cl/work/motoki-s/multi_ling_conversation/ouchi/dialog-emnlp2016/DATA-multi/embeddings/' + lang_emb + '_512.txt'
         _words_all = words_all
         if argv.use_small_emb == 0:
             _words_all = None
         vocab_words, init_emb = load_multi_ling_init_emb(
-            init_emb_file, lang, words_all=_words_all, vocab_word=vocab_words, emb_array=init_emb)
+            init_emb_file, lang_emb, words_all=_words_all, vocab_word=vocab_words, emb_array=init_emb)
 
         ###############
         # Set samples #
