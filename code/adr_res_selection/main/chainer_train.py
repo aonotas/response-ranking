@@ -279,7 +279,7 @@ def main():
             words_all = None
 
         vocab_words, init_emb = load_multi_ling_init_emb(
-            argv.init_emb, argv.lang, words_all=words_all)
+            argv.init_emb, argv.lang.replace('trans-', ''), words_all=words_all)
 
     elif argv.emb_type == 'glove':
         vocab_words, init_emb = load_init_emb(argv.init_emb, words)
