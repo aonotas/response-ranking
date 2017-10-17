@@ -24,10 +24,11 @@ class Sample(object):
         ###################
         # Response labels #
         ###################
-        false_res_label = get_false_res_label(responses, label)
-        self.true_res = get_true_res_label(label, false_res_label, test)
-        self.response = self.response if test else get_responses(
-            label, false_res_label, self.response)
+        # false_res_label = get_false_res_label(responses, label)
+        # self.true_res = get_true_res_label(label, false_res_label, test)
+        # self.response = self.response if test else get_responses(label, false_res_label, self.response)
+        self.true_res = label
+        self.response = self.response
 
         ####################
         # Addressee labels #
