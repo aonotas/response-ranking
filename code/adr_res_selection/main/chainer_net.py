@@ -630,7 +630,7 @@ class MultiLingualConv(chainer.Chain):
         if 'response' in self.domain_loss_names and self.use_domain_adapt and y_domain is not None and self.compute_loss:
             h_domain = ReverseGrad(True)(response_vecs)
             h_domain = self.critic_response(h_domain)
-            y_domain_response = xp.repeat(y_domain, 2, axis=0)
+            y_domain_response = xp.repeat(y_domain, self.candidate_size, axis=0)
             self.domain_loss += F.softmax_cross_entropy(h_domain, y_domain_response)
 
         agents_ids = self.padding_offset(agents_ids, n_agents_list)

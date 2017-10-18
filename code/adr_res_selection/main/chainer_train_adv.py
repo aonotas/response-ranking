@@ -259,6 +259,8 @@ def main():
                         type=int, default=0, help='skip_test')
     parser.add_argument('--mini_source_label', dest='mini_source_label',
                         type=int, default=-1, help='mini_source_label')
+    parser.add_argument('--skip_dev_id', dest='skip_dev_id',
+                        type=str, default='', help='skip_dev_id')
 
     # en
     #  n_vocab = 176693
@@ -297,6 +299,8 @@ def main():
     for i, lang in enumerate(languages_list):
         print 'lang:', lang
         base = '/cl/work/motoki-s/multi_ling_conversation/data/2015_concat/2015_cand2_lang_'
+        if args.n_cands == 10:
+            base = '/cl/work/motoki-s/multi_ling_conversation/data/2015_concat/2015_cand10_lang_'
 
         train_data = base + lang + '_train.txt'
         dev_data = base + lang + '_dev.txt'
@@ -366,7 +370,9 @@ def main():
         limit_size = args.concat_dev_limit
         if args.concat_dev_limit == 0:
             limit_size = min_dev_sample_num
-        for dev_prev_process in dev_samples_list:
+        for d_i, dev_prev_process in enumerate(dev_samples_list):
+            if d_i in map(int, args.skip_dev_id.split(',')):
+                continue
             dev_samples += dev_prev_process[:limit_size]
 
         (dev_contexts, dev_contexts_length, dev_responses,
