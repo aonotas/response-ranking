@@ -292,6 +292,7 @@ def main():
     ###############
     train_samples_list = []
     dev_samples_list = []
+    dev_samples_list_single = []
     test_samples_list = []
     words_all = []
     words = set([])
@@ -350,6 +351,9 @@ def main():
         dev_samples_conv = [dev_contexts, dev_contexts_length, dev_responses, dev_responses_length,
                             dev_agents_ids, dev_n_agents, dev_binned_n_agents, dev_y_adr, dev_y_res, max_idx_dev]
 
+        if args.use_single_dev:
+            dev_samples_list_single.append(dev_samples_conv)
+
         if args.concat_dev:
             dev_samples_conv = dev_samples
 
@@ -383,7 +387,7 @@ def main():
 
         dev_samples_list_concat = [[dev_contexts, dev_contexts_length, dev_responses, dev_responses_length,
                                     dev_agents_ids, dev_n_agents, dev_binned_n_agents, dev_y_adr, dev_y_res, max_idx_dev]]
-        dev_samples_list_single = copy.deepcopy(dev_samples_list)
+        # dev_samples_list_single = copy.deepcopy(dev_samples_list)
         dev_samples_list = dev_samples_list_concat
 
     # concat all dataset
