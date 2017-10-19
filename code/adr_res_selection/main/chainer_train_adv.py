@@ -373,7 +373,7 @@ def main():
         if args.concat_dev_limit == 0:
             limit_size = min_dev_sample_num
         for d_i, dev_prev_process in enumerate(dev_samples_list):
-            if d_i in map(int, args.skip_dev_id.split(',')):
+            if args.skip_dev_id != '' and d_i in map(int, args.skip_dev_id.split(',')):
                 continue
             dev_samples += dev_prev_process[:limit_size]
 
@@ -696,7 +696,7 @@ def main():
             if args.use_single_dev:
 
                 for i, dev_samples in enumerate(dev_samples_list_single):
-                    if i in map(int, args.skip_dev_id.split(',')):
+                    if args.skip_dev_id != '' and i in map(int, args.skip_dev_id.split(',')):
                         continue
                     lang = languages_list[i]
                     chainer.config.train = False
