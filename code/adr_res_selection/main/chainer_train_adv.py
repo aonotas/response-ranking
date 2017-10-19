@@ -261,6 +261,8 @@ def main():
                         type=int, default=-1, help='mini_source_label')
     parser.add_argument('--skip_dev_id', dest='skip_dev_id',
                         type=str, default='', help='skip_dev_id')
+    parser.add_argument('--use_single_dev', dest='use_single_dev',
+                        type=int, default=1, help='use_single_dev')
 
     # en
     #  n_vocab = 176693
@@ -381,6 +383,7 @@ def main():
 
         dev_samples_list_concat = [[dev_contexts, dev_contexts_length, dev_responses, dev_responses_length,
                                     dev_agents_ids, dev_n_agents, dev_binned_n_agents, dev_y_adr, dev_y_res, max_idx_dev]]
+        dev_samples_list_single = dev_samples_list[:]
         dev_samples_list = dev_samples_list_concat
 
     # concat all dataset
@@ -475,10 +478,16 @@ def main():
     acc_history = {}
     un_change = {}
     best_dev_acc_both = {}
+    sing_acc_history = {}
+    sing_un_change = {}
+    sing_best_dev_acc_both = {}
     for i, lang in enumerate(languages_list):
         acc_history[i] = {}
         un_change[i] = 0
         best_dev_acc_both[i] = 0.
+        sing_acc_history[i] = {}
+        sing_un_change[i] = 0
+        sing_best_dev_acc_both[i] = 0.
 
     # opt = optimizers.Adam(alpha=0.001, beta1=0.9, beta2=0.999, eps=1e-8)
     opt = optimizers.Adam(alpha=args.init_alpha, beta1=0.9, beta2=0.9, eps=1e-12)
@@ -671,7 +680,7 @@ def main():
             model.compute_loss = False
             lang = 'All Concat'
 
-            say('\n\n  DEV  ' + lang)
+            say('\n\n  [Multi] DEV  ' + lang)
             dev_acc_both, dev_acc_adr, dev_acc_res = model.predict_all(dev_samples, domain_index=i)
             for i, _ in enumerate(languages_list):
                 if dev_acc_both > best_dev_acc_both[i]:
@@ -684,6 +693,26 @@ def main():
                             argv.emb_type + '_epoch' + str(epoch) + '.model'
                         serializers.save_hdf5(model_filename + '.model', model)
 
+            if args.use_single_dev:
+
+                for i, dev_samples in enumerate(dev_samples_list_single):
+                    lang = languages_list[i]
+                    chainer.config.train = False
+                    model.compute_loss = False
+                    say('\n\n  [Single] DEV  ' + lang)
+                    dev_acc_both, dev_acc_adr, dev_acc_res = model.predict_all(
+                        dev_samples, domain_index=i)
+
+                    if dev_acc_both > sing_best_dev_acc_both[i]:
+                        sing_un_change[i] = 0
+                        sing_best_dev_acc_both[i] = dev_acc_both
+                        sing_acc_history[i][epoch + 1] = [(sing_best_dev_acc_both[i],
+                                                           dev_acc_adr, dev_acc_res)]
+
+                        model_filename = './models/' + argv.output_fn + '_' + \
+                            argv.emb_type + '_epoch' + str(epoch) + '.model'
+                        if not os.path.exists(model_filename + '.model'):
+                            serializers.save_hdf5(model_filename + '.model', model)
         else:
             for i, dev_samples in enumerate(dev_samples_list):
                 lang = languages_list[i]
@@ -703,6 +732,7 @@ def main():
                     model_filename = './models/' + argv.output_fn + '_' + \
                         argv.emb_type + '_epoch' + str(epoch) + '.model'
                     serializers.save_hdf5(model_filename + '.model', model)
+        # --------------------------------------------
 
         for i, test_samples in enumerate(test_samples_list):
             if args.skip_test and i == 0 and epoch + 1 not in acc_history[i]:
@@ -719,10 +749,18 @@ def main():
                     acc_history[i][epoch + 1] = [(test_acc_both, test_acc_adr, test_acc_res)]
             un_change[i] += 1
 
+            if sing_un_change[i] == 0:
+                if epoch + 1 in sing_acc_history[i]:
+                    sing_acc_history[i][
+                        epoch + 1].append((test_acc_both, test_acc_adr, test_acc_res))
+                else:
+                    sing_acc_history[i][epoch + 1] = [(test_acc_both, test_acc_adr, test_acc_res)]
+            sing_un_change[i] += 1
+
             #####################
             # Show best results #
             #####################
-            say('\n\tBEST ACCURACY HISTORY')
+            say('\n\t [Multi] BEST ACCURACY HISTORY')
             for k, v in sorted(acc_history[i].items()):
                 text = '\n\tEPOCH-{:>3} | DEV  Both:{:>7.2%}  Adr:{:>7.2%}  Res:{:>7.2%}'
                 text = text.format(k, v[0][0], v[0][1], v[0][2])
@@ -730,6 +768,16 @@ def main():
                     text += ' | TEST  Both:{:>7.2%}  Adr:{:>7.2%}  Res:{:>7.2%}'
                     text = text.format(v[1][0], v[1][1], v[1][2])
                 say(text)
+
+            if args.use_single_dev:
+                say('\n\t[Single] BEST ACCURACY HISTORY')
+                for k, v in sorted(sing_acc_history[i].items()):
+                    text = '\n\tEPOCH-{:>3} | DEV  Both:{:>7.2%}  Adr:{:>7.2%}  Res:{:>7.2%}'
+                    text = text.format(k, v[0][0], v[0][1], v[0][2])
+                    if len(v) == 2:
+                        text += ' | TEST  Both:{:>7.2%}  Adr:{:>7.2%}  Res:{:>7.2%}'
+                        text = text.format(v[1][0], v[1][1], v[1][2])
+                    say(text)
 
 
 if __name__ == '__main__':
