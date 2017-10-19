@@ -696,6 +696,8 @@ def main():
             if args.use_single_dev:
 
                 for i, dev_samples in enumerate(dev_samples_list_single):
+                    if i in map(int, args.skip_dev_id.split(',')):
+                        continue
                     lang = languages_list[i]
                     chainer.config.train = False
                     model.compute_loss = False
