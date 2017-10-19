@@ -1,6 +1,6 @@
 import os
 os.environ["CHAINER_SEED"] = "1234"
-
+import copy
 import random
 import numpy as np
 random.seed(1234)
@@ -383,7 +383,7 @@ def main():
 
         dev_samples_list_concat = [[dev_contexts, dev_contexts_length, dev_responses, dev_responses_length,
                                     dev_agents_ids, dev_n_agents, dev_binned_n_agents, dev_y_adr, dev_y_res, max_idx_dev]]
-        dev_samples_list_single = dev_samples_list[:]
+        dev_samples_list_single = copy.deepcopy(dev_samples_list)
         dev_samples_list = dev_samples_list_concat
 
     # concat all dataset
