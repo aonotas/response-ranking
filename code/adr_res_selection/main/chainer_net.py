@@ -454,7 +454,7 @@ class MultiLingualConv(chainer.Chain):
                 wgan_combs_iter = wgan_comb_names[1:]
 
                 for tup in wgan_combs_iter:
-                    i = tup[0] if isinstance(tup, tuple) else tup
+                    i = '_'.join(map(str, tup)) if isinstance(tup, tuple) else tup
                     critic = Critic(input_dim=critic_input_dim, hidden_dim=hidden_dim,
                                     output_dim=n_domain, use_wgan=use_wgan)
                     name = 'critic_' + str(i)
