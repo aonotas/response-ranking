@@ -462,13 +462,13 @@ class MultiLingualConv(chainer.Chain):
                     self.critic_names.append(name)
 
                     if self.wgan_sep:
-                        critic = Critic(input_dim=critic_input_dim, hidden_dim=hidden_dim,
-                                        output_dim=n_domain, use_wgan=use_wgan)
-                        self.add_link('double_' + name, critic)
+                        critic_sep = Critic(input_dim=critic_input_dim, hidden_dim=hidden_dim,
+                                            output_dim=n_domain, use_wgan=use_wgan)
+                        self.add_link('double_' + name, critic_sep)
                         # self.critic_names.append('double_' + name)
 
                         critic_opt = optimizers.Adam(alpha=init_alpha_critic)
-                        critic_opt.setup(critic)
+                        critic_opt.setup(critic_sep)
                         self.opt_list_sep.append(critic_opt)
 
                     init_alpha_critic = 0.00005
