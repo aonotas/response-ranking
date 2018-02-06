@@ -367,7 +367,7 @@ def main():
         if args.analysis_mode:
             # analysis with 
             print('analysis_mode:')
-            
+            print 'test_n_agents:', test_n_agents.shape, test_n_agents
         test_samples = [test_contexts, test_contexts_length, test_responses, test_responses_length,
                         test_agents_ids, test_n_agents, test_binned_n_agents, test_y_adr, test_y_res, max_idx_test]
 
