@@ -478,7 +478,8 @@ def main():
         print 'after:', model.layer_response.W.data[0:10]
         # model.sentence_encoder.word_embed.W.data = pretrained.sentence_encoder.word_embed.W.data[:]
     
-    if args.load_trained_param != '':
+    eval_only_flag = args.load_trained_param != ''
+    if eval_only_flag:
         serializers.load_hdf5(args.load_trained_param, model)
 
     if args.gpu >= 0:
@@ -618,6 +619,21 @@ def main():
         return samples, y_domain, y_domain_count
 
     train_perms = [[] for i, lang in enumerate(languages_list)]
+    
+    if eval_only_flag:
+        # Evaluation for analysis
+        
+        for i, test_samples in enumerate(test_samples_list):
+            if args.skip_test and i == 0 and epoch + 1 not in acc_history[i]:
+                continue
+            lang = languages_list[i]
+            say('\n\n\r  TEST  ' + lang)
+            test_acc_both, test_acc_adr, test_acc_res = model.predict_all(
+                test_samples, domain_index=i)
+            print 'both:{} adr:{} res:{}'.format(test_acc_both, test_acc_adr, test_acc_res)
+        
+        return ''
+        
     for epoch in xrange(args.n_epoch):
         say('\n\n\nEpoch: %d' % (epoch + 1))
         say('\n  TRAIN  ')
