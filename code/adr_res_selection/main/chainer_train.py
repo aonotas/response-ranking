@@ -241,6 +241,9 @@ def main():
                         type=int, default=2500, help='concat_dev_limit')
     parser.add_argument('--num_critic', dest='num_critic',
                         type=int, default=5, help='num_critic')
+    
+    parser.add_argument('--load_trained_param', dest='load_trained_param', type=str, default='', help='load_trained_param')
+    parser.add_argument('--analysis_mode', dest='analysis_mode', type=int, default=0, help='analysis_mode')
     # en
     #  n_vocab = 176693
     # add_n_vocab = 24841
@@ -379,6 +382,9 @@ def main():
 
         model.sentence_encoder.word_embed.W.data = model_prev_W
 
+    eval_only_flag = args.load_trained_param != ''
+    if eval_only_flag:
+        serializers.load_hdf5(args.load_trained_param, model)
     if args.gpu >= 0:
         model.to_gpu()
 
@@ -437,6 +443,14 @@ def main():
                             grad *= 0
     if args.freeze_wordemb:
         opt.add_hook(DelGradient(['/sentence_encoder/word_embed/W']))
+
+    
+    if eval_only_flag:
+        chainer.config.train = False
+        say('\n\n\r  TEST  ')
+        test_acc_both, test_acc_adr, test_acc_res = model.predict_all(test_samples)
+        print 'both:{} adr:{} res:{}'.format(test_acc_both, test_acc_adr, test_acc_res)
+        return ''
 
     best_dev_acc_both = 0.
     unchanged = 0

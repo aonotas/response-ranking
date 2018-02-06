@@ -563,6 +563,8 @@ class MultiLingualConv(chainer.Chain):
 
                 # y_res_cpu = to_cpu(y_res)
                 # y_adr_cpu = to_cpu(y_adr)
+                # evaluator.update(binned_n_agents_cpu, 0., 0., to_cpu(
+                #     predict_a.data), to_cpu(predict_r.data), y_adr_cpu, y_res_cpu)
                 evaluator.update(n_agents_cpu, 0., 0., to_cpu(predict_a.data), to_cpu(predict_r.data), y_adr_cpu, y_res_cpu)
 
         # print 'len(dev_contexts):', len(dev_contexts)
