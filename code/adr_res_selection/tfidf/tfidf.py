@@ -146,9 +146,9 @@ def get_datasets(argv):
 
     # dataset: 1D: n_docs, 2D: n_utterances, 3D: elem=(time, speaker_id, addressee_id, response1, ... , label)
     say('\n\nLoad dataset...')
-    train_dataset, word_set = load_dataset(fn=argv.train_data, data_size=data_size)
-    dev_dataset, _ = load_dataset(fn=argv.dev_data, data_size=data_size)
-    test_dataset, _ = load_dataset(fn=argv.test_data, data_size=data_size)
+    train_dataset, word_set, _ = load_dataset(fn=argv.train_data, data_size=data_size)
+    dev_dataset, _, _ = load_dataset(fn=argv.dev_data, data_size=data_size)
+    test_dataset, _, _ = load_dataset(fn=argv.test_data, data_size=data_size)
 
     return train_dataset, dev_dataset, test_dataset, word_set
 
