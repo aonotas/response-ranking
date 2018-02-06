@@ -622,7 +622,7 @@ def main():
     
     if eval_only_flag:
         # Evaluation for analysis
-        
+        model.n_prev_sents = args.n_prev_sents
         for i, test_samples in enumerate(test_samples_list):
             model.i_index = i
             if args.skip_test and i == 0 and epoch + 1 not in acc_history[i]:
