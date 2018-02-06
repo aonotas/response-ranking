@@ -624,6 +624,7 @@ def main():
         # Evaluation for analysis
         
         for i, test_samples in enumerate(test_samples_list):
+            model.i_index = i
             if args.skip_test and i == 0 and epoch + 1 not in acc_history[i]:
                 continue
             lang = languages_list[i]
