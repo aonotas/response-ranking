@@ -24,7 +24,12 @@ class Evaluator(object):
 
     def update(self, n_agents, cost, g_norm, pred_a, pred_r, gold_a, gold_r):
         self.index += 1
-
+        max_n_agents = np.max(n_agents)
+        if self.results.shape[0] <= max_n_agents:
+            add_results = np.zeros((max_n_agents-self.results.shape[0], 4), dtype='float32')
+            new_results = np.concatenate([self.results, add_results], axis=1)
+            self.results = new_results
+            
         if pred_a is not None:
             crr_adr_vec = map(lambda x: 1 if x[0] == x[1] else 0, zip(pred_a, gold_a))
         else:
