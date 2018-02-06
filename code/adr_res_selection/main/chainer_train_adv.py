@@ -263,8 +263,8 @@ def main():
                         type=str, default='', help='skip_dev_id')
     parser.add_argument('--use_single_dev', dest='use_single_dev',
                         type=int, default=1, help='use_single_dev')
-    parser.add_argument('--load_trained_param', dest='load_trained_param',
-                        type=str, default='', help='load_trained_param')
+    parser.add_argument('--load_trained_param', dest='load_trained_param', type=str, default='', help='load_trained_param')
+    parser.add_argument('--analysis_mode', dest='analysis_mode', type=int, default=0, help='analysis_mode')
 
     # en
     #  n_vocab = 176693
@@ -363,7 +363,11 @@ def main():
         (test_contexts, test_contexts_length, test_responses,
          test_responses_length, test_agents_ids, test_n_agents,
          test_binned_n_agents, test_y_adr, test_y_res, max_idx_test) = ch_util.pre_process(test_samples, xp, is_test=True, batch=batchsize, n_prev_sents=args.n_prev_sents)
-
+        
+        if args.analysis_mode:
+            # analysis with 
+            print('analysis_mode:')
+            
         test_samples = [test_contexts, test_contexts_length, test_responses, test_responses_length,
                         test_agents_ids, test_n_agents, test_binned_n_agents, test_y_adr, test_y_res, max_idx_test]
 
@@ -623,6 +627,8 @@ def main():
     if eval_only_flag:
         # Evaluation for analysis
         model.n_prev_sents = args.n_prev_sents
+        chainer.config.train = False
+        model.compute_loss = False
         for i, test_samples in enumerate(test_samples_list):
             model.i_index = i
             if args.skip_test and i == 0 and epoch + 1 not in acc_history[i]:
