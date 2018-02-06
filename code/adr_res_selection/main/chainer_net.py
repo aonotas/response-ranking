@@ -546,7 +546,9 @@ class MultiLingualConv(chainer.Chain):
                 y_domain = self.xp.full((len(responses), ), domain_index, self.xp.int32)
 
                 responses_length = dev_responses_length[start:end][index:index + batchsize]
-                n_agents = to_gpu(dev_n_agents[start:end][index:index + batchsize])
+                # n_agents = to_gpu(dev_n_agents[start:end][index:index + batchsize])
+                n_agents_cpu = dev_n_agents[start:end][index:index + batchsize]
+                n_agents = to_gpu(n_agents_cpu)
                 binned_n_agents_cpu = dev_binned_n_agents[start:end][index:index + batchsize]
                 binned_n_agents = to_gpu(binned_n_agents_cpu)
                 y_adr_cpu = dev_y_adr[start:end][index:index + batchsize]
@@ -561,8 +563,7 @@ class MultiLingualConv(chainer.Chain):
 
                 # y_res_cpu = to_cpu(y_res)
                 # y_adr_cpu = to_cpu(y_adr)
-                evaluator.update(binned_n_agents_cpu, 0., 0., to_cpu(
-                    predict_a.data), to_cpu(predict_r.data), y_adr_cpu, y_res_cpu)
+                evaluator.update(n_agents_cpu, 0., 0., to_cpu(predict_a.data), to_cpu(predict_r.data), y_adr_cpu, y_res_cpu)
 
         # print 'len(dev_contexts):', len(dev_contexts)
         # print 'max_idx_dev:', max_idx_dev
