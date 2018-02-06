@@ -263,6 +263,8 @@ def main():
                         type=str, default='', help='skip_dev_id')
     parser.add_argument('--use_single_dev', dest='use_single_dev',
                         type=int, default=1, help='use_single_dev')
+    parser.add_argument('--load_trained_param', dest='load_trained_param',
+                        type=str, default='', help='load_trained_param')
 
     # en
     #  n_vocab = 176693
@@ -475,6 +477,9 @@ def main():
 
         print 'after:', model.layer_response.W.data[0:10]
         # model.sentence_encoder.word_embed.W.data = pretrained.sentence_encoder.word_embed.W.data[:]
+    
+    if args.load_trained_param != '':
+        serializers.load_hdf5(args.load_trained_param, model)
 
     if args.gpu >= 0:
         model.to_gpu()
