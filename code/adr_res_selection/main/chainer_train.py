@@ -499,8 +499,8 @@ def main():
                 loss_r = F.softmax_cross_entropy(dot_r, y_res, ignore_label=-1)
                 loss_a = F.softmax_cross_entropy(dot_a, y_adr, ignore_label=-1)
             else:
-                loss_r = F.softmax_cross_entropy(dot_r, y_res, ignore_label=-1, reduce='no')
-                loss_a = F.softmax_cross_entropy(dot_a, y_adr, ignore_label=-1, reduce='no')
+                loss_r = F.sum(F.softmax_cross_entropy(dot_r, y_res, ignore_label=-1, reduce='no'))
+                loss_a = F.sum(F.softmax_cross_entropy(dot_a, y_adr, ignore_label=-1, reduce='no'))
                 
             
             # true_p_a = dot_a[:, 0]
