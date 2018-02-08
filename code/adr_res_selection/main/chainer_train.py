@@ -366,7 +366,7 @@ def main():
 
     test_samples = [test_contexts, test_contexts_length, test_responses, test_responses_length,
                     test_agents_ids, test_n_agents, test_binned_n_agents, test_y_adr, test_y_res, max_idx_test]
-
+    import chainer_net
     from chainer_net import MultiLingualConv
 
     model = MultiLingualConv(args, n_vocab, init_emb=init_emb,
@@ -497,8 +497,25 @@ def main():
             loss_alpha = 0.5
             loss_r = F.softmax_cross_entropy(
                 dot_r, y_res, ignore_label=-1, normalize=args.normalize_loss)
-            loss_a = F.softmax_cross_entropy(
-                dot_a, y_adr, ignore_label=-1, normalize=args.normalize_loss)
+            # loss_a = F.softmax_cross_entropy(
+            #     dot_a, y_adr, ignore_label=-1, normalize=args.normalize_loss)
+            
+            true_p_a = dot_a[:, 0]
+            false_p_a = F.max(dot_a[:, 1:], axis=1)
+            loss_a = chainer_net.binary_cross_entropy(true_p_a, false_p_a)
+            # true_p_r = dot_r[:, y_res]
+            ## Theano
+            # mask = T.cast(T.neq(y_a, -1), theano.config.floatX)
+            # p_a_arranged = p_a.ravel()[y_a.ravel()]
+            # p_a_arranged = p_a_arranged.reshape((y_a.shape[0], y_a.shape[1]))
+            # p_a_arranged = p_a_arranged * mask
+            # 
+            # true_p_a = p_a_arranged[:, 0]
+            # false_p_a = T.max(p_a_arranged[:, 1:], axis=1)
+            # 
+            # true_p_r = p_r[T.arange(y_r.shape[0]), y_r]
+            # false_p_r = p_r[T.arange(y_r.shape[0]), 1 - y_r]
+            
             loss = loss_alpha * loss_r + (1 - loss_alpha) * loss_a
             sum_loss += loss.data
 

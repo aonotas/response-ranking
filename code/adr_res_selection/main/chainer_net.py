@@ -24,6 +24,9 @@ to_cpu = chainer.cuda.to_cpu
 to_gpu = chainer.cuda.to_gpu
 
 
+def binary_cross_entropy(y_p, n_p):
+    return - (F.sum(F.log1p(y_p)) + F.sum(F.log1p(1. - n_p)))
+
 class SentenceEncoderCNN(chainer.Chain):
 
     def __init__(self, emb_dim=100, window_size=3, hidden_dim=100,
