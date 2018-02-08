@@ -495,14 +495,17 @@ def main():
             dot_r, dot_a, predict_r, predict_a, y_res_pad, y_adr_pad = model(sample)
 
             loss_alpha = 0.5
-            loss_r = F.softmax_cross_entropy(
-                dot_r, y_res, ignore_label=-1, normalize=args.normalize_loss)
-            # loss_a = F.softmax_cross_entropy(
-            #     dot_a, y_adr, ignore_label=-1, normalize=args.normalize_loss)
+            if args.normalize_loss:
+                loss_r = F.softmax_cross_entropy(dot_r, y_res, ignore_label=-1)
+                loss_a = F.softmax_cross_entropy(dot_a, y_adr, ignore_label=-1)
+            else:
+                loss_r = F.softmax_cross_entropy(dot_r, y_res, ignore_label=-1, reduce='no')
+                loss_a = F.softmax_cross_entropy(dot_a, y_adr, ignore_label=-1, reduce='no')
+                
             
-            true_p_a = dot_a[:, 0]
-            false_p_a = F.max(dot_a[:, 1:], axis=1)
-            loss_a = chainer_net.binary_cross_entropy(true_p_a, false_p_a)
+            # true_p_a = dot_a[:, 0]
+            # false_p_a = F.max(dot_a[:, 1:], axis=1)
+            # loss_a = chainer_net.binary_cross_entropy(true_p_a, false_p_a)
             # true_p_r = dot_r[:, y_res]
             ## Theano
             # mask = T.cast(T.neq(y_a, -1), theano.config.floatX)
