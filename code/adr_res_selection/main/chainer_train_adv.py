@@ -526,7 +526,8 @@ def main():
                         with cuda.get_device(grad):
                             grad *= 0
     if args.freeze_wordemb:
-        opt.add_hook(DelGradient(['/sentence_encoder/word_embed/W']))
+        model.sentence_encoder.word_embed.W.update_rule.enabled = False
+        # opt.add_hook(DelGradient(['/sentence_encoder/word_embed/W']))
 
     max_domain_idx = np.argsort([size for size in train_sizes])[-1]
     min_domain_idx = np.argsort([size for size in train_sizes])[0]
