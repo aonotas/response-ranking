@@ -635,11 +635,20 @@ def main():
             if args.skip_test and i == 0 and epoch + 1 not in acc_history[i]:
                 continue
             lang = languages_list[i]
+            result_filename = './results/' + argv.output_fn + '_' + lang + '.txt'
+            f = open(result_filename, 'w')
             say('\n\n\r  TEST  ' + lang)
             test_acc_both, test_acc_adr, test_acc_res = model.predict_all(
                 test_samples, domain_index=i)
             print 'both:{} adr:{} res:{}'.format(test_acc_both, test_acc_adr, test_acc_res)
-        
+            
+            adr_histry = ','.join(map(str, model.adr_histry))
+            res_histry = ','.join(map(str,model.res_histry))
+            both_histry = ','.join(map(str,model.both_histry))
+            f.write(adr_histry + '\n')
+            f.write(res_histry + '\n')
+            f.write(both_histry + '\n')
+            f.close()
         return ''
         
     for epoch in xrange(args.n_epoch):

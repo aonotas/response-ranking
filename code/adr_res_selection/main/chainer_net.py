@@ -579,6 +579,9 @@ class MultiLingualConv(chainer.Chain):
         f(iteration_list, 1, start=0, end=len(dev_contexts) + 1)
 
         evaluator.show_results()
+        self.adr_histry = evaluator.adr_histry
+        self.res_histry = evaluator.res_histry
+        self.both_histry = evaluator.both_histry
 
         self.n_prev_sents = self.args.n_prev_sents
 

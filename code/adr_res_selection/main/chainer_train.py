@@ -404,6 +404,15 @@ def main():
         test_acc_both, test_acc_adr, test_acc_res = model.predict_all(test_samples)
         acc_history[epoch].append((test_acc_both, test_acc_adr, test_acc_res))
 
+        result_filename = './results/' + argv.output_fn + '_' + lang + '.txt'
+        f = open(result_filename, 'w')
+        adr_histry = ','.join(map(str, model.adr_histry))
+        res_histry = ','.join(map(str,model.res_histry))
+        both_histry = ','.join(map(str,model.both_histry))
+        f.write(adr_histry + '\n')
+        f.write(res_histry + '\n')
+        f.write(both_histry + '\n')
+        f.close()
         #####################
         # Show best results #
         #####################
